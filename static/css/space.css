@@ -1,33 +1,43 @@
-/* Space Theme — Battle Bracket Wheels */
+/* Space Theme — Battle Bracket Wheels
+   =======================================
+   CSS-only starfield, glassmorphism panels, neon accents.
+   Total: ~8KB, zero images, no JS.
+   ======================================= */
 
-/* Twinkling star effect */
+/* ===== Animation Keyframes ===== */
+
 @keyframes twinkle {
-    0%, 100% { opacity: 0.3; }
+    0%, 100% { opacity: 0.15; }
     50% { opacity: 1; }
 }
 
+@keyframes twinkle-slow {
+    0%, 100% { opacity: 0.1; }
+    50% { opacity: 0.6; }
+}
+
 @keyframes meteor {
-    0% {
-        transform: translateX(-100%) translateY(-100%);
-        opacity: 1;
-    }
-    100% {
-        transform: translateX(100vw) translateY(100vh);
-        opacity: 0;
-    }
+    0% { transform: translateX(-100%) translateY(-100%); opacity: 1; }
+    100% { transform: translateX(100vw) translateY(100vh); opacity: 0; }
 }
 
-/* Cosmic glow effect */
 @keyframes cosmic-glow {
-    0%, 100% {
-        box-shadow: 0 0 20px rgba(100, 150, 255, 0.2);
-    }
-    50% {
-        box-shadow: 0 0 40px rgba(100, 150, 255, 0.4);
-    }
+    0%, 100% { box-shadow: 0 0 20px rgba(100, 150, 255, 0.2); }
+    50% { box-shadow: 0 0 40px rgba(100, 150, 255, 0.4); }
 }
 
-/* Space color palette */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.03); opacity: 0.92; }
+}
+
+@keyframes border-glow {
+    0%, 100% { border-color: rgba(0, 255, 245, 0.3); }
+    50% { border-color: rgba(0, 255, 245, 0.7); }
+}
+
+/* ===== CSS Custom Properties (Theme Tokens) ===== */
+
 :root {
     --space-deep: #0a0a2e;
     --space-mid: #1a1a4e;
@@ -37,5 +47,580 @@
     --star-gold: #ffd700;
     --nebula-purple: #6a4c93;
     --cosmic-teal: #4cc9f0;
+    --neon-cyan: #00fff5;
+    --neon-magenta: #ff00ff;
+    --neon-gold: #ffd700;
     --bracket-border: rgba(100, 150, 255, 0.3);
+    --breakpoint-tablet: 1024px;
+    --cosmic-bg: rgba(10, 10, 46, 0.75);
+    --cosmic-border: rgba(100, 150, 255, 0.2);
+    --cosmic-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --glass-blur: blur(12px);
+    --neon-text-cyan: 0 0 7px var(--neon-cyan), 0 0 14px var(--neon-cyan), 0 0 28px var(--neon-cyan);
+    --neon-text-magenta: 0 0 7px var(--neon-magenta), 0 0 14px var(--neon-magenta), 0 0 28px var(--neon-magenta);
+    --neon-text-gold: 0 0 7px var(--neon-gold), 0 0 14px var(--neon-gold), 0 0 28px var(--neon-gold);
+}
+
+/* ===== Base Styles ===== */
+
+body {
+    margin: 0;
+    padding: 0;
+    background: var(--space-deep);
+    color: #e0e0ff;
+    font-family: 'Courier New', 'Courier', monospace;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* ===== CSS-Only Starfield ===== */
+/* Layer 1: Radial-gradient sparse bright stars + larger colored stars */
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+        /* Tiny white stars */
+        radial-gradient(1px 1px at 2% 5%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 8% 15%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 15% 3%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 22% 18%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 28% 8%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 35% 25%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 42% 12%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 48% 30%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 55% 7%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 62% 22%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 68% 35%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 75% 15%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 82% 28%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 88% 10%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 95% 32%, #fff 100%, transparent),
+        /* Blue medium stars */
+        radial-gradient(1.5px 1.5px at 5% 40%, #aaccff 100%, transparent),
+        radial-gradient(1.5px 1.5px at 18% 55%, #aaccff 100%, transparent),
+        radial-gradient(1.5px 1.5px at 32% 70%, #aaccff 100%, transparent),
+        radial-gradient(1.5px 1.5px at 45% 45%, #aaccff 100%, transparent),
+        radial-gradient(1.5px 1.5px at 58% 60%, #aaccff 100%, transparent),
+        radial-gradient(1.5px 1.5px at 72% 75%, #aaccff 100%, transparent),
+        radial-gradient(1.5px 1.5px at 85% 50%, #aaccff 100%, transparent),
+        radial-gradient(1.5px 1.5px at 92% 80%, #aaccff 100%, transparent),
+        /* Gold bright stars */
+        radial-gradient(2px 2px at 10% 85%, #ffd700 100%, transparent),
+        radial-gradient(2px 2px at 25% 90%, #ffd700 100%, transparent),
+        radial-gradient(2px 2px at 50% 95%, #ffd700 100%, transparent),
+        radial-gradient(2px 2px at 70% 88%, #ffd700 100%, transparent),
+        radial-gradient(2px 2px at 90% 92%, #ffd700 100%, transparent),
+        /* Purple nebula hints */
+        radial-gradient(3px 3px at 20% 60%, #6a4c93 100%, transparent),
+        radial-gradient(3px 3px at 80% 30%, #6a4c93 100%, transparent),
+        radial-gradient(2px 2px at 40% 80%, #4cc9f0 100%, transparent),
+        radial-gradient(2px 2px at 60% 20%, #4cc9f0 100%, transparent);
+    background-size: 250px 250px;
+    animation: twinkle 4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Layer 2: Dense starfield via box-shadow multi-star technique */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    background: transparent;
+    border-radius: 50%;
+    box-shadow:
+        /* White stars - column 1 */
+        15px 22px 0 0 #fff, 42px 67px 0 0 #fff, 78px 35px 0 0 #fff,
+        110px 88px 0 0 #fff, 145px 12px 0 0 #fff, 180px 55px 0 0 #fff,
+        210px 95px 0 0 #fff, 250px 30px 0 0 #fff, 290px 75px 0 0 #fff,
+        320px 15px 0 0 #fff, 360px 60px 0 0 #fff, 400px 40px 0 0 #fff,
+        440px 82px 0 0 #fff, 480px 28px 0 0 #fff, 520px 70px 0 0 #fff,
+        560px 18px 0 0 #fff, 600px 92px 0 0 #fff, 640px 45px 0 0 #fff,
+        680px 8px 0 0 #fff, 720px 72px 0 0 #fff, 760px 33px 0 0 #fff,
+        800px 66px 0 0 #fff, 840px 20px 0 0 #fff, 880px 85px 0 0 #fff,
+        920px 55px 0 0 #fff, 960px 10px 0 0 #fff, 1000px 78px 0 0 #fff,
+        1040px 38px 0 0 #fff, 1080px 25px 0 0 #fff, 1120px 90px 0 0 #fff,
+        1160px 48px 0 0 #fff, 1200px 62px 0 0 #fff,
+        /* Blue stars */
+        8px 42px 0 0 #aaccff, 55px 90px 0 0 #aaccff, 95px 48px 0 0 #aaccff,
+        130px 15px 0 0 #aaccff, 170px 80px 0 0 #aaccff, 200px 42px 0 0 #aaccff,
+        240px 88px 0 0 #aaccff, 280px 55px 0 0 #aaccff, 310px 25px 0 0 #aaccff,
+        350px 72px 0 0 #aaccff, 390px 38px 0 0 #aaccff, 430px 95px 0 0 #aaccff,
+        470px 50px 0 0 #aaccff, 510px 12px 0 0 #aaccff, 550px 65px 0 0 #aaccff,
+        590px 30px 0 0 #aaccff, 630px 82px 0 0 #aaccff, 670px 22px 0 0 #aaccff,
+        710px 58px 0 0 #aaccff, 750px 88px 0 0 #aaccff, 790px 15px 0 0 #aaccff,
+        830px 68px 0 0 #aaccff, 870px 35px 0 0 #aaccff, 910px 75px 0 0 #aaccff,
+        950px 28px 0 0 #aaccff, 990px 60px 0 0 #aaccff, 1030px 18px 0 0 #aaccff,
+        1070px 85px 0 0 #aaccff, 1110px 45px 0 0 #aaccff, 1150px 72px 0 0 #aaccff,
+        1190px 8px 0 0 #aaccff,
+        /* Gold stars */
+        20px 58px 0 0 #ffd700, 65px 20px 0 0 #ffd700, 105px 72px 0 0 #ffd700,
+        160px 45px 0 0 #ffd700, 220px 10px 0 0 #ffd700, 270px 80px 0 0 #ffd700,
+        330px 50px 0 0 #ffd700, 380px 16px 0 0 #ffd700, 420px 68px 0 0 #ffd700,
+        480px 35px 0 0 #ffd700, 540px 85px 0 0 #ffd700, 600px 22px 0 0 #ffd700,
+        660px 62px 0 0 #ffd700, 700px 40px 0 0 #ffd700, 760px 90px 0 0 #ffd700,
+        820px 55px 0 0 #ffd700, 880px 12px 0 0 #ffd700, 940px 78px 0 0 #ffd700,
+        1000px 32px 0 0 #ffd700, 1060px 70px 0 0 #ffd700, 1120px 25px 0 0 #ffd700,
+        1180px 82px 0 0 #ffd700;
+    animation: twinkle-slow 6s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ===== Cosmic Panels (Glassmorphism) ===== */
+
+.container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.cosmic-panel {
+    background: var(--cosmic-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--cosmic-border);
+    border-radius: 16px;
+    box-shadow: var(--cosmic-shadow);
+    padding: 1.5rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cosmic-panel:hover {
+    border-color: rgba(100, 150, 255, 0.4);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(100, 150, 255, 0.1);
+}
+
+/* ===== Neon Text Accents ===== */
+
+h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: var(--neon-gold);
+    text-shadow: var(--neon-text-gold);
+    margin-bottom: 2rem;
+}
+
+.neon-cyan {
+    color: var(--neon-cyan);
+    text-shadow: var(--neon-text-cyan);
+}
+
+.neon-magenta {
+    color: var(--neon-magenta);
+    text-shadow: var(--neon-text-magenta);
+}
+
+.neon-gold {
+    color: var(--neon-gold);
+    text-shadow: var(--neon-text-gold);
+}
+
+/* ===== Hero Movie Result ===== */
+
+.movie-hero {
+    font-size: 2rem;
+    color: var(--neon-gold);
+    text-shadow: var(--neon-text-gold);
+    text-align: center;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.movie-result {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(255, 215, 0, 0.08);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+}
+
+/* ===== Themed Battle Buttons ===== */
+
+.neon-button {
+    background: linear-gradient(135deg, var(--cosmic-teal), var(--nebula-purple));
+    border: 1px solid var(--neon-cyan);
+    color: #fff;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 12px rgba(0, 255, 245, 0.2);
+    transition: all 0.3s ease;
+    animation: border-glow 3s ease-in-out infinite;
+}
+
+.neon-button:hover {
+    box-shadow: 0 0 20px rgba(0, 255, 245, 0.5), 0 0 40px rgba(0, 255, 245, 0.2);
+    transform: translateY(-2px) scale(1.02);
+    border-color: var(--neon-cyan);
+    background: linear-gradient(135deg, var(--neon-cyan), #8a5cf5);
+}
+
+.neon-button:disabled,
+.battle-btn:disabled {
+    background: rgba(60, 60, 100, 0.5);
+    border-color: rgba(100, 100, 160, 0.3);
+    box-shadow: none;
+    color: rgba(150, 150, 200, 0.5);
+    cursor: not-allowed;
+    animation: none;
+    transform: none;
+}
+
+.neon-button:disabled:hover,
+.battle-btn:disabled:hover {
+    box-shadow: none;
+    transform: none;
+    background: rgba(60, 60, 100, 0.5);
+}
+
+/* Spin button (slot form button) */
+.slot form button {
+    background: linear-gradient(135deg, rgba(76, 201, 240, 0.4), rgba(106, 76, 147, 0.4));
+    border: 1px solid rgba(76, 201, 240, 0.4);
+    color: var(--cosmic-teal);
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    transition: all 0.25s ease;
+}
+
+.slot form button:hover {
+    background: linear-gradient(135deg, rgba(76, 201, 240, 0.6), rgba(106, 76, 147, 0.6));
+    box-shadow: 0 0 10px rgba(76, 201, 240, 0.3);
+    border-color: var(--neon-cyan);
+    color: #fff;
+}
+
+.slot form button.add-option {
+    background: linear-gradient(135deg, rgba(76, 201, 240, 0.3), rgba(106, 76, 147, 0.3));
+    border-color: rgba(76, 201, 240, 0.3);
+}
+
+/* ===== Bracket Layout (CSS Grid) ===== */
+
+.bracket {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--cosmic-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--cosmic-border);
+    border-radius: 16px;
+    box-shadow: var(--cosmic-shadow);
+    animation: cosmic-glow 4s ease-in-out infinite;
+}
+
+.bracket-sf,
+.bracket-final {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 1.5rem;
+    margin-top: 1.25rem;
+    background: var(--cosmic-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--cosmic-border);
+    border-radius: 16px;
+    box-shadow: var(--cosmic-shadow);
+}
+
+.bracket-final {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* ===== Bracket Connectors ===== */
+
+.bracket-connector {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--nebula-purple), var(--neon-magenta), transparent);
+    box-shadow: 0 0 8px var(--neon-cyan), 0 0 15px rgba(106, 76, 147, 0.3);
+    border: none;
+    margin: 0.75rem auto;
+    max-width: 80%;
+    opacity: 0.7;
+    border-radius: 2px;
+}
+
+/* ===== Themed Slots (Wheel Containers) ===== */
+
+.slot {
+    background: rgba(15, 15, 50, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(100, 150, 255, 0.3);
+    border-radius: 12px;
+    padding: 1.25rem;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: var(--star-blue);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.slot:hover {
+    border-color: rgba(0, 255, 245, 0.5);
+    box-shadow: 0 0 20px rgba(0, 255, 245, 0.15);
+    transform: translateY(-2px);
+}
+
+.slot svg {
+    width: 100%;
+    height: auto;
+    max-height: 150px;
+}
+
+.slot form {
+    display: flex;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.slot form input {
+    background: rgba(10, 10, 46, 0.9);
+    border: 1px solid rgba(100, 150, 255, 0.3);
+    color: #e0e0ff;
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    flex: 1;
+    min-width: 60px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.slot form input:focus {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 8px rgba(0, 255, 245, 0.2);
+    outline: none;
+}
+
+.slot ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0;
+    font-size: 0.75rem;
+    width: 100%;
+}
+
+.slot ul li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.2rem 0;
+    border-bottom: 1px solid rgba(100, 150, 255, 0.1);
+}
+
+.slot ul li button {
+    background: none;
+    border: none;
+    color: #ff6b6b;
+    cursor: pointer;
+    padding: 0 0.25rem;
+    font-size: 0.85rem;
+    transition: color 0.2s ease;
+}
+
+.slot ul li button:hover {
+    color: #ff4444;
+    text-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
+}
+
+/* ===== Themed Wheel SVG Slices ===== */
+
+.wheel-slice {
+    cursor: pointer;
+    stroke: var(--space-deep);
+    stroke-width: 1;
+    transition: opacity 0.3s ease;
+}
+
+.wheel-slice:nth-child(odd) {
+    fill: rgba(100, 150, 255, 0.5);
+}
+
+.wheel-slice:nth-child(even) {
+    fill: rgba(255, 215, 0, 0.4);
+}
+
+/* Space-colored arc variations based on option index
+   (applied dynamically via nth-child color pattern) */
+.wheel-slice:nth-child(4n+1) {
+    fill: rgba(76, 201, 240, 0.45);
+}
+.wheel-slice:nth-child(4n+2) {
+    fill: rgba(106, 76, 147, 0.45);
+}
+.wheel-slice:nth-child(4n+3) {
+    fill: rgba(255, 215, 0, 0.35);
+}
+.wheel-slice:nth-child(4n+4) {
+    fill: rgba(0, 255, 245, 0.35);
+}
+
+.wheel-slice:hover {
+    opacity: 0.85;
+    stroke: var(--neon-cyan);
+    stroke-width: 2;
+}
+
+/* ===== Placeholder Text ===== */
+
+.slot-placeholder {
+    color: #5555aa;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* ===== Footer ===== */
+
+footer {
+    text-align: center;
+    margin-top: 2rem;
+    color: #5555aa;
+    font-size: 0.8rem;
+}
+
+footer p {
+    margin: 0;
+    padding: 0.5rem;
+}
+
+/* ===== Match Result ===== */
+
+.match-result {
+    background: rgba(15, 15, 50, 0.85);
+    border: 1px solid rgba(100, 150, 255, 0.25);
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--star-blue);
+}
+
+.match-result p {
+    margin: 0.25rem 0;
+}
+
+/* ===== Responsive Breakpoints ===== */
+
+/* Tablet: stack bracket into 2 columns, condense spacing */
+@media (max-width: 1024px) {
+    .container {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .bracket {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .bracket-sf {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .bracket-final {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .slot {
+        padding: 0.75rem;
+        min-height: 80px;
+        font-size: 0.95rem;
+    }
+
+    .slot svg {
+        max-height: 100px;
+    }
+
+    .movie-hero {
+        font-size: 1.5rem;
+    }
+
+    .bracket-connector {
+        max-width: 90%;
+        margin: 0.5rem auto;
+    }
+
+    .neon-button {
+        font-size: 0.85rem;
+        padding: 0.4rem 1rem;
+    }
+}
+
+/* Mobile: full stack */
+@media (max-width: 640px) {
+    .container {
+        padding: 0.75rem;
+    }
+
+    h1 {
+        font-size: 1.4rem;
+    }
+
+    .bracket {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .bracket-sf {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .bracket-final {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .slot {
+        padding: 0.5rem;
+        min-height: 60px;
+        font-size: 0.85rem;
+    }
+
+    .slot svg {
+        max-height: 80px;
+    }
+
+    .movie-hero {
+        font-size: 1.25rem;
+    }
 }
