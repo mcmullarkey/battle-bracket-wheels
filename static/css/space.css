@@ -17,8 +17,8 @@
 }
 
 @keyframes meteor {
-    0% { transform: translateX(-100%) translateY(-100%); opacity: 1; }
-    100% { transform: translateX(100vw) translateY(100vh); opacity: 0; }
+    0% { left: -120px; top: -20px; opacity: 1; }
+    100% { left: 110%; top: 110%; opacity: 0; }
 }
 
 @keyframes cosmic-glow {
@@ -602,30 +602,40 @@ footer p {
     font-size: 0.85rem;
     box-shadow: var(--cosmic-shadow);
     transition: border-color 0.3s ease;
+    overflow: hidden;
 }
 
 .match-result:hover {
     border-color: rgba(100, 150, 255, 0.4);
 }
 
-/* Meteor streak pseudo-element — wired from unused @keyframes meteor */
+/* Meteor streak pseudo-elements — wired from unused @keyframes meteor */
+.match-result::before,
 .match-result::after {
     content: '';
     position: absolute;
-    top: 2px;
-    left: 0;
-    width: 3px;
+    left: -120px;
+    top: -20px;
+    width: 120px;
     height: 3px;
-    background: var(--neon-cyan);
-    border-radius: 50%;
-    box-shadow: 0 0 6px var(--neon-cyan), 0 0 12px var(--neon-cyan), 0 0 20px var(--neon-cyan);
-    animation: meteor 5s linear infinite;
+    background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 245, 0.7) 55%, #ffffff 100%);
+    border-radius: 2px;
+    box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan), 0 0 34px rgba(0, 255, 245, 0.6);
+    transform: rotate(-20deg);
+    animation: meteor 3s linear infinite;
     pointer-events: none;
-    z-index: 1;
+    z-index: 0;
+    opacity: 0.95;
+}
+
+.match-result::after {
+    animation-delay: 1.5s;
 }
 
 /* Winner — neon gold glow */
 .match-winner {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     gap: 0.4rem;
@@ -644,6 +654,8 @@ footer p {
 
 /* Loser — dimmed/muted */
 .match-loser {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     gap: 0.4rem;
@@ -658,6 +670,8 @@ footer p {
 
 /* Ties text */
 .match-ties {
+    position: relative;
+    z-index: 1;
     margin-top: 0.3rem;
     font-size: 0.75rem;
     color: var(--star-blue);
