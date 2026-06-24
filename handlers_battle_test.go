@@ -8,10 +8,19 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strings"
+	"sync"
 	"testing"
 
 	"battle-bracket-wheels/internal/wheel"
 )
+
+// tieSource is a deterministic rand.Source that always returns 0 from Int63.
+// This causes wheel.Spin to select the first option and ResolveBattle to
+// always tie, making it useful for testing tiebreaker exhaustion.
+type tieSource struct{}
+
+func (tieSource) Int63() int64  { return 0 }
+func (tieSource) Seed(seed int64) {}
 
 // battleTestServer creates a test server with deterministic rand and battle handler.
 // Returns the server, template, and store (for state inspection in tests).
@@ -462,6 +471,132 @@ func TestBattleHandler_PostBattleStoreState(t *testing.T) {
 	}
 	if !resolved {
 		t.Error("match qf1 not marked as resolved in store")
+	}
+}
+
+func TestBattleHandler_ConcurrentResolve(t *testing.T) {
+	ts, _, store := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// Add options to both wheels (QF1 = wheel 0 vs wheel 1)
+	addOptionToWheel(t, ts, sessionID, "0", "A")
+	addOptionToWheel(t, ts, sessionID, "1", "B")
+
+	// Fire N goroutines simultaneously at the same matchID
+	const goroutines = 10
+	statusCodes := make(chan int, goroutines)
+	var ready sync.WaitGroup
+	start := make(chan struct{})
+
+	for range goroutines {
+		ready.Add(1)
+		go func() {
+			ready.Done()
+			<-start
+			req, err := http.NewRequest(http.MethodPost, ts.URL+"/battle/qf1", nil)
+			if err != nil {
+				return
+			}
+			req.AddCookie(&http.Cookie{Name: "bbw_session", Value: sessionID})
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				return
+			}
+			resp.Body.Close()
+			statusCodes <- resp.StatusCode
+		}()
+	}
+
+	// Wait for all goroutines to be ready, then release them simultaneously
+	ready.Wait()
+	close(start)
+
+	// Collect all responses
+	results := make([]int, 0, goroutines)
+	for range goroutines {
+		results = append(results, <-statusCodes)
+	}
+
+	// Count results: exactly one 200, N-1 409s
+	var ok200, conflict409 int
+	for _, code := range results {
+		switch code {
+		case http.StatusOK:
+			ok200++
+		case http.StatusConflict:
+			conflict409++
+		default:
+			t.Errorf("unexpected status %d", code)
+		}
+	}
+
+	if ok200 != 1 {
+		t.Errorf("got %d 200 responses, want 1", ok200)
+	}
+	if conflict409 != goroutines-1 {
+		t.Errorf("got %d 409 responses, want %d", conflict409, goroutines-1)
+	}
+
+	// Verify store has exactly one resolved match (winner absorbed loser's option)
+	var wh0, wh1 wheel.Wheel
+	err := store.View(sessionID, func(s *Session) error {
+		wh0 = s.Wheels[0]
+		wh1 = s.Wheels[1]
+		if !s.ResolvedMatches["qf1"] {
+			t.Error("match qf1 not marked as resolved in store")
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("store.View: %v", err)
+	}
+
+	// One wheel should have absorbed the other's option (2 options),
+	// the other wheel should still have 1 option
+	if len(wh0.Options) != 2 && len(wh1.Options) != 2 {
+		t.Errorf("neither wheel has 2 options: wh0=%d, wh1=%d", len(wh0.Options), len(wh1.Options))
+	}
+	if len(wh0.Options) != 1 && len(wh1.Options) != 1 {
+		t.Errorf("neither wheel has 1 option: wh0=%d, wh1=%d", len(wh0.Options), len(wh1.Options))
+	}
+}
+
+// TestBattleHandler_TiebreakerExhaustion verifies that when the RollFunc
+// always ties, the handler returns 500 with the correct error message.
+func TestBattleHandler_TiebreakerExhaustion(t *testing.T) {
+	store := NewStore()
+	tmpl := testBattleTemplate(t)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/health", healthHandler)
+	mux.Handle("POST /wheel/{id}/option", sessionMiddleware(store, addOptionHandler(store, tmpl)))
+	mux.Handle("POST /battle/{matchID}", sessionMiddleware(store, battleHandler(store, tmpl, func() rand.Source {
+		return tieSource{}
+	})))
+	mux.Handle("/", sessionMiddleware(store, homeHandler(store, tmpl)))
+	ts := httptest.NewServer(mux)
+	t.Cleanup(ts.Close)
+
+	sessionID := getSessionCookie(t, ts)
+
+	// Add options to both wheels
+	addOptionToWheel(t, ts, sessionID, "0", "A")
+	addOptionToWheel(t, ts, sessionID, "1", "B")
+
+	// POST /battle/qf1 — tieSource causes constant ties
+	req, err := http.NewRequest(http.MethodPost, ts.URL+"/battle/qf1", nil)
+	if err != nil {
+		t.Fatalf("creating battle request: %v", err)
+	}
+	req.AddCookie(&http.Cookie{Name: "bbw_session", Value: sessionID})
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("POST /battle/qf1: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Errorf("status = %d, want 500", resp.StatusCode)
 	}
 }
 

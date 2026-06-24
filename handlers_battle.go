@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -57,98 +58,92 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 		}
 		idxA, idxB := indices[0], indices[1]
 
-		// Check match resolved state atomically under write lock, loading wheels
-		// only if the match is not yet resolved (closes TOCTOU window).
+		// Perform ALL battle logic atomically under a single write lock:
+		// check → load → spin → resolve → absorb → mark-resolved.
+		// One closure, no window between check and write (closes TOCTOU race).
 		var whA, whB wheel.Wheel
 		var alreadyResolved bool
-		err := store.Update(sessionID, func(s *Session) error {
+		var emptyWheel bool
+		var resultA, resultB wheel.SpinResult
+		var battleResult battle.BattleResult
+
+		updateErr := store.Update(sessionID, func(s *Session) error {
 			if s.ResolvedMatches[matchID] {
 				alreadyResolved = true
 				return nil
 			}
+
 			whA = s.Wheels[idxA]
 			whB = s.Wheels[idxB]
+
+			if len(whA.Options) == 0 || len(whB.Options) == 0 {
+				emptyWheel = true
+				return nil
+			}
+
+			var spinErr error
+			resultA, spinErr = wheel.Spin(whA, newSource())
+			if spinErr != nil {
+				return fmt.Errorf("spin error on wheel %s: %w", whA.ID, spinErr)
+			}
+			resultB, spinErr = wheel.Spin(whB, newSource())
+			if spinErr != nil {
+				return fmt.Errorf("spin error on wheel %s: %w", whB.ID, spinErr)
+			}
+
+			rng := rand.New(newSource())
+			rollFunc := func() int {
+				return rng.Intn(100) + 1
+			}
+
+			var resolveErr error
+			battleResult, resolveErr = battle.ResolveBattle(
+				resultA.Option, resultB.Option,
+				whA.ID, whB.ID,
+				rollFunc, 100,
+			)
+			if resolveErr != nil {
+				return resolveErr
+			}
+
+			// Determine which wheel won and absorb the loser's landed option
+			var absorbedWheel wheel.Wheel
+			if battleResult.WinnerID == whA.ID {
+				absorbedWheel = battle.AbsorbOption(whA, resultB.Option)
+			} else {
+				absorbedWheel = battle.AbsorbOption(whB, resultA.Option)
+			}
+
+			// Write result under the same lock
+			if battleResult.WinnerID == whA.ID {
+				s.Wheels[idxA] = absorbedWheel
+			} else {
+				s.Wheels[idxB] = absorbedWheel
+			}
+			s.ResolvedMatches[matchID] = true
+
 			return nil
 		})
-		if err != nil {
-			if errors.Is(err, ErrSessionNotFound) {
+
+		if updateErr != nil {
+			if errors.Is(updateErr, ErrSessionNotFound) {
 				writeJSONError(w, http.StatusUnauthorized, "session not found")
-			} else {
-				writeJSONError(w, http.StatusInternalServerError, "internal error")
+				return
 			}
+			if errors.Is(updateErr, battle.ErrTiebreakerExhausted) {
+				writeJSONError(w, http.StatusInternalServerError, "tiebreaker exhausted")
+				return
+			}
+			log.Printf("battle error: %v", updateErr)
+			writeJSONError(w, http.StatusInternalServerError, "battle error")
 			return
 		}
 		if alreadyResolved {
 			writeJSONError(w, http.StatusConflict, "match already resolved")
 			return
 		}
-
-		// Validate both wheels have options
-		if len(whA.Options) == 0 || len(whB.Options) == 0 {
+		if emptyWheel {
 			writeJSONError(w, http.StatusUnprocessableEntity, "both wheels must have at least one option")
-			return
-		}
-
-		// Spin both wheels independently
-		resultA, err := wheel.Spin(whA, newSource())
-		if err != nil {
-			log.Printf("spin error on wheel %s: %v", whA.ID, err)
-			writeJSONError(w, http.StatusInternalServerError, "spin error")
-			return
-		}
-		resultB, err := wheel.Spin(whB, newSource())
-		if err != nil {
-			log.Printf("spin error on wheel %s: %v", whB.ID, err)
-			writeJSONError(w, http.StatusInternalServerError, "spin error")
-			return
-		}
-
-		// Create RollFunc backed by the injected crypto source
-		rng := rand.New(newSource())
-		rollFunc := func() int {
-			return rng.Intn(100) + 1
-		}
-
-		// Resolve the battle
-		battleResult, err := battle.ResolveBattle(
-			resultA.Option, resultB.Option,
-			whA.ID, whB.ID,
-			rollFunc, 100,
-		)
-		if err != nil {
-			if errors.Is(err, battle.ErrTiebreakerExhausted) {
-				writeJSONError(w, http.StatusInternalServerError, "tiebreaker exhausted")
-			} else {
-				log.Printf("battle resolution error: %v", err)
-				writeJSONError(w, http.StatusInternalServerError, "battle resolution error")
-			}
-			return
-		}
-
-		// Determine which wheel won and absorb the loser's landed option
-		var absorbedWheel wheel.Wheel
-		var absorbedIdx int
-		if battleResult.WinnerID == whA.ID {
-			absorbedWheel = battle.AbsorbOption(whA, resultB.Option)
-			absorbedIdx = idxA
-		} else {
-			absorbedWheel = battle.AbsorbOption(whB, resultA.Option)
-			absorbedIdx = idxB
-		}
-
-		// Save the updated wheel and mark match as resolved
-		err = store.Update(sessionID, func(s *Session) error {
-			s.Wheels[absorbedIdx] = absorbedWheel
-			s.ResolvedMatches[matchID] = true
-			return nil
-		})
-		if err != nil {
-			if errors.Is(err, ErrSessionNotFound) {
-				writeJSONError(w, http.StatusUnauthorized, "session not found")
-			} else {
-				log.Printf("session update error: %v", err)
-				writeJSONError(w, http.StatusInternalServerError, "internal error")
-			}
 			return
 		}
 
