@@ -297,9 +297,9 @@ func TestIndex_EightSlots(t *testing.T) {
 	body := string(buf[:n])
 
 	for i := 0; i < 8; i++ {
-		wheelID := fmt.Sprintf("wheel-%d", i)
-		if !strings.Contains(body, `id="`+wheelID+`"`) {
-			t.Errorf("response missing id=%q", wheelID)
+		scopedID := fmt.Sprintf("wheel-slot-%d-%d", i+1, i)
+		if !strings.Contains(body, `id="`+scopedID+`"`) {
+			t.Errorf("response missing id=%q", scopedID)
 		}
 	}
 }

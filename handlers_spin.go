@@ -63,9 +63,11 @@ func spinHandler(store *Store, renderer Renderer, newSource func() rand.Source) 
 		// Set HX-Trigger header for client-side spin animation.
 		// HTMX will fire a "spin-wheel" custom event with this detail
 		// on the target element after the swap.
+		slotID := slotIDFromWheelIdx(wheelIdx)
 		triggerData := map[string]interface{}{
 			"spin-wheel": map[string]interface{}{
 				"wheelID":     wh.ID,
+				"slotID":      slotID,
 				"targetIndex": result.Index,
 				"targetAngle": result.TargetAngle,
 			},
@@ -79,7 +81,7 @@ func spinHandler(store *Store, renderer Renderer, newSource func() rand.Source) 
 		w.Header().Set("HX-Trigger", string(triggerJSON))
 
 		// Render the wheel fragment (same as option CRUD handlers)
-		view := wheelViewFromWheel(wh)
+		view := wheelViewFromWheel(wh, slotID)
 		renderWheelFragment(w, renderer, view)
 	}
 }

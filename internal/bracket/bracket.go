@@ -84,17 +84,19 @@ func New(wheels [8]wheel.Wheel) *Bracket {
 // battle result and the two participating wheels. It performs dependency gating
 // (required input slots must be filled), idempotency gating (target slot must
 // be empty), absorbs the loser's landed option into the winner's wheel via
-// battle.AbsorbOption, and places the result in the correct next-round slot.
+// battle.AbsorbOption, places the result in the correct next-round slot, and
+// returns the absorbed winner wheel.
 //
 // The whA/whB parameters are the two wheels participating in the match. Their
 // IDs should match the WinnerID in the BattleResult.
 //
 // Returns ErrDependencyNotMet, ErrAlreadyResolved, or ErrUnknownMatch on
-// failure. On success, returns nil and the Bracket state is mutated in place.
-func (b *Bracket) ApplyBattleResult(mid MatchID, br battle.BattleResult, whA, whB wheel.Wheel) error {
+// failure. On success, returns (absorbedWheel, nil) and the Bracket state is
+// mutated in place.
+func (b *Bracket) ApplyBattleResult(mid MatchID, br battle.BattleResult, whA, whB wheel.Wheel) (wheel.Wheel, error) {
 	// Dependency gate: validate required slots are filled
 	if err := b.ValidateDependencies(mid); err != nil {
-		return err
+		return wheel.Wheel{}, err
 	}
 
 	// Determine which wheel is the winner
@@ -110,44 +112,44 @@ func (b *Bracket) ApplyBattleResult(mid MatchID, br battle.BattleResult, whA, wh
 	switch mid {
 	case MatchQF1:
 		if b.SFLeft[0] != nil {
-			return fmt.Errorf("%w: QF1 already resolved, SFLeft[0] filled", ErrAlreadyResolved)
+			return wheel.Wheel{}, fmt.Errorf("%w: QF1 already resolved, SFLeft[0] filled", ErrAlreadyResolved)
 		}
 		b.SFLeft[0] = &absorbed
 	case MatchQF2:
 		if b.SFRight[0] != nil {
-			return fmt.Errorf("%w: QF2 already resolved, SFRight[0] filled", ErrAlreadyResolved)
+			return wheel.Wheel{}, fmt.Errorf("%w: QF2 already resolved, SFRight[0] filled", ErrAlreadyResolved)
 		}
 		b.SFRight[0] = &absorbed
 	case MatchQF3:
 		if b.SFLeft[1] != nil {
-			return fmt.Errorf("%w: QF3 already resolved, SFLeft[1] filled", ErrAlreadyResolved)
+			return wheel.Wheel{}, fmt.Errorf("%w: QF3 already resolved, SFLeft[1] filled", ErrAlreadyResolved)
 		}
 		b.SFLeft[1] = &absorbed
 	case MatchQF4:
 		if b.SFRight[1] != nil {
-			return fmt.Errorf("%w: QF4 already resolved, SFRight[1] filled", ErrAlreadyResolved)
+			return wheel.Wheel{}, fmt.Errorf("%w: QF4 already resolved, SFRight[1] filled", ErrAlreadyResolved)
 		}
 		b.SFRight[1] = &absorbed
 	case MatchSF1:
 		if b.FinalLeft != nil {
-			return fmt.Errorf("%w: SF1 already resolved, FinalLeft filled", ErrAlreadyResolved)
+			return wheel.Wheel{}, fmt.Errorf("%w: SF1 already resolved, FinalLeft filled", ErrAlreadyResolved)
 		}
 		b.FinalLeft = &absorbed
 	case MatchSF2:
 		if b.FinalRight != nil {
-			return fmt.Errorf("%w: SF2 already resolved, FinalRight filled", ErrAlreadyResolved)
+			return wheel.Wheel{}, fmt.Errorf("%w: SF2 already resolved, FinalRight filled", ErrAlreadyResolved)
 		}
 		b.FinalRight = &absorbed
 	case MatchFinal:
 		if b.Winner != nil {
-			return fmt.Errorf("%w: Final already resolved, Winner filled", ErrAlreadyResolved)
+			return wheel.Wheel{}, fmt.Errorf("%w: Final already resolved, Winner filled", ErrAlreadyResolved)
 		}
 		b.Winner = &FinalResult{Wheel: absorbed, LandedOption: br.WinnerLanded}
 	default:
-		return fmt.Errorf("%w: %s", ErrUnknownMatch, mid)
+		return wheel.Wheel{}, fmt.Errorf("%w: %s", ErrUnknownMatch, mid)
 	}
 
-	return nil
+	return absorbed, nil
 }
 
 // ValidateDependencies checks that the required dependency slots are filled

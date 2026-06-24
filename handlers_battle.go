@@ -22,10 +22,11 @@ var matchWheelIDs = map[string][2]int{
 }
 
 // bracketMatchIDs lists match IDs that use bracket state (SF and Final).
-var bracketMatchIDs = map[string]bool{
-	"sf1":   true,
-	"sf2":   true,
-	"final": true,
+// Uses typed MatchID constants per §1.1 (encode invariants in types).
+var bracketMatchIDs = map[bracket.MatchID]bool{
+	bracket.MatchSF1:   true,
+	bracket.MatchSF2:   true,
+	bracket.MatchFinal: true,
 }
 
 // matchResultData holds the data for rendering the match result template.
@@ -56,7 +57,7 @@ type movieResultData struct {
 //  2. Loads both wheels (from Session.Wheels for QF, from Bracket for SF/Final)
 //  3. Spins both wheels (AC-3) to select a landed option
 //  4. Resolves the battle via ResolveBattle (rolls + tiebreaker)
-//  5. Absorbs the loser's landed option into the winner's wheel
+//  5. Applies bracket progression which absorbs loser option and returns absorbed wheel
 //  6. Stores the updated winner wheel and applies bracket progression
 //  7. Sets HX-Trigger with spin-wheel data for both wheels' animations
 //  8. Returns HTML fragments (match result, next-round slot, disabled button)
@@ -68,11 +69,12 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 			return
 		}
 
-		matchID := r.PathValue("matchID")
+		matchIDStr := r.PathValue("matchID")
 
 		// Validate match ID — check both QF and bracket match sets
-		indices, isQF := matchWheelIDs[matchID]
-		if !isQF && !bracketMatchIDs[matchID] {
+		indices, isQF := matchWheelIDs[matchIDStr]
+		bid := bracket.MatchID(matchIDStr)
+		if !isQF && !bracketMatchIDs[bid] {
 			writeJSONError(w, http.StatusNotFound, "invalid match ID")
 			return
 		}
@@ -84,8 +86,9 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 		}
 
 		// Perform ALL battle logic atomically under a single write lock:
-		// check → load → spin → resolve → absorb → bracket-progression → mark-resolved.
+		// check → load → spin → resolve → bracket-progression → mark-resolved.
 		var whA, whB wheel.Wheel
+		var wheelASlotID, wheelBSlotID string
 		var alreadyResolved bool
 		var emptyWheel bool
 		var resultA, resultB wheel.SpinResult
@@ -93,7 +96,7 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 		var absorbedWheel wheel.Wheel
 
 		updateErr := store.Update(sessionID, func(s *Session) error {
-			if s.ResolvedMatches[matchID] {
+			if s.ResolvedMatches[matchIDStr] {
 				alreadyResolved = true
 				return nil
 			}
@@ -103,22 +106,29 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 				idxA, idxB := indices[0], indices[1]
 				whA = s.Wheels[idxA]
 				whB = s.Wheels[idxB]
+				wheelASlotID = slotIDFromWheelIdx(idxA)
+				wheelBSlotID = slotIDFromWheelIdx(idxB)
 			} else {
 				// SF or Final — load from bracket pointers
-				bracketID := bracket.MatchID(matchID)
-				if err := s.Bracket.ValidateDependencies(bracketID); err != nil {
+				if err := s.Bracket.ValidateDependencies(bid); err != nil {
 					return fmt.Errorf("bracket dependency: %w", err)
 				}
-				switch matchID {
-				case "sf1":
+				switch bid {
+				case bracket.MatchSF1:
 					whA = *s.Bracket.SFLeft[0]
 					whB = *s.Bracket.SFRight[0]
-				case "sf2":
+					wheelASlotID = "slot-sf1-left"
+					wheelBSlotID = "slot-sf1-right"
+				case bracket.MatchSF2:
 					whA = *s.Bracket.SFLeft[1]
 					whB = *s.Bracket.SFRight[1]
-				case "final":
+					wheelASlotID = "slot-sf2-left"
+					wheelBSlotID = "slot-sf2-right"
+				case bracket.MatchFinal:
 					whA = *s.Bracket.FinalLeft
 					whB = *s.Bracket.FinalRight
+					wheelASlotID = "slot-final-left"
+					wheelBSlotID = "slot-final-right"
 				}
 			}
 
@@ -152,31 +162,31 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 				return resolveErr
 			}
 
-			// Absorb loser's landed option into winner's wheel
-			if battleResult.WinnerID == whA.ID {
-				absorbedWheel = battle.AbsorbOption(whA, resultB.Option)
-				if isQF {
-					s.Wheels[indices[0]] = absorbedWheel
-				}
-			} else {
-				absorbedWheel = battle.AbsorbOption(whB, resultA.Option)
-				if isQF {
-					s.Wheels[indices[1]] = absorbedWheel
-				}
-			}
-
 			// Sync bracket slots from session wheels for QF matches
+			// before ApplyBattleResult validates dependencies.
 			if isQF {
 				s.Bracket.Slots = s.Wheels
 			}
 
-			// Apply bracket progression (dependency-gated + idempotency-gated)
-			bracketMid := bracket.MatchID(matchID)
-			if err := s.Bracket.ApplyBattleResult(bracketMid, battleResult, whA, whB); err != nil {
-				return fmt.Errorf("bracket progression: %w", err)
+			// Apply bracket progression (handles absorption internally)
+			// and returns the absorbed winner wheel.
+			var absorbErr error
+			absorbedWheel, absorbErr = s.Bracket.ApplyBattleResult(bid, battleResult, whA, whB)
+			if absorbErr != nil {
+				return fmt.Errorf("bracket progression: %w", absorbErr)
 			}
 
-			s.ResolvedMatches[matchID] = true
+			// For QF matches, update session wheels with the absorbed wheel
+			if isQF {
+				if battleResult.WinnerID == whA.ID {
+					s.Wheels[indices[0]] = absorbedWheel
+				} else {
+					s.Wheels[indices[1]] = absorbedWheel
+				}
+				s.Bracket.Slots = s.Wheels
+			}
+
+			s.ResolvedMatches[matchIDStr] = true
 			return nil
 		})
 
@@ -210,16 +220,19 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 			return
 		}
 
-		// Build HX-Trigger with spin data for both wheels
+		// Build HX-Trigger with spin data for both wheels, including slotID
+		// for scoped wheel-group ID lookup in the JS animation.
 		triggerData := map[string]interface{}{
 			"spin-wheel": []map[string]interface{}{
 				{
 					"wheelID":     whA.ID,
+					"slotID":      wheelASlotID,
 					"targetIndex": resultA.Index,
 					"targetAngle": resultA.TargetAngle,
 				},
 				{
 					"wheelID":     whB.ID,
+					"slotID":      wheelBSlotID,
 					"targetIndex": resultB.Index,
 					"targetAngle": resultB.TargetAngle,
 				},
@@ -227,7 +240,7 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 		}
 
 		// For Final match, add bracketComplete trigger
-		if matchID == "final" {
+		if bid == bracket.MatchFinal {
 			triggerData["bracketComplete"] = true
 		}
 
@@ -244,7 +257,7 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 
 		// 1. Match result fragment
 		err = renderer.ExecuteTemplate(w, "matchResult", matchResultData{
-			MatchID:    matchID,
+			MatchID:    matchIDStr,
 			WinnerID:   battleResult.WinnerID,
 			LoserID:    battleResult.LoserID,
 			WinnerRoll: battleResult.WinnerRoll,
@@ -256,11 +269,11 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 		}
 
 		// 2. Next-round slot fragment with absorbed winner wheel
-		slotID := bracket.SlotMapping(bracket.MatchID(matchID))
-		if slotID != "" {
-			whView := wheelViewFromWheel(absorbedWheel)
+		nextRoundSlotID := bracket.SlotMapping(bid)
+		if nextRoundSlotID != "" {
+			whView := wheelViewFromWheel(absorbedWheel, nextRoundSlotID)
 			err = renderer.ExecuteTemplate(w, "nextRoundSlot", nextRoundSlotData{
-				SlotID: slotID,
+				SlotID: nextRoundSlotID,
 				Wheel:  whView,
 			})
 			if err != nil {
@@ -269,7 +282,7 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 		}
 
 		// 3. For Final match, render movie result fragment
-		if matchID == "final" {
+		if bid == bracket.MatchFinal {
 			err = renderer.ExecuteTemplate(w, "movieResult", movieResultData{
 				Text: battleResult.WinnerLanded.Text,
 			})

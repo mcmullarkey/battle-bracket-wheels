@@ -37,27 +37,27 @@ func bracketViewFromBracket(b *bracket.Bracket) BracketViewData {
 		return v
 	}
 	if b.SFLeft[0] != nil {
-		wh := wheelViewFromWheel(*b.SFLeft[0])
+		wh := wheelViewFromWheel(*b.SFLeft[0], "slot-sf1-left")
 		v.SFLeft0 = &wh
 	}
 	if b.SFRight[0] != nil {
-		wh := wheelViewFromWheel(*b.SFRight[0])
+		wh := wheelViewFromWheel(*b.SFRight[0], "slot-sf1-right")
 		v.SFRight0 = &wh
 	}
 	if b.SFLeft[1] != nil {
-		wh := wheelViewFromWheel(*b.SFLeft[1])
+		wh := wheelViewFromWheel(*b.SFLeft[1], "slot-sf2-left")
 		v.SFLeft1 = &wh
 	}
 	if b.SFRight[1] != nil {
-		wh := wheelViewFromWheel(*b.SFRight[1])
+		wh := wheelViewFromWheel(*b.SFRight[1], "slot-sf2-right")
 		v.SFRight1 = &wh
 	}
 	if b.FinalLeft != nil {
-		wh := wheelViewFromWheel(*b.FinalLeft)
+		wh := wheelViewFromWheel(*b.FinalLeft, "slot-final-left")
 		v.FinalLeft = &wh
 	}
 	if b.FinalRight != nil {
-		wh := wheelViewFromWheel(*b.FinalRight)
+		wh := wheelViewFromWheel(*b.FinalRight, "slot-final-right")
 		v.FinalRight = &wh
 	}
 	if b.Winner != nil {
@@ -87,8 +87,8 @@ func homeHandler(store *Store, renderer Renderer) http.HandlerFunc {
 		wheelsView := make([]WheelViewData, 0, 8)
 		var bracketView BracketViewData
 		err := store.View(sessionID, func(session *Session) error {
-			for _, wh := range session.Wheels {
-				wheelsView = append(wheelsView, wheelViewFromWheel(wh))
+			for i, wh := range session.Wheels {
+				wheelsView = append(wheelsView, wheelViewFromWheel(wh, slotIDFromWheelIdx(i)))
 			}
 			bracketView = bracketViewFromBracket(session.Bracket)
 			return nil

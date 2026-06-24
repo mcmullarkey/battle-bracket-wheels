@@ -41,13 +41,25 @@ func TestApplyBattleResult_QF1(t *testing.T) {
 	b := bracket.New(wheels)
 
 	br := makeBattleResult("0", "1", wheel.Option{Text: "A"}, wheel.Option{Text: "B"})
-	err := b.ApplyBattleResult(bracket.MatchQF1, br, wheels[0], wheels[1])
+	absorbed, err := b.ApplyBattleResult(bracket.MatchQF1, br, wheels[0], wheels[1])
 	if err != nil {
 		t.Fatalf("ApplyBattleResult QF1: %v", err)
 	}
 
 	if b.SFLeft[0] == nil {
 		t.Fatal("SFLeft[0] is nil after QF1")
+	}
+
+	// Verify the returned absorbed wheel contains loser's text
+	hasB := false
+	for _, opt := range absorbed.Options {
+		if opt.Text == "B" {
+			hasB = true
+			break
+		}
+	}
+	if !hasB {
+		t.Error("returned absorbed wheel missing loser text 'B'")
 	}
 
 	// SFLeft[0] should contain wheel 0's options + loser's landed text
@@ -76,7 +88,7 @@ func TestApplyBattleResult_AbsorbedNotOriginal(t *testing.T) {
 	b := bracket.New(wheels)
 
 	br := makeBattleResult("0", "1", wheel.Option{Text: "Bicycle"}, wheel.Option{Text: "Skateboard"})
-	err := b.ApplyBattleResult(bracket.MatchQF1, br, wheels[0], wheels[1])
+	_, err := b.ApplyBattleResult(bracket.MatchQF1, br, wheels[0], wheels[1])
 	if err != nil {
 		t.Fatalf("ApplyBattleResult: %v", err)
 	}
@@ -104,7 +116,7 @@ func TestApplyBattleResult_Dedupe(t *testing.T) {
 	b := bracket.New(wheels)
 
 	br := makeBattleResult("0", "1", wheel.Option{Text: "Movie"}, wheel.Option{Text: "Movie"})
-	err := b.ApplyBattleResult(bracket.MatchQF1, br, wheels[0], wheels[1])
+	_, err := b.ApplyBattleResult(bracket.MatchQF1, br, wheels[0], wheels[1])
 	if err != nil {
 		t.Fatalf("ApplyBattleResult: %v", err)
 	}
@@ -132,7 +144,7 @@ func TestApplyBattleResult_PositionalMapping(t *testing.T) {
 
 	// QF3 uses Slots[4] and Slots[5] — winner goes to SFLeft[1] (not SFLeft[0])
 	br := makeBattleResult("4", "5", wheel.Option{Text: "E"}, wheel.Option{Text: "F"})
-	err := b.ApplyBattleResult(bracket.MatchQF3, br, wheels[4], wheels[5])
+	_, err := b.ApplyBattleResult(bracket.MatchQF3, br, wheels[4], wheels[5])
 	if err != nil {
 		t.Fatalf("ApplyBattleResult QF3: %v", err)
 	}
@@ -146,7 +158,7 @@ func TestApplyBattleResult_PositionalMapping(t *testing.T) {
 
 	// QF2 uses Slots[2] and Slots[3] — winner goes to SFRight[0] (not SFLeft[0])
 	br2 := makeBattleResult("2", "3", wheel.Option{Text: "C"}, wheel.Option{Text: "D"})
-	err = b.ApplyBattleResult(bracket.MatchQF2, br2, wheels[2], wheels[3])
+	_, err = b.ApplyBattleResult(bracket.MatchQF2, br2, wheels[2], wheels[3])
 	if err != nil {
 		t.Fatalf("ApplyBattleResult QF2: %v", err)
 	}
@@ -168,19 +180,19 @@ func TestApplyBattleResult_MovieIsLandedSlice(t *testing.T) {
 	b := bracket.New(wheels)
 
 	// QF1: wheel 0 beats wheel 1
-	b.ApplyBattleResult(bracket.MatchQF1,
-		makeBattleResult("0", "1", wheel.Option{Text: "A"}, wheel.Option{Text: "B"}),
+	_, _ = b.ApplyBattleResult(bracket.MatchQF1,
+		makeBattleResult("0", "1", wheel.Option{Text: "Bicycle"}, wheel.Option{Text: "Skateboard"}),
 		wheels[0], wheels[1])
 	// QF2: wheel 2 beats wheel 3
-	b.ApplyBattleResult(bracket.MatchQF2,
+	_, _ = b.ApplyBattleResult(bracket.MatchQF2,
 		makeBattleResult("2", "3", wheel.Option{Text: "C"}, wheel.Option{Text: "D"}),
 		wheels[2], wheels[3])
 	// QF3: wheel 5 beats wheel 4
-	b.ApplyBattleResult(bracket.MatchQF3,
+	_, _ = b.ApplyBattleResult(bracket.MatchQF3,
 		makeBattleResult("5", "4", wheel.Option{Text: "F"}, wheel.Option{Text: "E"}),
 		wheels[5], wheels[4])
 	// QF4: wheel 6 beats wheel 7
-	b.ApplyBattleResult(bracket.MatchQF4,
+	_, _ = b.ApplyBattleResult(bracket.MatchQF4,
 		makeBattleResult("6", "7", wheel.Option{Text: "G"}, wheel.Option{Text: "H"}),
 		wheels[6], wheels[7])
 
@@ -188,21 +200,21 @@ func TestApplyBattleResult_MovieIsLandedSlice(t *testing.T) {
 	// The absorbed wheels have been stored in SFLeft[0] and SFRight[0]
 	sf1Left := *b.SFLeft[0]   // absorbed wheel 0
 	sf1Right := *b.SFRight[0] // absorbed wheel 2
-	b.ApplyBattleResult(bracket.MatchSF1,
+	_, _ = b.ApplyBattleResult(bracket.MatchSF1,
 		makeBattleResult("0", "2", wheel.Option{Text: "A"}, wheel.Option{Text: "C"}),
 		sf1Left, sf1Right)
 
 	// SF2: QF3 winner (wheel 5) beats QF4 winner (wheel 6)
 	sf2Left := *b.SFLeft[1]   // absorbed wheel 5
 	sf2Right := *b.SFRight[1] // absorbed wheel 6
-	b.ApplyBattleResult(bracket.MatchSF2,
+	_, _ = b.ApplyBattleResult(bracket.MatchSF2,
 		makeBattleResult("5", "6", wheel.Option{Text: "F"}, wheel.Option{Text: "G"}),
 		sf2Left, sf2Right)
 
 	// Final: SF1 winner (wheel 0) beats SF2 winner (wheel 5)
 	finalLeft := *b.FinalLeft
 	finalRight := *b.FinalRight
-	b.ApplyBattleResult(bracket.MatchFinal,
+	_, _ = b.ApplyBattleResult(bracket.MatchFinal,
 		makeBattleResult("0", "5", wheel.Option{Text: "A-landed"}, wheel.Option{Text: "F-landed"}),
 		finalLeft, finalRight)
 
@@ -224,7 +236,7 @@ func TestApplyBattleResult_DependencyGate(t *testing.T) {
 
 	// Try SF1 before QF1+QF2 — dependency error
 	br := makeBattleResult("0", "2", wheel.Option{Text: "A"}, wheel.Option{Text: "C"})
-	err := b.ApplyBattleResult(bracket.MatchSF1, br, wheel.Wheel{}, wheel.Wheel{})
+	_, err := b.ApplyBattleResult(bracket.MatchSF1, br, wheel.Wheel{}, wheel.Wheel{})
 	if err == nil {
 		t.Fatal("expected error for SF1 before QF1+QF2, got nil")
 	}
@@ -245,14 +257,14 @@ func TestApplyBattleResult_IdempotencyGate(t *testing.T) {
 
 	// First call: should succeed
 	br1 := makeBattleResult("0", "1", wheel.Option{Text: "A"}, wheel.Option{Text: "B"})
-	err1 := b.ApplyBattleResult(bracket.MatchQF1, br1, wheels[0], wheels[1])
+	_, err1 := b.ApplyBattleResult(bracket.MatchQF1, br1, wheels[0], wheels[1])
 	if err1 != nil {
 		t.Fatalf("first ApplyBattleResult QF1: %v", err1)
 	}
 
 	// Second call: should error (already resolved)
 	br2 := makeBattleResult("0", "1", wheel.Option{Text: "A"}, wheel.Option{Text: "B"})
-	err2 := b.ApplyBattleResult(bracket.MatchQF1, br2, wheels[0], wheels[1])
+	_, err2 := b.ApplyBattleResult(bracket.MatchQF1, br2, wheels[0], wheels[1])
 	if err2 == nil {
 		t.Fatal("expected error for second QF1, got nil")
 	}
@@ -267,7 +279,7 @@ func TestApplyBattleResult_FinalBeforeSFs(t *testing.T) {
 	b := bracket.New(wheels)
 
 	// Try Final directly
-	err := b.ApplyBattleResult(bracket.MatchFinal, battle.BattleResult{}, wheel.Wheel{}, wheel.Wheel{})
+	_, err := b.ApplyBattleResult(bracket.MatchFinal, battle.BattleResult{}, wheel.Wheel{}, wheel.Wheel{})
 	if err == nil {
 		t.Fatal("expected error for Final without SFs, got nil")
 	}
@@ -282,7 +294,7 @@ func TestBracketProgression_FullFlow(t *testing.T) {
 	b := bracket.New(wheels)
 
 	// QF1: wheel 0 beats wheel 1
-	err := b.ApplyBattleResult(bracket.MatchQF1,
+	_, err := b.ApplyBattleResult(bracket.MatchQF1,
 		makeBattleResult("0", "1", wheel.Option{Text: "A"}, wheel.Option{Text: "B"}),
 		wheels[0], wheels[1])
 	if err != nil {
@@ -293,7 +305,7 @@ func TestBracketProgression_FullFlow(t *testing.T) {
 	}
 
 	// QF2: wheel 3 beats wheel 2
-	err = b.ApplyBattleResult(bracket.MatchQF2,
+	_, err = b.ApplyBattleResult(bracket.MatchQF2,
 		makeBattleResult("3", "2", wheel.Option{Text: "D"}, wheel.Option{Text: "C"}),
 		wheels[3], wheels[2])
 	if err != nil {
@@ -304,7 +316,7 @@ func TestBracketProgression_FullFlow(t *testing.T) {
 	}
 
 	// QF3: wheel 4 beats wheel 5
-	err = b.ApplyBattleResult(bracket.MatchQF3,
+	_, err = b.ApplyBattleResult(bracket.MatchQF3,
 		makeBattleResult("4", "5", wheel.Option{Text: "E"}, wheel.Option{Text: "F"}),
 		wheels[4], wheels[5])
 	if err != nil {
@@ -315,7 +327,7 @@ func TestBracketProgression_FullFlow(t *testing.T) {
 	}
 
 	// QF4: wheel 7 beats wheel 6
-	err = b.ApplyBattleResult(bracket.MatchQF4,
+	_, err = b.ApplyBattleResult(bracket.MatchQF4,
 		makeBattleResult("7", "6", wheel.Option{Text: "H"}, wheel.Option{Text: "G"}),
 		wheels[7], wheels[6])
 	if err != nil {
@@ -328,7 +340,7 @@ func TestBracketProgression_FullFlow(t *testing.T) {
 	// SF1: QF1 winner (wheel 0) beats QF2 winner (wheel 3)
 	sf1Left := *b.SFLeft[0]
 	sf1Right := *b.SFRight[0]
-	err = b.ApplyBattleResult(bracket.MatchSF1,
+	_, err = b.ApplyBattleResult(bracket.MatchSF1,
 		makeBattleResult("0", "3", wheel.Option{Text: "A"}, wheel.Option{Text: "D"}),
 		sf1Left, sf1Right)
 	if err != nil {
@@ -341,7 +353,7 @@ func TestBracketProgression_FullFlow(t *testing.T) {
 	// SF2: QF3 winner (wheel 4) beats QF4 winner (wheel 7)
 	sf2Left := *b.SFLeft[1]
 	sf2Right := *b.SFRight[1]
-	err = b.ApplyBattleResult(bracket.MatchSF2,
+	_, err = b.ApplyBattleResult(bracket.MatchSF2,
 		makeBattleResult("4", "7", wheel.Option{Text: "E"}, wheel.Option{Text: "H"}),
 		sf2Left, sf2Right)
 	if err != nil {
@@ -354,7 +366,7 @@ func TestBracketProgression_FullFlow(t *testing.T) {
 	// Final: SF1 winner (wheel 0) beats SF2 winner (wheel 4)
 	finalLeft := *b.FinalLeft
 	finalRight := *b.FinalRight
-	err = b.ApplyBattleResult(bracket.MatchFinal,
+	_, err = b.ApplyBattleResult(bracket.MatchFinal,
 		makeBattleResult("0", "4", wheel.Option{Text: "A-final"}, wheel.Option{Text: "E-final"}),
 		finalLeft, finalRight)
 	if err != nil {
@@ -406,7 +418,7 @@ func TestSlotMapping(t *testing.T) {
 
 func TestApplyBattleResult_UnknownMatch(t *testing.T) {
 	b := bracket.New([8]wheel.Wheel{})
-	err := b.ApplyBattleResult("invalid", battle.BattleResult{}, wheel.Wheel{}, wheel.Wheel{})
+	_, err := b.ApplyBattleResult("invalid", battle.BattleResult{}, wheel.Wheel{}, wheel.Wheel{})
 	if err == nil {
 		t.Fatal("expected error for unknown match ID, got nil")
 	}
