@@ -139,7 +139,7 @@ func TestSessionCookieRoundtrip(t *testing.T) {
 			t.Error("third request should have different cookie value")
 		}
 		w.WriteHeader(http.StatusOK)
-	})).ServeHTTP(rr3, rr3)
+	})).ServeHTTP(rr3, req3)
 }
 
 func TestConcurrentSessionCreation(t *testing.T) {
