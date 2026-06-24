@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"io/fs"
 	"net/http"
 	"net/http/httptest"
@@ -372,6 +373,40 @@ func TestEmbedStaticAssets(t *testing.T) {
 	}
 	if len(data) == 0 {
 		t.Error("embedded static/css/space.css is empty")
+	}
+}
+
+func TestStaticCSSServedViaHTTP(t *testing.T) {
+	// Integration test: verify that /static/css/space.css is served correctly
+	// through the HTTP router (not just readable from embed.FS).
+	store := NewStore()
+	mux := setupRouter(store, testTemplate(t))
+	ts := httptest.NewServer(mux)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/static/css/space.css")
+	if err != nil {
+		t.Fatalf("GET /static/css/space.css: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("status = %d, want %d", resp.StatusCode, http.StatusOK)
+	}
+
+	ct := resp.Header.Get("Content-Type")
+	if !strings.HasPrefix(ct, "text/css") {
+		t.Errorf("Content-Type = %q, want text/css", ct)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("reading body: %v", err)
+	}
+
+	// Verify the CSS actually contains @keyframes (proves it's the real file, not empty)
+	if !strings.Contains(string(body), "@keyframes") {
+		t.Error("served space.css missing @keyframes")
 	}
 }
 
