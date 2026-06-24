@@ -867,3 +867,132 @@ func TestPostBattle_BracketIdempotency(t *testing.T) {
 	}
 }
 
+func TestPostBattle_FinalOOBCount(t *testing.T) {
+	// Run full bracket to Final, then assert the Final response has exactly 3 OOB elements
+	// (matchResult: match-final + battle-btn-final; movieResult: movie-result).
+	// NOT 4 — there should be no nextRoundSlot fragment for the Final.
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// Add options to all 8 wheels
+	for i := 0; i < 8; i++ {
+		addOptionToWheel(t, ts, sessionID, fmt.Sprintf("%d", i), fmt.Sprintf("Opt%d", i))
+	}
+
+	// Run QF + SF matches to reach the Final
+	matches := []string{"qf1", "qf2", "qf3", "qf4", "sf1", "sf2"}
+	for _, mid := range matches {
+		resp := battleRequest(t, ts, sessionID, mid)
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("%s returned status %d, want 200", mid, resp.StatusCode)
+		}
+		resp.Body.Close()
+	}
+
+	// Now run the Final match
+	resp := battleRequest(t, ts, sessionID, "final")
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("final returned status %d, want 200", resp.StatusCode)
+	}
+
+	body := readResponseBody(t, resp)
+
+	// Should have exactly 3 hx-swap-oob elements:
+	//  1. match-final — match result fragment
+	//  2. battle-btn-final — disabled battle button
+	//  3. movie-result — movie result (NOT a duplicate nextRoundSlot with id=movie-result)
+	oobCount := strings.Count(body, "hx-swap-oob")
+	if oobCount != 3 {
+		t.Errorf("Final response has %d hx-swap-oob elements, want 3", oobCount)
+	}
+
+	// Verify all three expected IDs are present
+	if !strings.Contains(body, "match-final") {
+		t.Error("response missing match-final OOB element")
+	}
+	if !strings.Contains(body, "battle-btn-final") {
+		t.Error("response missing battle-btn-final OOB element")
+	}
+	if !strings.Contains(body, "movie-result") {
+		t.Error("response missing movie-result OOB element")
+	}
+
+	// Verify no duplicate id="movie-result" (which would happen if SlotMapping
+	// still returned "movie-result" AND the movieResult template also used it)
+	if strings.Count(body, `id="movie-result"`) != 1 {
+		t.Error("response has duplicate id=\"movie-result\" — SlotMapping for Final should return empty string")
+	}
+}
+
+func TestPostBattle_QF2Target(t *testing.T) {
+	// POST /battle/qf2 → response contains id="slot-sf1-right" (not slot-sf1-left)
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// QF2 uses wheels 2 and 3
+	addOptionToWheel(t, ts, sessionID, "2", "C")
+	addOptionToWheel(t, ts, sessionID, "3", "D")
+
+	resp := battleRequest(t, ts, sessionID, "qf2")
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
+
+	body := readResponseBody(t, resp)
+
+	// Must contain slot-sf1-right OOB target (QF2 winner goes to SFRight[0])
+	if !strings.Contains(body, "slot-sf1-right") {
+		t.Error("response missing slot-sf1-right OOB element (QF2 should target sf1-right)")
+	}
+	if strings.Contains(body, "slot-sf1-left") {
+		t.Error("response contains slot-sf1-left, but QF2 should target slot-sf1-right, not sf1-left")
+	}
+}
+
+func TestPostBattle_SF2Target(t *testing.T) {
+	// Run QF3+QF4 first, then POST /battle/sf2 → response contains id="slot-final-right"
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// Add options to wheels 4,5,6,7 (QF3+QF4)
+	addOptionToWheel(t, ts, sessionID, "4", "E")
+	addOptionToWheel(t, ts, sessionID, "5", "F")
+	addOptionToWheel(t, ts, sessionID, "6", "G")
+	addOptionToWheel(t, ts, sessionID, "7", "H")
+
+	// Run QF3 and QF4 first (SF2 depends on them)
+	respQF3 := battleRequest(t, ts, sessionID, "qf3")
+	if respQF3.StatusCode != http.StatusOK {
+		t.Fatalf("qf3 returned status %d, want 200", respQF3.StatusCode)
+	}
+	respQF3.Body.Close()
+
+	respQF4 := battleRequest(t, ts, sessionID, "qf4")
+	if respQF4.StatusCode != http.StatusOK {
+		t.Fatalf("qf4 returned status %d, want 200", respQF4.StatusCode)
+	}
+	respQF4.Body.Close()
+
+	// Now run SF2
+	resp := battleRequest(t, ts, sessionID, "sf2")
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("sf2 returned status %d, want 200", resp.StatusCode)
+	}
+
+	body := readResponseBody(t, resp)
+
+	// Must contain slot-final-right OOB target (SF2 winner goes to FinalRight)
+	if !strings.Contains(body, "slot-final-right") {
+		t.Error("response missing slot-final-right OOB element (SF2 should target final-right)")
+	}
+	if strings.Contains(body, "slot-final-left") {
+		t.Error("response contains slot-final-left, but SF2 should target slot-final-right, not final-left")
+	}
+}
+

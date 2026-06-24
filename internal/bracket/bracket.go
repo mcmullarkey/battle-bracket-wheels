@@ -204,7 +204,7 @@ func (b *Bracket) ValidateDependencies(mid MatchID) error {
 //   - QF4 → slot-sf2-right
 //   - SF1 → slot-final-left
 //   - SF2 → slot-final-right
-//   - Final → movie-result
+//   - Final → "" (no next-round slot; movieResult is the OOB target)
 func SlotMapping(mid MatchID) string {
 	switch mid {
 	case MatchQF1:
@@ -220,7 +220,7 @@ func SlotMapping(mid MatchID) string {
 	case MatchSF2:
 		return "slot-final-right"
 	case MatchFinal:
-		return "movie-result"
+		return "" // Final has no next-round slot; movieResult is the OOB target
 	default:
 		return ""
 	}

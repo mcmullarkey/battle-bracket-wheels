@@ -393,7 +393,7 @@ func TestSlotMapping(t *testing.T) {
 		{bracket.MatchQF4, "slot-sf2-right"},
 		{bracket.MatchSF1, "slot-final-left"},
 		{bracket.MatchSF2, "slot-final-right"},
-		{bracket.MatchFinal, "movie-result"},
+		{bracket.MatchFinal, ""}, // Final has no next-round slot; movieResult is the OOB target
 	}
 
 	for _, tt := range tests {
