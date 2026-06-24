@@ -1,0 +1,41 @@
+/* Space Theme — Battle Bracket Wheels */
+
+/* Twinkling star effect */
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+@keyframes meteor {
+    0% {
+        transform: translateX(-100%) translateY(-100%);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(100vw) translateY(100vh);
+        opacity: 0;
+    }
+}
+
+/* Cosmic glow effect */
+@keyframes cosmic-glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(100, 150, 255, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(100, 150, 255, 0.4);
+    }
+}
+
+/* Space color palette */
+:root {
+    --space-deep: #0a0a2e;
+    --space-mid: #1a1a4e;
+    --space-light: #2a2a6e;
+    --star-white: #ffffff;
+    --star-blue: #aaccff;
+    --star-gold: #ffd700;
+    --nebula-purple: #6a4c93;
+    --cosmic-teal: #4cc9f0;
+    --bracket-border: rgba(100, 150, 255, 0.3);
+}

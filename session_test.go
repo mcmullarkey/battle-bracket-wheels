@@ -123,23 +123,47 @@ func TestSessionCookieRoundtrip(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})).ServeHTTP(rr2, req2)
 
-	// Third request: different cookie → different session
+	// Third request: different cookie (stale) → middleware creates new session
+	// and must replace the stale cookie in the request so the handler sees the fresh ID.
 	req3 := httptest.NewRequest(http.MethodGet, "/", nil)
 	req3.AddCookie(&http.Cookie{Name: "bbw_session", Value: "different-session-id"})
 	rr3 := httptest.NewRecorder()
 
+	var handlerCookieValue string
 	sessionMiddleware(store, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("bbw_session")
 		if err != nil {
 			t.Errorf("no bbw_session cookie on third request: %v", err)
 		}
-		// A different cookie value should still be accepted (the middleware
-		// should not reject unknown session IDs)
-		if cookie != nil && cookie.Value == sessionID {
-			t.Error("third request should have different cookie value")
+		if cookie != nil {
+			handlerCookieValue = cookie.Value
+			// A different cookie value should still be accepted (the middleware
+			// should not reject unknown session IDs)
+			if cookie.Value == sessionID {
+				t.Error("third request should have different cookie value")
+			}
+			if cookie.Value == "different-session-id" {
+				t.Error("handler received stale cookie instead of fresh session ID")
+			}
 		}
 		w.WriteHeader(http.StatusOK)
-	})).ServeHTTP(rr3, rr3)
+	})).ServeHTTP(rr3, req3)
+
+	// Verify the handler received the same fresh session ID that was
+	// Set-Cookie'd on the response. This assertion FAILS with r.AddCookie
+	// (which appends after the stale cookie), and passes with r.Header.Set
+	// (which replaces the entire Cookie header).
+	resp3 := rr3.Result()
+	var freshCookieValue string
+	for _, c := range resp3.Cookies() {
+		if c.Name == "bbw_session" {
+			freshCookieValue = c.Value
+			break
+		}
+	}
+	if freshCookieValue != "" && handlerCookieValue != freshCookieValue {
+		t.Errorf("handler received cookie %q, but Set-Cookie has fresh ID %q", handlerCookieValue, freshCookieValue)
+	}
 }
 
 func TestConcurrentSessionCreation(t *testing.T) {

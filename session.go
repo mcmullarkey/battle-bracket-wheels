@@ -1,0 +1,87 @@
+// Package main provides the Battle Bracket Wheels web application.
+package main
+
+import (
+	"crypto/rand"
+	"encoding/hex"
+	"net/http"
+	"sync"
+	"time"
+)
+
+// cookieName is the name of the session cookie.
+const cookieName = "bbw_session"
+
+// Session represents a user session with a unique ID and creation timestamp.
+type Session struct {
+	ID        string    `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// Store is a concurrency-safe, in-memory session store.
+// Use NewStore to create an instance — a nil Store cannot Create sessions.
+type Store struct {
+	mu       sync.RWMutex
+	sessions map[string]*Session
+}
+
+// NewStore creates and returns a new empty Store.
+func NewStore() *Store {
+	return &Store{
+		sessions: make(map[string]*Session),
+	}
+}
+
+// Create generates a new session with a cryptographically random hex ID
+// of at least 32 characters, records the creation time, and stores it.
+func (s *Store) Create() (*Session, error) {
+	// Generate 16 bytes → 32 hex chars (>= 32 required)
+	bytes := make([]byte, 16)
+	if _, err := rand.Read(bytes); err != nil {
+		return nil, err
+	}
+	id := hex.EncodeToString(bytes)
+
+	session := &Session{
+		ID:        id,
+		CreatedAt: time.Now(),
+	}
+
+	s.mu.Lock()
+	s.sessions[id] = session
+	s.mu.Unlock()
+
+	return session, nil
+}
+
+// Get retrieves a session by ID. Returns the session and true if found,
+// or nil and false if not.
+func (s *Store) Get(id string) (*Session, bool) {
+	s.mu.RLock()
+	session, ok := s.sessions[id]
+	s.mu.RUnlock()
+	return session, ok
+}
+
+// SetCookie writes the bbw_session cookie to the response writer
+// with HttpOnly, Path=/, SameSite=Lax, and NOT Secure.
+func SetCookie(w http.ResponseWriter, session *Session) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     cookieName,
+		Value:    session.ID,
+		HttpOnly: true,
+		Path:     "/",
+		SameSite: http.SameSiteLaxMode,
+		Secure:   false,
+	})
+}
+
+// GetCookie extracts the bbw_session cookie value from the request.
+// Returns empty string if no cookie is present.
+func GetCookie(r *http.Request) string {
+	cookie, err := r.Cookie(cookieName)
+	if err != nil {
+		return ""
+	}
+	return cookie.Value
+}

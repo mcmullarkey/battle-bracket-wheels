@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
+	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -10,9 +12,19 @@ import (
 	"testing"
 )
 
+// testTemplate parses the embedded layout for use in tests.
+func testTemplate(t *testing.T) *template.Template {
+	t.Helper()
+	tmpl, err := template.New("layout").Parse(layoutContent)
+	if err != nil {
+		t.Fatalf("parsing test template: %v", err)
+	}
+	return tmpl
+}
+
 func TestHealthEndpoint(t *testing.T) {
 	store := NewStore()
-	mux := setupRouter(store, nil)
+	mux := setupRouter(store, testTemplate(t))
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
@@ -42,7 +54,7 @@ func TestHealthEndpoint(t *testing.T) {
 func TestHealthEndpointBareOK(t *testing.T) {
 	// Sneaky-pass guard: /health must return structured JSON, not bare "OK"
 	store := NewStore()
-	mux := setupRouter(store, nil)
+	mux := setupRouter(store, testTemplate(t))
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
@@ -65,7 +77,7 @@ func TestHealthEndpointBareOK(t *testing.T) {
 
 func TestLayoutRenders(t *testing.T) {
 	store := NewStore()
-	mux := setupRouter(store, nil)
+	mux := setupRouter(store, testTemplate(t))
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
@@ -167,7 +179,7 @@ func TestPortDefault(t *testing.T) {
 }
 
 func TestEmbedStaticAssets(t *testing.T) {
-	data, err := staticFS.ReadFile("static/css/space.css")
+	data, err := fs.ReadFile(staticFS, "css/space.css")
 	if err != nil {
 		t.Fatalf("reading embedded static/css/space.css: %v", err)
 	}
