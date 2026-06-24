@@ -7,230 +7,42 @@
     <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVAtPTQr8H+AYLfqU7mE8F1Nv3S8H3Y6k6B" crossorigin="anonymous"></script>
     <script src="/static/js/wheel.js"></script>
     <link rel="stylesheet" href="/static/css/space.css">
-    <style>
-        /* Inline starfield animation for immediate effect */
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            background: #0a0a2e;
-            color: #e0e0ff;
-            font-family: 'Courier New', monospace;
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background:
-                radial-gradient(1px 1px at 10% 20%, #fff 100%, transparent),
-                radial-gradient(1px 1px at 30% 50%, #fff 100%, transparent),
-                radial-gradient(1px 1px at 50% 10%, #fff 100%, transparent),
-                radial-gradient(1px 1px at 70% 30%, #fff 100%, transparent),
-                radial-gradient(1px 1px at 90% 70%, #fff 100%, transparent),
-                radial-gradient(1px 1px at 15% 80%, #fff 100%, transparent),
-                radial-gradient(1px 1px at 45% 90%, #fff 100%, transparent),
-                radial-gradient(1px 1px at 80% 60%, #fff 100%, transparent),
-                radial-gradient(1.5px 1.5px at 25% 40%, #aaccff 100%, transparent),
-                radial-gradient(1.5px 1.5px at 60% 15%, #aaccff 100%, transparent),
-                radial-gradient(1.5px 1.5px at 85% 85%, #aaccff 100%, transparent),
-                radial-gradient(1.5px 1.5px at 5% 55%, #aaccff 100%, transparent),
-                radial-gradient(1.5px 1.5px at 55% 75%, #aaccff 100%, transparent),
-                radial-gradient(2px 2px at 35% 5%, #ffd700 100%, transparent),
-                radial-gradient(2px 2px at 75% 40%, #ffd700 100%, transparent),
-                radial-gradient(2px 2px at 95% 15%, #ffd700 100%, transparent);
-            background-size: 200px 200px;
-            animation: twinkle 4s ease-in-out infinite;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        h1 {
-            text-align: center;
-            font-size: 2.5rem;
-            text-shadow: 0 0 20px rgba(100, 150, 255, 0.5);
-            margin-bottom: 2rem;
-            color: #ffd700;
-        }
-        .bracket {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            padding: 1rem;
-            background: rgba(10, 10, 46, 0.8);
-            border: 1px solid rgba(100, 150, 255, 0.3);
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(100, 150, 255, 0.1);
-        }
-        .slot {
-            background: rgba(20, 20, 60, 0.9);
-            border: 1px solid rgba(100, 150, 255, 0.4);
-            border-radius: 8px;
-            padding: 1.5rem;
-            min-height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            color: #aaccff;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .slot:hover {
-            border-color: #ffd700;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-            transform: scale(1.02);
-        }
-        .slot svg {
-            width: 100%;
-            height: auto;
-            max-height: 150px;
-        }
-        .slot form {
-            display: flex;
-            gap: 0.25rem;
-            margin-top: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .slot form input {
-            background: rgba(10, 10, 46, 0.8);
-            border: 1px solid rgba(100, 150, 255, 0.4);
-            color: #e0e0ff;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
-            flex: 1;
-            min-width: 60px;
-        }
-        .slot form button {
-            background: rgba(100, 150, 255, 0.3);
-            border: 1px solid rgba(100, 150, 255, 0.5);
-            color: #aaccff;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-        }
-        .slot form button:hover {
-            background: rgba(100, 150, 255, 0.5);
-        }
-        .slot ul {
-            list-style: none;
-            padding: 0;
-            margin: 0.5rem 0 0;
-            font-size: 0.75rem;
-        }
-        .slot ul li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.15rem 0;
-            border-bottom: 1px solid rgba(100, 150, 255, 0.15);
-        }
-        .slot ul li button {
-            background: none;
-            border: none;
-            color: #ff6b6b;
-            cursor: pointer;
-            padding: 0 0.25rem;
-            font-size: 0.85rem;
-        }
-        .slot ul li button:hover {
-            color: #ff4444;
-        }
-        .wheel-slice {
-            cursor: pointer;
-            stroke: #0a0a2e;
-            stroke-width: 1;
-        }
-        .wheel-slice:nth-child(odd) {
-            fill: rgba(100, 150, 255, 0.5);
-        }
-        .wheel-slice:nth-child(even) {
-            fill: rgba(255, 215, 0, 0.4);
-        }
-        .bracket-sf, .bracket-final {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            padding: 1rem;
-            margin-top: 1rem;
-            background: rgba(10, 10, 46, 0.8);
-            border: 1px solid rgba(100, 150, 255, 0.3);
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(100, 150, 255, 0.1);
-        }
-        .bracket-final {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        .movie-result {
-            text-align: center;
-            margin-top: 1rem;
-            padding: 1rem;
-            background: rgba(255, 215, 0, 0.1);
-            border: 1px solid #ffd700;
-            border-radius: 8px;
-            color: #ffd700;
-            font-size: 1.2rem;
-        }
-        .slot-placeholder {
-            color: #6666aa;
-            font-style: italic;
-        }
-        footer {
-            text-align: center;
-            margin-top: 2rem;
-            color: #6666aa;
-            font-size: 0.8rem;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
-        <h1>⚔ Battle Bracket Wheels ⚔</h1>
+        <h1 class="neon-gold">Battle Bracket Wheels</h1>
         <div class="bracket" id="bracket">
             <!-- QF1: wheels 0 vs 1 -->
             <div class="slot" id="slot-1">{{template "wheel" index .Wheels 0}}</div>
-            <div id="battle-btn-qf1"><button hx-post="/battle/qf1" hx-target="this" hx-swap="outerHTML">Battle QF1</button></div>
+            <div id="battle-btn-qf1"><button class="neon-button" hx-post="/battle/qf1" hx-target="this" hx-swap="outerHTML">Battle QF1</button></div>
             <div id="match-qf1"></div>
             <div class="slot" id="slot-2">{{template "wheel" index .Wheels 1}}</div>
 
             <!-- QF2: wheels 2 vs 3 -->
             <div class="slot" id="slot-3">{{template "wheel" index .Wheels 2}}</div>
-            <div id="battle-btn-qf2"><button hx-post="/battle/qf2" hx-target="this" hx-swap="outerHTML">Battle QF2</button></div>
+            <div id="battle-btn-qf2"><button class="neon-button" hx-post="/battle/qf2" hx-target="this" hx-swap="outerHTML">Battle QF2</button></div>
             <div id="match-qf2"></div>
             <div class="slot" id="slot-4">{{template "wheel" index .Wheels 3}}</div>
 
             <!-- QF3: wheels 4 vs 5 -->
             <div class="slot" id="slot-5">{{template "wheel" index .Wheels 4}}</div>
-            <div id="battle-btn-qf3"><button hx-post="/battle/qf3" hx-target="this" hx-swap="outerHTML">Battle QF3</button></div>
+            <div id="battle-btn-qf3"><button class="neon-button" hx-post="/battle/qf3" hx-target="this" hx-swap="outerHTML">Battle QF3</button></div>
             <div id="match-qf3"></div>
             <div class="slot" id="slot-6">{{template "wheel" index .Wheels 5}}</div>
 
             <!-- QF4: wheels 6 vs 7 -->
             <div class="slot" id="slot-7">{{template "wheel" index .Wheels 6}}</div>
-            <div id="battle-btn-qf4"><button hx-post="/battle/qf4" hx-target="this" hx-swap="outerHTML">Battle QF4</button></div>
+            <div id="battle-btn-qf4"><button class="neon-button" hx-post="/battle/qf4" hx-target="this" hx-swap="outerHTML">Battle QF4</button></div>
             <div id="match-qf4"></div>
             <div class="slot" id="slot-8">{{template "wheel" index .Wheels 7}}</div>
         </div>
+        <hr class="bracket-connector">
         <div class="bracket-sf" id="bracket-sf">
             <!-- SF1: SFLeft[0] vs SFRight[0] -->
             <div class="slot" id="slot-sf1-left">
                 {{if .Bracket.SFLeft0}}{{template "wheel" .Bracket.SFLeft0}}{{else}}<span class="slot-placeholder">SF1 Left</span>{{end}}
             </div>
-            <div id="battle-btn-sf1"><button hx-post="/battle/sf1" hx-target="this" hx-swap="outerHTML">Battle SF1</button></div>
+            <div id="battle-btn-sf1"><button class="neon-button" hx-post="/battle/sf1" hx-target="this" hx-swap="outerHTML">Battle SF1</button></div>
             <div id="match-sf1"></div>
             <div class="slot" id="slot-sf1-right">
                 {{if .Bracket.SFRight0}}{{template "wheel" .Bracket.SFRight0}}{{else}}<span class="slot-placeholder">SF1 Right</span>{{end}}
@@ -240,12 +52,13 @@
             <div class="slot" id="slot-sf2-left">
                 {{if .Bracket.SFLeft1}}{{template "wheel" .Bracket.SFLeft1}}{{else}}<span class="slot-placeholder">SF2 Left</span>{{end}}
             </div>
-            <div id="battle-btn-sf2"><button hx-post="/battle/sf2" hx-target="this" hx-swap="outerHTML">Battle SF2</button></div>
+            <div id="battle-btn-sf2"><button class="neon-button" hx-post="/battle/sf2" hx-target="this" hx-swap="outerHTML">Battle SF2</button></div>
             <div id="match-sf2"></div>
             <div class="slot" id="slot-sf2-right">
                 {{if .Bracket.SFRight1}}{{template "wheel" .Bracket.SFRight1}}{{else}}<span class="slot-placeholder">SF2 Right</span>{{end}}
             </div>
         </div>
+        <hr class="bracket-connector">
         <div class="bracket-final" id="bracket-final">
             <div class="slot" id="slot-final-left">
                 {{if .Bracket.FinalLeft}}{{template "wheel" .Bracket.FinalLeft}}{{else}}<span class="slot-placeholder">Final Left</span>{{end}}
@@ -253,11 +66,11 @@
             <div class="slot" id="slot-final-right">
                 {{if .Bracket.FinalRight}}{{template "wheel" .Bracket.FinalRight}}{{else}}<span class="slot-placeholder">Final Right</span>{{end}}
             </div>
-            <div id="battle-btn-final"><button hx-post="/battle/final" hx-target="this" hx-swap="outerHTML">Battle Final</button></div>
+            <div id="battle-btn-final"><button class="neon-button" hx-post="/battle/final" hx-target="this" hx-swap="outerHTML">Battle Final</button></div>
             <div id="match-final"></div>
         </div>
         <div id="movie-result" class="movie-result">
-            {{if .Bracket.MovieText}}<h2>You're watching: {{.Bracket.MovieText}}</h2>{{end}}
+            {{if .Bracket.MovieText}}<h2 class="movie-hero">You're watching: {{.Bracket.MovieText}}</h2>{{end}}
         </div>
         <!-- Session ID rendered for test verification -->
         <div style="display:none;" id="session-data">{{.SessionID}}</div>

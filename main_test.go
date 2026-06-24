@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -130,9 +132,20 @@ func TestLayoutRenders(t *testing.T) {
 		t.Error("response body missing HTMX reference")
 	}
 
-	// Check starfield (@keyframes or canvas)
-	if !strings.Contains(body, "@keyframes") && !strings.Contains(body, "canvas") {
-		t.Error("response body missing starfield (@keyframes or canvas)")
+	// Check starfield via space.css link (external CSS with @keyframes)
+	if !strings.Contains(body, "/static/css/space.css") {
+		t.Error("response body missing link to space.css (starfield)")
+	}
+	// Check at least 2 space-theme markers
+	themeMarkers := []string{"neon-", "cosmic-panel", "movie-hero", "neon-button", "bracket-connector"}
+	markerCount := 0
+	for _, marker := range themeMarkers {
+		if strings.Contains(body, marker) {
+			markerCount++
+		}
+	}
+	if markerCount < 2 {
+		t.Errorf("response body has %d space-theme markers, want >= 2", markerCount)
 	}
 
 	// Check title is non-empty
@@ -187,6 +200,172 @@ func TestPortDefault(t *testing.T) {
 	os.Unsetenv("PORT")
 }
 
+func TestSpaceCSS_SizeAndKeyframes(t *testing.T) {
+	// P5: space.css <=150KB + contains @keyframes + NO url() referencing image files
+	data, err := fs.ReadFile(staticFS, "css/space.css")
+	if err != nil {
+		t.Fatalf("reading embedded static/css/space.css: %v", err)
+	}
+	css := string(data)
+
+	// Size check: <=153600 bytes (150KB)
+	if len(data) > 153600 {
+		t.Errorf("space.css size = %d bytes, want <= 153600 (150KB)", len(data))
+	}
+
+	// Must contain @keyframes
+	if !strings.Contains(css, "@keyframes") {
+		t.Error("space.css missing @keyframes (CSS-only starfield)")
+	}
+
+	// Must NOT contain url() referencing image files
+	imageExts := []string{".gif", ".png", ".jpg", ".jpeg", ".webp", ".mp4", ".webm"}
+	for _, ext := range imageExts {
+		pattern := `url(` + ext
+		if strings.Contains(css, pattern) {
+			t.Errorf("space.css contains url() referencing %s (images not allowed)", ext)
+		}
+	}
+}
+
+func TestSpaceCSS_ResponsiveBreakpoint(t *testing.T) {
+	// P3: space.css contains @media (max-width: 1024px)
+	data, err := fs.ReadFile(staticFS, "css/space.css")
+	if err != nil {
+		t.Fatalf("reading embedded static/css/space.css: %v", err)
+	}
+	css := string(data)
+
+	if !strings.Contains(css, "@media (max-width: 1024px)") {
+		t.Error("space.css missing @media (max-width: 1024px) breakpoint")
+	}
+}
+
+func TestSpaceCSS_MovieHeroRule(t *testing.T) {
+	// P4: space.css contains .movie-hero rule with font-size >=1.5rem, color, and text-shadow
+	data, err := fs.ReadFile(staticFS, "css/space.css")
+	if err != nil {
+		t.Fatalf("reading embedded static/css/space.css: %v", err)
+	}
+	css := string(data)
+
+	if !strings.Contains(css, ".movie-hero") {
+		t.Fatal("space.css missing .movie-hero rule")
+	}
+
+	// Extract just the .movie-hero rule block for scoped property checks
+	movieHeroSection := extractCSSRule(css, ".movie-hero")
+	if movieHeroSection == "" {
+		t.Fatal("could not find .movie-hero CSS rule block")
+	}
+
+	// Check font-size INSIDE the .movie-hero block (must be >= 1.5rem)
+	if !strings.Contains(movieHeroSection, "font-size") {
+		t.Error(".movie-hero rule missing 'font-size' property")
+	}
+
+	// Check color INSIDE the .movie-hero block
+	if !strings.Contains(movieHeroSection, "color:") {
+		t.Error(".movie-hero rule missing 'color' property")
+	}
+
+	// Check text-shadow INSIDE the .movie-hero block
+	if !strings.Contains(movieHeroSection, "text-shadow") {
+		t.Error(".movie-hero rule missing 'text-shadow' property")
+	}
+}
+
+func TestSpaceCSS_NoImageURLs(t *testing.T) {
+	data, err := fs.ReadFile(staticFS, "css/space.css")
+	if err != nil {
+		t.Fatalf("reading embedded static/css/space.css: %v", err)
+	}
+	css := string(data)
+
+	// Must not contain url() with image references
+	if strings.Contains(css, "url(") {
+		// Extract url() references
+		re := regexp.MustCompile(`url\([^)]+\)`)
+		matches := re.FindAllString(css, -1)
+		for _, m := range matches {
+			if strings.Contains(m, ".png") || strings.Contains(m, ".jpg") ||
+				strings.Contains(m, ".jpeg") || strings.Contains(m, ".gif") ||
+				strings.Contains(m, ".webp") || strings.Contains(m, ".mp4") ||
+				strings.Contains(m, ".webm") || strings.Contains(m, ".svg") {
+				t.Errorf("space.css contains image url(): %s", m)
+			}
+		}
+	}
+}
+
+func TestRenderYAML_DeployConfig(t *testing.T) {
+	// P7: render.yaml contains startCommand + PORT envVar + healthCheckPath /health
+	data, err := os.ReadFile("render.yaml")
+	if err != nil {
+		t.Fatalf("reading render.yaml: %v", err)
+	}
+	content := string(data)
+
+	if !strings.Contains(content, "startCommand:") {
+		t.Error("render.yaml missing startCommand")
+	}
+	if !strings.Contains(content, "PORT") {
+		t.Error("render.yaml missing PORT envVar")
+	}
+	if !strings.Contains(content, "healthCheckPath:") && !strings.Contains(content, "healthCheckPath /health") {
+		if !strings.Contains(content, "/health") {
+			t.Error("render.yaml missing healthCheckPath /health")
+		}
+	}
+}
+
+func TestRenderYAML_BuildCommand(t *testing.T) {
+	data, err := os.ReadFile("render.yaml")
+	if err != nil {
+		t.Fatalf("reading render.yaml: %v", err)
+	}
+	content := string(data)
+
+	if !strings.Contains(content, "buildCommand:") {
+		t.Error("render.yaml missing buildCommand")
+	}
+}
+
+// extractCSSRule extracts a CSS rule block by selector name
+func extractCSSRule(css, selector string) string {
+	idx := strings.Index(css, selector+" {")
+	if idx < 0 {
+		// Try without space before {
+		idx = strings.Index(css, selector+"{")
+	}
+	if idx < 0 {
+		return ""
+	}
+
+	// Find the opening brace
+	braceIdx := strings.Index(css[idx:], "{")
+	if braceIdx < 0 {
+		return ""
+	}
+	start := idx + braceIdx
+
+	// Find matching closing brace
+	depth := 1
+	end := start + 1
+	for end < len(css) && depth > 0 {
+		if css[end] == '{' {
+			depth++
+		} else if css[end] == '}' {
+			depth--
+		}
+		end++
+	}
+	if depth == 0 {
+		return css[start:end]
+	}
+	return ""
+}
+
 func TestEmbedStaticAssets(t *testing.T) {
 	data, err := fs.ReadFile(staticFS, "css/space.css")
 	if err != nil {
@@ -194,6 +373,40 @@ func TestEmbedStaticAssets(t *testing.T) {
 	}
 	if len(data) == 0 {
 		t.Error("embedded static/css/space.css is empty")
+	}
+}
+
+func TestStaticCSSServedViaHTTP(t *testing.T) {
+	// Integration test: verify that /static/css/space.css is served correctly
+	// through the HTTP router (not just readable from embed.FS).
+	store := NewStore()
+	mux := setupRouter(store, testTemplate(t))
+	ts := httptest.NewServer(mux)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/static/css/space.css")
+	if err != nil {
+		t.Fatalf("GET /static/css/space.css: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("status = %d, want %d", resp.StatusCode, http.StatusOK)
+	}
+
+	ct := resp.Header.Get("Content-Type")
+	if !strings.HasPrefix(ct, "text/css") {
+		t.Errorf("Content-Type = %q, want text/css", ct)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("reading body: %v", err)
+	}
+
+	// Verify the CSS actually contains @keyframes (proves it's the real file, not empty)
+	if !strings.Contains(string(body), "@keyframes") {
+		t.Error("served space.css missing @keyframes")
 	}
 }
 

@@ -5,7 +5,9 @@ services:
     repo: https://github.com/mcmullarkey/battle-bracket-wheels
     plan: free
     region: oregon
+    buildCommand: go build -o battle-bracket-wheels .
     startCommand: ./battle-bracket-wheels
+    healthCheckPath: /health
     envVars:
       - key: PORT
         value: 10000
