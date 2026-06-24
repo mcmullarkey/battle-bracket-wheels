@@ -57,13 +57,17 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 		}
 		idxA, idxB := indices[0], indices[1]
 
-		// Load both wheels and check resolved state under read lock
+		// Check match resolved state atomically under write lock, loading wheels
+		// only if the match is not yet resolved (closes TOCTOU window).
 		var whA, whB wheel.Wheel
-		var resolved bool
-		err := store.View(sessionID, func(s *Session) error {
+		var alreadyResolved bool
+		err := store.Update(sessionID, func(s *Session) error {
+			if s.ResolvedMatches[matchID] {
+				alreadyResolved = true
+				return nil
+			}
 			whA = s.Wheels[idxA]
 			whB = s.Wheels[idxB]
-			resolved = s.ResolvedMatches[matchID]
 			return nil
 		})
 		if err != nil {
@@ -74,8 +78,7 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 			}
 			return
 		}
-
-		if resolved {
+		if alreadyResolved {
 			writeJSONError(w, http.StatusConflict, "match already resolved")
 			return
 		}
