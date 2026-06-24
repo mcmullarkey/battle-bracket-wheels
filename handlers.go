@@ -2,10 +2,18 @@ package main
 
 import (
 	"encoding/json"
-	"html/template"
+	"io"
 	"log"
 	"net/http"
 )
+
+// Renderer is the contract for template execution.
+// It decouples handlers.go from html/template (per §3 design intent).
+// The boot/wiring layer (main.go) provides a *template.Template which
+// satisfies this interface automatically.
+type Renderer interface {
+	Execute(w io.Writer, data any) error
+}
 
 // healthHandler returns {"status":"ok"} as JSON.
 func healthHandler(w http.ResponseWriter, r *http.Request) {
@@ -15,7 +23,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // homeHandler executes the layout template with session data.
-func homeHandler(tmpl *template.Template) http.HandlerFunc {
+func homeHandler(renderer Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sessionID := GetCookie(r)
 		if sessionID == "" {
@@ -29,7 +37,7 @@ func homeHandler(tmpl *template.Template) http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if err := tmpl.Execute(w, data); err != nil {
+		if err := renderer.Execute(w, data); err != nil {
 			log.Printf("template execution error: %v", err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 		}
