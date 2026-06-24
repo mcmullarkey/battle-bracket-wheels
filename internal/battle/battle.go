@@ -14,7 +14,7 @@ import (
 )
 
 // RollFunc is a function that returns a pseudo-random integer in [1, 100].
-// In production, the handler wraps crypto/rand.Intn(100)+1.
+// In production, the handler uses math/rand seeded from crypto/rand.
 // Tests inject sequenced or fixed rollers for determinism.
 type RollFunc func() int
 
