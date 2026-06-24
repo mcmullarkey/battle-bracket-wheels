@@ -1,13 +1,20 @@
 {{define "wheel"}}
 <div id="wheel-{{.ID}}">
   <svg viewBox="0 0 200 200" width="200" height="200">
-    {{range $opt := .Options}}
-      {{range $path := $opt.ArcPaths}}
-        <path d="{{$path}}" class="wheel-slice" data-option="{{$opt.Text}}"></path>
+    <!-- Pointer at top (outside rotating group) -->
+    <polygon points="100,0 93,15 107,15" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-{{.ID}}">
+      {{range $opt := .Options}}
+        {{range $path := $opt.ArcPaths}}
+          <path d="{{$path}}" class="wheel-slice" data-option="{{$opt.Text}}"></path>
+        {{end}}
       {{end}}
-    {{end}}
-    <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
   </svg>
+  <form hx-post="/wheel/{{.ID}}/spin" hx-target="#wheel-{{.ID}}" hx-swap="outerHTML">
+    <button type="submit">Spin</button>
+  </form>
   <form hx-post="/wheel/{{.ID}}/option" hx-target="#wheel-{{.ID}}" hx-swap="outerHTML">
     <input type="text" name="text" placeholder="Option text" required>
     <input type="number" name="weight" step="any" min="0" placeholder="Weight">

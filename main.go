@@ -1,10 +1,13 @@
 package main
 
 import (
+	"crypto/rand"
 	"embed"
+	"encoding/binary"
 	"html/template"
 	"io/fs"
 	"log"
+	mathrand "math/rand"
 	"net/http"
 	"os"
 )
@@ -68,6 +71,18 @@ func getAddr(port string) string {
 	return "0.0.0.0:" + port
 }
 
+// newSpinSource creates a math/rand.Source seeded from crypto/rand.
+// This provides non-deterministic spin results in production.
+func newSpinSource() mathrand.Source {
+	var seed int64
+	if err := binary.Read(rand.Reader, binary.LittleEndian, &seed); err != nil {
+		// Fallback: crypto/rand failure is extremely unlikely, but if it
+		// happens we use a timestamp-based seed rather than a fixed value.
+		seed = int64(os.Getpid()) ^ int64(os.Getppid())
+	}
+	return mathrand.NewSource(seed)
+}
+
 // setupRouter creates and configures the HTTP mux with all routes.
 func setupRouter(store *Store, tmpl *template.Template) http.Handler {
 	mux := http.NewServeMux()
@@ -85,6 +100,9 @@ func setupRouter(store *Store, tmpl *template.Template) http.Handler {
 	// Wheel option CRUD routes
 	mux.Handle("POST /wheel/{id}/option", sessionMiddleware(store, addOptionHandler(store, tmpl)))
 	mux.Handle("DELETE /wheel/{id}/option/{idx}", sessionMiddleware(store, deleteOptionHandler(store, tmpl)))
+
+	// Spin route — weighted-random slice selection with client-side animation
+	mux.Handle("POST /wheel/{id}/spin", sessionMiddleware(store, spinHandler(store, tmpl, newSpinSource)))
 
 	return mux
 }
