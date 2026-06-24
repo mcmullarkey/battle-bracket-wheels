@@ -13,9 +13,6 @@
     </g>
   </svg>
   {{if not .ReadOnly}}
-  <form hx-post="/wheel/{{.ID}}/spin" hx-target="#wheel-{{.SlotID}}-{{.ID}}" hx-swap="outerHTML">
-    <button type="submit">Spin</button>
-  </form>
   <form hx-post="/wheel/{{.ID}}/option" hx-target="#wheel-{{.SlotID}}-{{.ID}}" hx-swap="outerHTML">
     <input type="text" name="text" placeholder="Option text" required>
     <input type="number" name="weight" step="any" min="0" placeholder="Weight">
