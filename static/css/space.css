@@ -597,6 +597,8 @@ footer p {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    height: 100%;
+    box-sizing: border-box;
     background: var(--cosmic-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
