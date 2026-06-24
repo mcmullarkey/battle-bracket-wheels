@@ -36,26 +36,34 @@
     // This handles the case where the wheel was already spun.
     group.style.transition = "none";
     group.style.transform = "rotate(0deg)";
-
-    // Force a synchronous reflow so the reset takes effect before
-    // we apply the animated rotation.
-    group.offsetHeight; // eslint-disable-line no-unused-expressions
-
-    // Apply the spin with a deceleration (ease-out) curve.
-    group.style.transition =
-      "transform 3.5s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
     group.style.transformOrigin = "100px 100px";
-    group.style.transform = "rotate(" + totalAngle + "deg)";
+    group.style.transformBox = "view-box";
+
+    // Use requestAnimationFrame to separate the reset from the animated
+    // rotation.  SVG <g> elements do NOT have offsetHeight (it returns
+    // undefined), so the standard reflow-force trick does not work on
+    // them.  Without a frame boundary, the browser batches all style
+    // changes together and the CSS transition never starts.
+    requestAnimationFrame(function () {
+      group.style.transition =
+        "transform 3.5s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
+      group.style.transform = "rotate(" + totalAngle + "deg)";
+    });
   }
 
   document.addEventListener("spin-wheel", function (evt) {
+    // HTMX 2.x wraps the trigger value in {elt: ..., value: ...}.
+    // HTMX 1.x and manual dispatches set detail directly to the value.
     var detail = evt.detail;
     if (!detail) return;
+
+    var triggerValue =
+      detail.value !== undefined ? detail.value : detail;
 
     // The battle handler sends an array of spin data objects
     // (one per wheel), while the single-spin handler sends a
     // single object.  Normalise to an array for uniform handling.
-    var items = Array.isArray(detail) ? detail : [detail];
+    var items = Array.isArray(triggerValue) ? triggerValue : [triggerValue];
 
     for (var i = 0; i < items.length; i++) {
       spinWheel(items[i]);
