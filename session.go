@@ -4,6 +4,7 @@ package main
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
@@ -11,6 +12,10 @@ import (
 
 	"battle-bracket-wheels/internal/wheel"
 )
+
+// ErrSessionNotFound is returned by Store.Update when the session ID
+// does not exist in the store.
+var ErrSessionNotFound = errors.New("session not found")
 
 // cookieName is the name of the session cookie.
 const cookieName = "bbw_session"
@@ -76,6 +81,21 @@ func (s *Store) Get(id string) (*Session, bool) {
 	session, ok := s.sessions[id]
 	s.mu.RUnlock()
 	return session, ok
+}
+
+// Update atomically reads and mutates a session under the write lock.
+// It calls fn with the session pointer. If the session does not exist,
+// ErrSessionNotFound is returned and fn is not called.
+// The caller's fn must not capture the session pointer past the function
+// boundary (no storing it, no passing to goroutines).
+func (s *Store) Update(id string, fn func(*Session) error) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	session, ok := s.sessions[id]
+	if !ok {
+		return fmt.Errorf("%w: %s", ErrSessionNotFound, id)
+	}
+	return fn(session)
 }
 
 // SetCookie writes the bbw_session cookie to the response writer

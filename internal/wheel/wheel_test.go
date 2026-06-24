@@ -103,6 +103,9 @@ func TestNormalizeNoMutation(t *testing.T) {
 		if orig.Options[i].Text != wantOpts[i].Text {
 			t.Errorf("options[%d].Text = %q, want %q", i, orig.Options[i].Text, wantOpts[i].Text)
 		}
+		if (orig.Options[i].Weight == nil) != (wantOpts[i].Weight == nil) {
+			t.Errorf("options[%d].Weight nil mismatch: got %v, want %v", i, orig.Options[i].Weight, wantOpts[i].Weight)
+		}
 		if orig.Options[i].Weight != nil && wantOpts[i].Weight != nil {
 			if *orig.Options[i].Weight != *wantOpts[i].Weight {
 				t.Errorf("options[%d].Weight = %v, want %v", i, *orig.Options[i].Weight, *wantOpts[i].Weight)

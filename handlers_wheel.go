@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -94,12 +95,6 @@ func addOptionHandler(store *Store, renderer Renderer) http.HandlerFunc {
 			return
 		}
 
-		session, ok := store.Get(sessionID)
-		if !ok {
-			writeJSONError(w, http.StatusUnauthorized, "session not found")
-			return
-		}
-
 		idStr := r.PathValue("id")
 		wheelIdx, err := parseWheelID(idStr)
 		if err != nil {
@@ -133,10 +128,22 @@ func addOptionHandler(store *Store, renderer Renderer) http.HandlerFunc {
 			weight = &wVal
 		}
 
-		// Add option to wheel (pure function, no mutation of original)
-		wh := session.Wheels[wheelIdx]
-		wh = wheel.AddOption(wh, text, weight)
-		session.Wheels[wheelIdx] = wh
+		// Atomically add option under write lock
+		var wh wheel.Wheel
+		err = store.Update(sessionID, func(s *Session) error {
+			wh = s.Wheels[wheelIdx]
+			wh = wheel.AddOption(wh, text, weight)
+			s.Wheels[wheelIdx] = wh
+			return nil
+		})
+		if err != nil {
+			if errors.Is(err, ErrSessionNotFound) {
+				writeJSONError(w, http.StatusUnauthorized, "session not found")
+			} else {
+				writeJSONError(w, http.StatusInternalServerError, "internal error")
+			}
+			return
+		}
 
 		view := wheelViewFromWheel(wh)
 		renderWheelFragment(w, renderer, view)
@@ -149,12 +156,6 @@ func deleteOptionHandler(store *Store, renderer Renderer) http.HandlerFunc {
 		sessionID := GetCookie(r)
 		if sessionID == "" {
 			writeJSONError(w, http.StatusUnauthorized, "session required")
-			return
-		}
-
-		session, ok := store.Get(sessionID)
-		if !ok {
-			writeJSONError(w, http.StatusUnauthorized, "session not found")
 			return
 		}
 
@@ -172,13 +173,25 @@ func deleteOptionHandler(store *Store, renderer Renderer) http.HandlerFunc {
 			return
 		}
 
-		wh := session.Wheels[wheelIdx]
-		newWh, err := wheel.RemoveOption(wh, optIdx)
+		var newWh wheel.Wheel
+		err = store.Update(sessionID, func(s *Session) error {
+			wh := s.Wheels[wheelIdx]
+			var innerErr error
+			newWh, innerErr = wheel.RemoveOption(wh, optIdx)
+			if innerErr != nil {
+				return innerErr
+			}
+			s.Wheels[wheelIdx] = newWh
+			return nil
+		})
 		if err != nil {
-			writeJSONError(w, http.StatusBadRequest, err.Error())
+			if errors.Is(err, ErrSessionNotFound) {
+				writeJSONError(w, http.StatusUnauthorized, "session not found")
+			} else {
+				writeJSONError(w, http.StatusBadRequest, err.Error())
+			}
 			return
 		}
-		session.Wheels[wheelIdx] = newWh
 
 		view := wheelViewFromWheel(newWh)
 		renderWheelFragment(w, renderer, view)
@@ -194,11 +207,4 @@ func parseWheelID(idStr string) (int, error) {
 	return id, nil
 }
 
-var errInvalidWheelID = errWithStatus{"invalid wheel ID", http.StatusNotFound}
-
-type errWithStatus struct {
-	msg    string
-	status int
-}
-
-func (e errWithStatus) Error() string { return e.msg }
+var errInvalidWheelID = errors.New("invalid wheel ID")
