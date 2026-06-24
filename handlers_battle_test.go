@@ -55,6 +55,9 @@ func testBattleTemplate(t *testing.T) *template.Template {
 	if _, err = tmpl.New("matchResult").Parse(matchContent); err != nil {
 		t.Fatalf("parsing match template: %v", err)
 	}
+	if _, err = tmpl.New("bracket").Parse(bracketContent); err != nil {
+		t.Fatalf("parsing bracket template: %v", err)
+	}
 	return tmpl
 }
 

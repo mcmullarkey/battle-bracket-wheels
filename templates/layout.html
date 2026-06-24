@@ -161,6 +161,34 @@
         .wheel-slice:nth-child(even) {
             fill: rgba(255, 215, 0, 0.4);
         }
+        .bracket-sf, .bracket-final {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            background: rgba(10, 10, 46, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(100, 150, 255, 0.1);
+        }
+        .bracket-final {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .movie-result {
+            text-align: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid #ffd700;
+            border-radius: 8px;
+            color: #ffd700;
+            font-size: 1.2rem;
+        }
+        .slot-placeholder {
+            color: #6666aa;
+            font-style: italic;
+        }
         footer {
             text-align: center;
             margin-top: 2rem;
@@ -178,6 +206,31 @@
                 {{template "wheel" $w}}
             </div>
             {{end}}
+        </div>
+        <div class="bracket-sf" id="bracket-sf">
+            <div class="slot" id="slot-sf1-left">
+                {{if .Bracket.SFLeft0}}{{template "wheel" .Bracket.SFLeft0}}{{else}}<span class="slot-placeholder">SF1 Left</span>{{end}}
+            </div>
+            <div class="slot" id="slot-sf1-right">
+                {{if .Bracket.SFRight0}}{{template "wheel" .Bracket.SFRight0}}{{else}}<span class="slot-placeholder">SF1 Right</span>{{end}}
+            </div>
+            <div class="slot" id="slot-sf2-left">
+                {{if .Bracket.SFLeft1}}{{template "wheel" .Bracket.SFLeft1}}{{else}}<span class="slot-placeholder">SF2 Left</span>{{end}}
+            </div>
+            <div class="slot" id="slot-sf2-right">
+                {{if .Bracket.SFRight1}}{{template "wheel" .Bracket.SFRight1}}{{else}}<span class="slot-placeholder">SF2 Right</span>{{end}}
+            </div>
+        </div>
+        <div class="bracket-final" id="bracket-final">
+            <div class="slot" id="slot-final-left">
+                {{if .Bracket.FinalLeft}}{{template "wheel" .Bracket.FinalLeft}}{{else}}<span class="slot-placeholder">Final Left</span>{{end}}
+            </div>
+            <div class="slot" id="slot-final-right">
+                {{if .Bracket.FinalRight}}{{template "wheel" .Bracket.FinalRight}}{{else}}<span class="slot-placeholder">Final Right</span>{{end}}
+            </div>
+        </div>
+        <div id="movie-result" class="movie-result">
+            {{if .Bracket.MovieText}}<h2>You're watching: {{.Bracket.MovieText}}</h2>{{end}}
         </div>
         <!-- Session ID rendered for test verification -->
         <div style="display:none;" id="session-data">{{.SessionID}}</div>
