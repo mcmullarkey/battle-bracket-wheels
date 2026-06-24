@@ -1353,4 +1353,15 @@ func TestMatchResult_SpaceThemeVisual(t *testing.T) {
 	if !hasVisualToken {
 		t.Error(".match-result CSS rule missing visual tokens (background, border, box-shadow, backdrop-filter, or --neon-*)")
 	}
+
+	// 9. .match-result uses flexbox centering (AC: centered horizontally + vertically)
+	if !strings.Contains(matchResultRule, "display: flex") {
+		t.Error(".match-result missing display: flex for centering")
+	}
+	if !strings.Contains(matchResultRule, "align-items: center") {
+		t.Error(".match-result missing align-items: center (horizontal centering)")
+	}
+	if !strings.Contains(matchResultRule, "justify-content: center") {
+		t.Error(".match-result missing justify-content: center (vertical centering)")
+	}
 }
