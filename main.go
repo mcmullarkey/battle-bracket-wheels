@@ -21,6 +21,9 @@ var layoutContent string
 //go:embed templates/wheel.html
 var wheelContent string
 
+//go:embed templates/match.html
+var matchContent string
+
 // staticFS is the embedded filesystem for serving static assets.
 var staticFS fs.FS
 
@@ -46,6 +49,10 @@ func main() {
 	// Parse wheel template as an associated template; keep tmpl pointing to layout.
 	if _, err = tmpl.New("wheel").Parse(wheelContent); err != nil {
 		log.Fatalf("failed to parse wheel template: %v", err)
+	}
+	// Parse match result template as an associated template.
+	if _, err = tmpl.New("matchResult").Parse(matchContent); err != nil {
+		log.Fatalf("failed to parse match template: %v", err)
 	}
 
 	store := NewStore()
@@ -103,6 +110,9 @@ func setupRouter(store *Store, tmpl *template.Template) http.Handler {
 
 	// Spin route — weighted-random slice selection with client-side animation
 	mux.Handle("POST /wheel/{id}/spin", sessionMiddleware(store, spinHandler(store, tmpl, newSpinSource)))
+
+	// Battle route — spin two wheels, resolve, absorb loser's option
+	mux.Handle("POST /battle/{matchID}", sessionMiddleware(store, battleHandler(store, tmpl, newSpinSource)))
 
 	return mux
 }
