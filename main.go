@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 )
 
 //go:embed static/*
@@ -75,17 +74,4 @@ func setupRouter(store *Store, tmpl *template.Template) http.Handler {
 	mux.Handle("/", sessionMiddleware(store, homeHandler(tmpl)))
 
 	return mux
-}
-
-// toString is a template helper that converts interface{} to string.
-func toString(v interface{}) string {
-	if s, ok := v.(string); ok {
-		return s
-	}
-	return ""
-}
-
-// trimSpace trims whitespace from a string.
-func trimSpace(s string) string {
-	return strings.TrimSpace(s)
 }
