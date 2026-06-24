@@ -1,9 +1,23 @@
 {{define "matchResult"}}
 <div id="match-{{.MatchID}}" hx-swap-oob="true" class="pending-reveal">
   <div class="match-result">
-    <p><strong>Winner:</strong> Wheel {{.WinnerID}} (roll: {{.WinnerRoll}})</p>
-    <p><strong>Loser:</strong> Wheel {{.LoserID}} (roll: {{.LoserRoll}})</p>
-    {{if gt .Ties 0}}<p><strong>Ties:</strong> {{.Ties}}</p>{{end}}
+    <div class="match-winner">
+      <svg class="match-winner-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9" fill="currentColor"/>
+      </svg>
+      <span class="winner-label">Winner:</span>
+      <span class="winner-text">Wheel {{.WinnerID}} (roll: {{.WinnerRoll}})</span>
+    </div>
+    <div class="match-loser">
+      <svg class="match-loser-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+        <line x1="8" y1="8" x2="16" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="16" y1="8" x2="8" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="loser-label">Loser:</span>
+      <span class="loser-text">Wheel {{.LoserID}} (roll: {{.LoserRoll}})</span>
+    </div>
+    {{if gt .Ties 0}}<div class="match-ties"><span>Ties: {{.Ties}}</span></div>{{end}}
   </div>
 </div>
 {{end}}
