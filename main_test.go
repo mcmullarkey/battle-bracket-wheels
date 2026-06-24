@@ -12,12 +12,18 @@ import (
 	"testing"
 )
 
-// testTemplate parses the embedded layout for use in tests.
+// testTemplate parses the embedded layout and wheel templates for use in tests.
 func testTemplate(t *testing.T) *template.Template {
 	t.Helper()
-	tmpl, err := template.New("layout").Parse(layoutContent)
+	tmpl := template.New("layout").Funcs(template.FuncMap{"add": func(a, b int) int { return a + b }})
+	var err error
+	tmpl, err = tmpl.Parse(layoutContent)
 	if err != nil {
-		t.Fatalf("parsing test template: %v", err)
+		t.Fatalf("parsing layout template: %v", err)
+	}
+	// Parse wheel template as associated template; keep tmpl pointing to layout.
+	if _, err = tmpl.New("wheel").Parse(wheelContent); err != nil {
+		t.Fatalf("parsing wheel template: %v", err)
 	}
 	return tmpl
 }

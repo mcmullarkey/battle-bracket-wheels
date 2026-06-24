@@ -91,6 +91,75 @@
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
             transform: scale(1.02);
         }
+        .slot svg {
+            width: 100%;
+            height: auto;
+            max-height: 150px;
+        }
+        .slot form {
+            display: flex;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .slot form input {
+            background: rgba(10, 10, 46, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.4);
+            color: #e0e0ff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            flex: 1;
+            min-width: 60px;
+        }
+        .slot form button {
+            background: rgba(100, 150, 255, 0.3);
+            border: 1px solid rgba(100, 150, 255, 0.5);
+            color: #aaccff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+        .slot form button:hover {
+            background: rgba(100, 150, 255, 0.5);
+        }
+        .slot ul {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0 0;
+            font-size: 0.75rem;
+        }
+        .slot ul li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.15rem 0;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.15);
+        }
+        .slot ul li button {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            padding: 0 0.25rem;
+            font-size: 0.85rem;
+        }
+        .slot ul li button:hover {
+            color: #ff4444;
+        }
+        .wheel-slice {
+            cursor: pointer;
+            stroke: #0a0a2e;
+            stroke-width: 1;
+        }
+        .wheel-slice:nth-child(odd) {
+            fill: rgba(100, 150, 255, 0.5);
+        }
+        .wheel-slice:nth-child(even) {
+            fill: rgba(255, 215, 0, 0.4);
+        }
         footer {
             text-align: center;
             margin-top: 2rem;
@@ -103,14 +172,11 @@
     <div class="container">
         <h1>⚔ Battle Bracket Wheels ⚔</h1>
         <div class="bracket" id="bracket">
-            <div class="slot" id="slot-1">Slot 1</div>
-            <div class="slot" id="slot-2">Slot 2</div>
-            <div class="slot" id="slot-3">Slot 3</div>
-            <div class="slot" id="slot-4">Slot 4</div>
-            <div class="slot" id="slot-5">Slot 5</div>
-            <div class="slot" id="slot-6">Slot 6</div>
-            <div class="slot" id="slot-7">Slot 7</div>
-            <div class="slot" id="slot-8">Slot 8</div>
+            {{range $i, $w := .Wheels}}
+            <div class="slot" id="slot-{{add $i 1}}">
+                {{template "wheel" $w}}
+            </div>
+            {{end}}
         </div>
         <!-- Session ID rendered for test verification -->
         <div style="display:none;" id="session-data">{{.SessionID}}</div>

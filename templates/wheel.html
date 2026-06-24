@@ -1,0 +1,25 @@
+{{define "wheel"}}
+<div id="wheel-{{.ID}}">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    {{range $opt := .Options}}
+      {{range $path := $opt.ArcPaths}}
+        <path d="{{$path}}" class="wheel-slice" data-option="{{$opt.Text}}"></path>
+      {{end}}
+    {{end}}
+    <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+  </svg>
+  <form hx-post="/wheel/{{.ID}}/option" hx-target="#wheel-{{.ID}}" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Option text" required>
+    <input type="number" name="weight" step="any" min="0" placeholder="Weight">
+    <button type="submit">Add</button>
+  </form>
+  <ul>
+    {{range $i, $opt := .Options}}
+    <li>
+      {{$opt.Text}}
+      <button hx-delete="/wheel/{{$.ID}}/option/{{$opt.Index}}" hx-target="#wheel-{{$.ID}}" hx-swap="outerHTML">&times;</button>
+    </li>
+    {{end}}
+  </ul>
+</div>
+{{end}}

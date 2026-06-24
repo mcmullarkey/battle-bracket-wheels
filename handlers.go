@@ -13,6 +13,7 @@ import (
 // satisfies this interface automatically.
 type Renderer interface {
 	Execute(w io.Writer, data any) error
+	ExecuteTemplate(w io.Writer, name string, data any) error
 }
 
 // healthHandler returns {"status":"ok"} as JSON.
@@ -22,8 +23,8 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 }
 
-// homeHandler executes the layout template with session data.
-func homeHandler(renderer Renderer) http.HandlerFunc {
+// homeHandler executes the layout template with session data and wheel views.
+func homeHandler(store *Store, renderer Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sessionID := GetCookie(r)
 		if sessionID == "" {
@@ -32,8 +33,22 @@ func homeHandler(renderer Renderer) http.HandlerFunc {
 			return
 		}
 
+		// Build wheel views from session data under read lock
+		wheelsView := make([]WheelViewData, 0, 8)
+		err := store.View(sessionID, func(session *Session) error {
+			for _, wh := range session.Wheels {
+				wheelsView = append(wheelsView, wheelViewFromWheel(wh))
+			}
+			return nil
+		})
+		if err != nil {
+			http.Error(w, "session not found", http.StatusInternalServerError)
+			return
+		}
+
 		data := map[string]interface{}{
 			"SessionID": sessionID,
+			"Wheels":    wheelsView,
 		}
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
