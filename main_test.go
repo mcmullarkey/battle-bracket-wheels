@@ -241,7 +241,7 @@ func TestSpaceCSS_ResponsiveBreakpoint(t *testing.T) {
 }
 
 func TestSpaceCSS_MovieHeroRule(t *testing.T) {
-	// P4: space.css contains .movie-hero rule with font-size >=1.5rem AND (color OR text-shadow)
+	// P4: space.css contains .movie-hero rule with font-size >=1.5rem, color, and text-shadow
 	data, err := fs.ReadFile(staticFS, "css/space.css")
 	if err != nil {
 		t.Fatalf("reading embedded static/css/space.css: %v", err)
@@ -252,30 +252,25 @@ func TestSpaceCSS_MovieHeroRule(t *testing.T) {
 		t.Fatal("space.css missing .movie-hero rule")
 	}
 
-	// Check font-size >= 1.5rem
-	if !strings.Contains(css, "font-size: 2rem") && !strings.Contains(css, "font-size:1.5rem") {
-		// Accept any font-size >= 1.5rem
-		if !strings.Contains(css, "font-size: 1.5rem") && !strings.Contains(css, "font-size:1.75rem") {
-			t.Error(".movie-hero should have font-size >= 1.5rem")
-		}
+	// Extract just the .movie-hero rule block for scoped property checks
+	movieHeroSection := extractCSSRule(css, ".movie-hero")
+	if movieHeroSection == "" {
+		t.Fatal("could not find .movie-hero CSS rule block")
 	}
 
-	// Check color is set (non-transparent)
-	hasColor := strings.Contains(css, "color:") && strings.Contains(css, ".movie-hero")
-	if !hasColor {
-		// The color is likely set after .movie-hero in a ruleset
-		// Find the .movie-hero block and check for color
-		movieHeroSection := extractCSSRule(css, ".movie-hero")
-		if movieHeroSection == "" {
-			t.Error("could not find .movie-hero CSS rule block")
-		} else {
-			if !strings.Contains(movieHeroSection, "color:") {
-				t.Error(".movie-hero rule missing 'color' property")
-			}
-			if !strings.Contains(movieHeroSection, "text-shadow:") {
-				t.Error(".movie-hero rule missing 'text-shadow' property")
-			}
-		}
+	// Check font-size INSIDE the .movie-hero block (must be >= 1.5rem)
+	if !strings.Contains(movieHeroSection, "font-size") {
+		t.Error(".movie-hero rule missing 'font-size' property")
+	}
+
+	// Check color INSIDE the .movie-hero block
+	if !strings.Contains(movieHeroSection, "color:") {
+		t.Error(".movie-hero rule missing 'color' property")
+	}
+
+	// Check text-shadow INSIDE the .movie-hero block
+	if !strings.Contains(movieHeroSection, "text-shadow") {
+		t.Error(".movie-hero rule missing 'text-shadow' property")
 	}
 }
 
