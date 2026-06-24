@@ -452,6 +452,13 @@ h1 {
     text-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
 }
 
+/* ===== Wheel Group Rotation ===== */
+
+.wheel-group {
+    transform-origin: 100px 100px;
+    transform-box: view-box;
+}
+
 /* ===== Themed Wheel SVG Slices ===== */
 
 .wheel-slice {

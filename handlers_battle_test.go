@@ -380,13 +380,14 @@ func TestBattleHandler_OOBFragmentCount(t *testing.T) {
 	n, _ := resp.Body.Read(buf)
 	body := string(buf[:n])
 
-	// Should have exactly 3 elements with hx-swap-oob="true":
+	// Should have exactly 2 elements with hx-swap-oob="true":
 	//  1. match-{MatchID} — match result fragment
 	//  2. slot-{nextRound}-{side} — next-round slot with absorbed winner wheel
-	//  3. battle-btn-{MatchID} — disabled battle button
+	// The disabled button is now the non-OOB main swap target (so HTMX 2.x
+	// processes the HX-Trigger header for the spin-wheel animation).
 	count := strings.Count(body, "hx-swap-oob")
-	if count != 3 {
-		t.Errorf("response has %d hx-swap-oob elements, want 3", count)
+	if count != 2 {
+		t.Errorf("response has %d hx-swap-oob elements, want 2", count)
 	}
 
 	// Verify each expected OOB ID is present
@@ -396,8 +397,13 @@ func TestBattleHandler_OOBFragmentCount(t *testing.T) {
 	if !strings.Contains(body, "slot-sf1-left") {
 		t.Error("response missing slot-sf1-left OOB element (should be next-round slot for QF1)")
 	}
-	if !strings.Contains(body, "battle-btn-qf1") {
-		t.Error("response missing battle-btn-qf1 OOB element")
+
+	// Verify the disabled button is present as non-OOB content
+	if !strings.Contains(body, `disabled class="battle-btn"`) {
+		t.Error("response missing disabled button as non-OOB content")
+	}
+	if !strings.Contains(body, "Battle Complete") {
+		t.Error("response missing 'Battle Complete' text on disabled button")
 	}
 }
 
@@ -899,24 +905,29 @@ func TestPostBattle_FinalOOBCount(t *testing.T) {
 
 	body := readResponseBody(t, resp)
 
-	// Should have exactly 3 hx-swap-oob elements:
+	// Should have exactly 2 hx-swap-oob elements:
 	//  1. match-final — match result fragment
-	//  2. battle-btn-final — disabled battle button
-	//  3. movie-result — movie result (NOT a duplicate nextRoundSlot with id=movie-result)
+	//  2. movie-result — movie result (NOT a duplicate nextRoundSlot with id=movie-result)
+	// The disabled button is now the non-OOB main swap target.
 	oobCount := strings.Count(body, "hx-swap-oob")
-	if oobCount != 3 {
-		t.Errorf("Final response has %d hx-swap-oob elements, want 3", oobCount)
+	if oobCount != 2 {
+		t.Errorf("Final response has %d hx-swap-oob elements, want 2", oobCount)
 	}
 
-	// Verify all three expected IDs are present
+	// Verify the expected OOB IDs are present
 	if !strings.Contains(body, "match-final") {
 		t.Error("response missing match-final OOB element")
 	}
-	if !strings.Contains(body, "battle-btn-final") {
-		t.Error("response missing battle-btn-final OOB element")
-	}
 	if !strings.Contains(body, "movie-result") {
 		t.Error("response missing movie-result OOB element")
+	}
+
+	// Verify the disabled button is present as non-OOB content
+	if !strings.Contains(body, `disabled class="battle-btn"`) {
+		t.Error("response missing disabled button as non-OOB content")
+	}
+	if !strings.Contains(body, "Battle Complete") {
+		t.Error("response missing 'Battle Complete' text on disabled button")
 	}
 
 	// Verify no duplicate id="movie-result" (which would happen if SlotMapping

@@ -293,5 +293,15 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 				log.Printf("movieResult template execution error: %v", err)
 			}
 		}
+
+		// 4. Disabled button as non-OOB response for the main swap target.
+		// This element is NOT hx-swap-oob, so HTMX uses it for the main
+		// swap (replacing the clicked battle button).  Without a non-OOB
+		// element, HTMX 2.x skips HX-Trigger event processing entirely,
+		// and the spin-wheel animation never fires.
+		err = renderer.ExecuteTemplate(w, "disabledButton", nil)
+		if err != nil {
+			log.Printf("disabledButton template execution error: %v", err)
+		}
 	}
 }
