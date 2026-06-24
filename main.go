@@ -119,7 +119,10 @@ func setupRouter(store *Store, tmpl *template.Template) http.Handler {
 	mux.Handle("POST /wheel/{id}/spin", sessionMiddleware(store, spinHandler(store, tmpl, newSpinSource)))
 
 	// Battle route — spin two wheels, resolve, absorb loser's option
-	mux.Handle("POST /battle/{matchID}", sessionMiddleware(store, battleHandler(store, tmpl, newSpinSource)))
+	// Method is validated in the handler to allow proper 405 Method Not Allowed
+	// handling (Go 1.22+ ServeMux route-method-patterns fall through to catch-all
+	// for unmatched methods instead of returning 405).
+	mux.Handle("/battle/{matchID}", sessionMiddleware(store, battleHandler(store, tmpl, newSpinSource)))
 
 	return mux
 }
