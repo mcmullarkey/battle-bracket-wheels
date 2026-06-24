@@ -33,12 +33,17 @@ func homeHandler(store *Store, renderer Renderer) http.HandlerFunc {
 			return
 		}
 
-		// Build wheel views from session data
+		// Build wheel views from session data under read lock
 		wheelsView := make([]WheelViewData, 0, 8)
-		if session, ok := store.Get(sessionID); ok {
+		err := store.View(sessionID, func(session *Session) error {
 			for _, wh := range session.Wheels {
 				wheelsView = append(wheelsView, wheelViewFromWheel(wh))
 			}
+			return nil
+		})
+		if err != nil {
+			http.Error(w, "session not found", http.StatusInternalServerError)
+			return
 		}
 
 		data := map[string]interface{}{

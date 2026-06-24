@@ -55,10 +55,7 @@ func wheelViewFromWheel(wh wheel.Wheel) WheelViewData {
 		})
 	} else {
 		for i, opt := range wh.Options {
-			path := ""
-			if i < len(arcs) {
-				path = wheel.ArcPath(arcs[i], cx, cy, r)
-			}
+			path := wheel.ArcPath(arcs[i], cx, cy, r)
 			view.Options = append(view.Options, WheelOptionView{
 				Text:     opt.Text,
 				Index:    i,

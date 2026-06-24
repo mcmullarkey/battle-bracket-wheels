@@ -83,6 +83,21 @@ func (s *Store) Get(id string) (*Session, bool) {
 	return session, ok
 }
 
+// View provides read-only access to a session under the read lock.
+// It calls fn with the session pointer. If the session does not exist,
+// ErrSessionNotFound is returned and fn is not called.
+// The caller's fn must not capture the session pointer past the function
+// boundary (no storing it, no passing to goroutines).
+func (s *Store) View(id string, fn func(*Session) error) error {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	session, ok := s.sessions[id]
+	if !ok {
+		return fmt.Errorf("%w: %s", ErrSessionNotFound, id)
+	}
+	return fn(session)
+}
+
 // Update atomically reads and mutates a session under the write lock.
 // It calls fn with the session pointer. If the session does not exist,
 // ErrSessionNotFound is returned and fn is not called.
