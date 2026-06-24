@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle Bracket Wheels</title>
+    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVAtPTQr8H+AYLfqU7mE8F1Nv3S8H3Y6k6B" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/static/css/space.css">
+    <style>
+        /* Inline starfield animation for immediate effect */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0a0a2e;
+            color: #e0e0ff;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(1px 1px at 10% 20%, #fff 100%, transparent),
+                radial-gradient(1px 1px at 30% 50%, #fff 100%, transparent),
+                radial-gradient(1px 1px at 50% 10%, #fff 100%, transparent),
+                radial-gradient(1px 1px at 70% 30%, #fff 100%, transparent),
+                radial-gradient(1px 1px at 90% 70%, #fff 100%, transparent),
+                radial-gradient(1px 1px at 15% 80%, #fff 100%, transparent),
+                radial-gradient(1px 1px at 45% 90%, #fff 100%, transparent),
+                radial-gradient(1px 1px at 80% 60%, #fff 100%, transparent),
+                radial-gradient(1.5px 1.5px at 25% 40%, #aaccff 100%, transparent),
+                radial-gradient(1.5px 1.5px at 60% 15%, #aaccff 100%, transparent),
+                radial-gradient(1.5px 1.5px at 85% 85%, #aaccff 100%, transparent),
+                radial-gradient(1.5px 1.5px at 5% 55%, #aaccff 100%, transparent),
+                radial-gradient(1.5px 1.5px at 55% 75%, #aaccff 100%, transparent),
+                radial-gradient(2px 2px at 35% 5%, #ffd700 100%, transparent),
+                radial-gradient(2px 2px at 75% 40%, #ffd700 100%, transparent),
+                radial-gradient(2px 2px at 95% 15%, #ffd700 100%, transparent);
+            background-size: 200px 200px;
+            animation: twinkle 4s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            text-shadow: 0 0 20px rgba(100, 150, 255, 0.5);
+            margin-bottom: 2rem;
+            color: #ffd700;
+        }
+        .bracket {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(10, 10, 46, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(100, 150, 255, 0.1);
+        }
+        .slot {
+            background: rgba(20, 20, 60, 0.9);
+            border: 1px solid rgba(100, 150, 255, 0.4);
+            border-radius: 8px;
+            padding: 1.5rem;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: #aaccff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .slot:hover {
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            transform: scale(1.02);
+        }
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #6666aa;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚔ Battle Bracket Wheels ⚔</h1>
+        <div class="bracket" id="bracket">
+            <div class="slot" id="slot-1">Slot 1</div>
+            <div class="slot" id="slot-2">Slot 2</div>
+            <div class="slot" id="slot-3">Slot 3</div>
+            <div class="slot" id="slot-4">Slot 4</div>
+            <div class="slot" id="slot-5">Slot 5</div>
+            <div class="slot" id="slot-6">Slot 6</div>
+            <div class="slot" id="slot-7">Slot 7</div>
+            <div class="slot" id="slot-8">Slot 8</div>
+        </div>
+        <!-- Session ID rendered for test verification -->
+        <div style="display:none;" id="session-data">{{.SessionID}}</div>
+        <footer>
+            <p>Battle Bracket Wheels &mdash; May the best wheel spin</p>
+        </footer>
+    </div>
+</body>
+</html>
