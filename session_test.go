@@ -161,7 +161,10 @@ func TestSessionCookieRoundtrip(t *testing.T) {
 			break
 		}
 	}
-	if freshCookieValue != "" && handlerCookieValue != freshCookieValue {
+	if freshCookieValue == "" {
+		t.Fatal("middleware did not Set-Cookie a fresh session for stale cookie")
+	}
+	if handlerCookieValue != freshCookieValue {
 		t.Errorf("handler received cookie %q, but Set-Cookie has fresh ID %q", handlerCookieValue, freshCookieValue)
 	}
 }

@@ -464,22 +464,92 @@ func TestWheelOption_InvalidWeight(t *testing.T) {
 	ts, _ := testWheelServer(t)
 	sessionID := getSessionCookie(t, ts)
 
-	form := url.Values{"text": {"X"}, "weight": {"abc"}}
-	req, err := http.NewRequest(http.MethodPost, ts.URL+"/wheel/0/option", strings.NewReader(form.Encode()))
+	tests := []struct {
+		name   string
+		weight string
+	}{
+		{"non-numeric (abc)", "abc"},
+		{"NaN", "NaN"},
+		{"+Inf", "+Inf"},
+		{"-Inf", "-Inf"},
+		{"plain Inf", "Inf"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			form := url.Values{"text": {"X"}, "weight": {tt.weight}}
+			req, err := http.NewRequest(http.MethodPost, ts.URL+"/wheel/0/option", strings.NewReader(form.Encode()))
+			if err != nil {
+				t.Fatalf("creating request: %v", err)
+			}
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			req.AddCookie(&http.Cookie{Name: "bbw_session", Value: sessionID})
+
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Fatalf("POST /wheel/0/option: %v", err)
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode != http.StatusBadRequest {
+				t.Errorf("status = %d, want 400", resp.StatusCode)
+			}
+		})
+	}
+}
+
+func TestWheelOption_WeightedSVG(t *testing.T) {
+	ts, _ := testWheelServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// POST option A with weight=1
+	formA := url.Values{"text": {"A"}, "weight": {"1"}}
+	reqA, err := http.NewRequest(http.MethodPost, ts.URL+"/wheel/0/option", strings.NewReader(formA.Encode()))
 	if err != nil {
 		t.Fatalf("creating request: %v", err)
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.AddCookie(&http.Cookie{Name: "bbw_session", Value: sessionID})
-
-	resp, err := http.DefaultClient.Do(req)
+	reqA.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqA.AddCookie(&http.Cookie{Name: "bbw_session", Value: sessionID})
+	respA, err := http.DefaultClient.Do(reqA)
 	if err != nil {
-		t.Fatalf("POST /wheel/0/option: %v", err)
+		t.Fatalf("POST /wheel/0/option (A): %v", err)
 	}
-	defer resp.Body.Close()
+	respA.Body.Close()
 
-	if resp.StatusCode != http.StatusBadRequest {
-		t.Errorf("status = %d, want 400", resp.StatusCode)
+	// POST option B with weight=9
+	formB := url.Values{"text": {"B"}, "weight": {"9"}}
+	reqB, err := http.NewRequest(http.MethodPost, ts.URL+"/wheel/0/option", strings.NewReader(formB.Encode()))
+	if err != nil {
+		t.Fatalf("creating request: %v", err)
+	}
+	reqB.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqB.AddCookie(&http.Cookie{Name: "bbw_session", Value: sessionID})
+
+	respB, err := http.DefaultClient.Do(reqB)
+	if err != nil {
+		t.Fatalf("POST /wheel/0/option (B): %v", err)
+	}
+	defer respB.Body.Close()
+
+	if respB.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", respB.StatusCode)
+	}
+
+	buf := make([]byte, 65536)
+	n, _ := respB.Body.Read(buf)
+	body := string(buf[:n])
+
+	// Should have exactly 2 arc paths (one per option)
+	if strings.Count(body, `class="wheel-slice"`) != 2 {
+		t.Fatal("expected 2 arc paths for 2 options")
+	}
+
+	// With weights 1 (10% probability) and 9 (90% probability),
+	// option B spans 324° which is > 180°, setting large-arc-flag=1.
+	// An equal-weight implementation would produce two 180° arcs
+	// with large-arc-flag=0 for both — no arc would contain "0 1 1".
+	if !strings.Contains(body, "A 80.00 80.00 0 1 1") {
+		t.Error("expected a large arc (>180° sweep) — weights may not be reflected in SVG")
 	}
 }
 

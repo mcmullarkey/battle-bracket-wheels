@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -114,7 +115,7 @@ func addOptionHandler(store *Store, renderer Renderer) http.HandlerFunc {
 		weightStr := r.FormValue("weight")
 		if weightStr != "" {
 			wVal, err := strconv.ParseFloat(weightStr, 64)
-			if err != nil {
+			if err != nil || math.IsNaN(wVal) || math.IsInf(wVal, 0) {
 				writeJSONError(w, http.StatusBadRequest, "invalid weight value")
 				return
 			}
