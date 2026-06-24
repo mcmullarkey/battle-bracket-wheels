@@ -21,6 +21,21 @@ var matchWheelIDs = map[bracket.MatchID][2]int{
 	bracket.MatchQF4: {6, 7},
 }
 
+// roundLabelFromMatchID returns a human-readable label for the next round
+// that a given match's winner advances to.
+func roundLabelFromMatchID(mid bracket.MatchID) string {
+	switch mid {
+	case bracket.MatchQF1, bracket.MatchQF2, bracket.MatchQF3, bracket.MatchQF4:
+		return "Advancing to Semifinal"
+	case bracket.MatchSF1, bracket.MatchSF2:
+		return "Advancing to Final"
+	case bracket.MatchFinal:
+		return "Champion"
+	default:
+		return ""
+	}
+}
+
 // bracketMatchIDs lists match IDs that use bracket state (SF and Final).
 // Uses typed MatchID constants per §1.1 (encode invariants in types).
 var bracketMatchIDs = map[bracket.MatchID]bool{
@@ -37,6 +52,12 @@ type matchResultData struct {
 	WinnerRoll int
 	LoserRoll  int
 	Ties       int
+}
+
+// centerDisplayData holds the data for rendering the center display OOB fragment.
+type centerDisplayData struct {
+	RoundLabel string
+	WinnerText string
 }
 
 // nextRoundSlotData holds the data for rendering the next-round slot OOB fragment.
@@ -294,7 +315,19 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 			}
 		}
 
-		// 4. Disabled button as non-OOB response for the main swap target.
+		// 4. Center display OOB fragment with advancing text
+		{
+			roundLabel := roundLabelFromMatchID(bid)
+			err = renderer.ExecuteTemplate(w, "centerDisplay", centerDisplayData{
+				RoundLabel: roundLabel,
+				WinnerText: battleResult.WinnerLanded.Text,
+			})
+			if err != nil {
+				log.Printf("centerDisplay template execution error: %v", err)
+			}
+		}
+
+		// 5. Disabled button as non-OOB response for the main swap target.
 		// This element is NOT hx-swap-oob, so HTMX uses it for the main
 		// swap (replacing the clicked battle button).  Without a non-OOB
 		// element, HTMX 2.x skips HX-Trigger event processing entirely,

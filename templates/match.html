@@ -1,5 +1,5 @@
 {{define "matchResult"}}
-<div id="match-{{.MatchID}}" hx-swap-oob="true">
+<div id="match-{{.MatchID}}" hx-swap-oob="true" class="pending-reveal">
   <div class="match-result">
     <p><strong>Winner:</strong> Wheel {{.WinnerID}} (roll: {{.WinnerRoll}})</p>
     <p><strong>Loser:</strong> Wheel {{.LoserID}} (roll: {{.LoserRoll}})</p>

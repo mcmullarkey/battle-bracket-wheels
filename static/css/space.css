@@ -527,6 +527,46 @@ footer p {
     padding: 0.5rem;
 }
 
+/* ===== Pending Reveal (results hidden during spin) ===== */
+
+.pending-reveal {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-in, visibility 0.5s ease-in;
+}
+
+.revealed {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ===== Center Display (advancing text) ===== */
+
+.center-display {
+    text-align: center;
+    margin: 1rem auto;
+    padding: 0.75rem 1.5rem;
+    max-width: 500px;
+}
+
+.center-display .round-label {
+    font-size: 0.85rem;
+    color: var(--star-blue);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0 0 0.25rem;
+    font-family: 'Courier New', monospace;
+}
+
+.center-display .advancing-option {
+    font-size: 1.5rem;
+    color: var(--neon-gold);
+    text-shadow: var(--neon-text-gold);
+    margin: 0;
+    font-weight: bold;
+    animation: pulse 2s ease-in-out infinite;
+}
+
 /* ===== Match Result ===== */
 
 .match-result {

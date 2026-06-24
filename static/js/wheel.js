@@ -9,12 +9,26 @@
 // Rotates the SVG wheel group to the target angle with a smooth
 // CSS transition, adding multiple full rotations for a realistic
 // spin effect.
+//
+// Results (match winner/loser, next-round slots, center display) are
+// hidden during the spin animation via the pending-reveal CSS class
+// and revealed after the animation completes.
 
 (function () {
   "use strict";
 
   // Number of full 360-degree rotations before landing on the target.
   var FULL_SPINS = 5;
+
+  // Duration of the spin animation in milliseconds (matches CSS transition).
+  var SPIN_DURATION_MS = 3500;
+
+  // Delay after animation before revealing results (slightly longer than
+  // the CSS transition to ensure visual smoothness).
+  var REVEAL_DELAY_MS = 3700;
+
+  // Timer ID for the reveal timeout, to avoid multiple reveals.
+  var revealTimer = null;
 
   function spinWheel(data) {
     var wheelID = data.wheelID;
@@ -51,6 +65,26 @@
     });
   }
 
+  // Reveal all pending results after the spin animation completes.
+  function revealResults() {
+    var pending = document.querySelectorAll(".pending-reveal");
+    for (var i = 0; i < pending.length; i++) {
+      pending[i].classList.remove("pending-reveal");
+      pending[i].classList.add("revealed");
+    }
+    revealTimer = null;
+  }
+
+  // Schedule reveal after the spin animation finishes.
+  function scheduleReveal() {
+    // Clear any existing timer so we don't stack reveals.
+    if (revealTimer !== null) {
+      clearTimeout(revealTimer);
+    }
+    // Wait for animation to complete, then reveal results.
+    revealTimer = setTimeout(revealResults, REVEAL_DELAY_MS);
+  }
+
   document.addEventListener("spin-wheel", function (evt) {
     // HTMX 2.x wraps the trigger value in {elt: ..., value: ...}.
     // HTMX 1.x and manual dispatches set detail directly to the value.
@@ -67,6 +101,13 @@
 
     for (var i = 0; i < items.length; i++) {
       spinWheel(items[i]);
+    }
+
+    // Schedule result reveal after animation completes.
+    // Only schedule if this is a battle (2 items — two wheels spinning).
+    // Single-wheel spins (1 item) are not battles and have no results to reveal.
+    if (items.length > 1) {
+      scheduleReveal();
     }
   });
 })();
