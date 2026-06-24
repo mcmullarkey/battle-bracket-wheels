@@ -22,11 +22,15 @@ type WheelViewData struct {
 }
 
 // WheelOptionView holds option data for template rendering, including
-// the SVG arc paths for that option's slice(s).
+// the SVG arc paths for that option's slice(s) and text positioning
+// for rendering labels on the wheel arcs.
 type WheelOptionView struct {
 	Text     string
 	Index    int
 	ArcPaths []string
+	MidAngle float64 // degrees — arc midpoint angle for text rotation
+	TextX    float64 // x coordinate for text label (SVG coords)
+	TextY    float64 // y coordinate for text label (SVG coords)
 }
 
 // wheelViewFromWheel builds a WheelViewData from a wheel.Wheel model,
@@ -44,11 +48,11 @@ func wheelViewFromWheel(wh wheel.Wheel, slotID string) WheelViewData {
 	arcs := wheel.ComputeArcAngles(probs)
 	cx, cy, r := 100.0, 100.0, 80.0
 
-	// Build arc paths per option
+	// Build arc paths per option, computing text positions for SVG labels.
 	// For a single option, arcs has 2 entries (two 180° arcs).
 	// For multiple options, arcs has 1 entry per option.
 	if len(wh.Options) == 1 {
-		// Single option: collect both arcs under one option
+		// Single option: collect both arcs, text centered on wheel
 		paths := make([]string, len(arcs))
 		for j, a := range arcs {
 			paths[j] = wheel.ArcPath(a, cx, cy, r)
@@ -57,14 +61,24 @@ func wheelViewFromWheel(wh wheel.Wheel, slotID string) WheelViewData {
 			Text:     wh.Options[0].Text,
 			Index:    0,
 			ArcPaths: paths,
+			TextX:    cx,
+			TextY:    cy,
 		})
 	} else {
+		textRadius := 55.0
 		for i, opt := range wh.Options {
 			path := wheel.ArcPath(arcs[i], cx, cy, r)
+			midAngle := (arcs[i].StartDeg + arcs[i].EndDeg) / 2.0
+			midRad := midAngle * math.Pi / 180.0
+			tx := cx + textRadius*math.Sin(midRad)
+			ty := cy - textRadius*math.Cos(midRad)
 			view.Options = append(view.Options, WheelOptionView{
 				Text:     opt.Text,
 				Index:    i,
 				ArcPaths: []string{path},
+				MidAngle: midAngle,
+				TextX:    tx,
+				TextY:    ty,
 			})
 		}
 	}
