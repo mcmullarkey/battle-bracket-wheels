@@ -15,6 +15,9 @@ var staticFiles embed.FS
 //go:embed templates/layout.html
 var layoutContent string
 
+//go:embed templates/wheel.html
+var wheelContent string
+
 // staticFS is the embedded filesystem for serving static assets.
 var staticFS fs.FS
 
@@ -31,9 +34,15 @@ func main() {
 	addr := getAddr(port)
 
 	// Parse templates from embedded content (no template.Must per spec)
-	tmpl, err := template.New("layout").Parse(layoutContent)
+	tmpl := template.New("layout").Funcs(template.FuncMap{"add": func(a, b int) int { return a + b }})
+	var err error
+	tmpl, err = tmpl.Parse(layoutContent)
 	if err != nil {
-		log.Fatalf("failed to parse templates: %v", err)
+		log.Fatalf("failed to parse layout template: %v", err)
+	}
+	// Parse wheel template as an associated template; keep tmpl pointing to layout.
+	if _, err = tmpl.New("wheel").Parse(wheelContent); err != nil {
+		log.Fatalf("failed to parse wheel template: %v", err)
 	}
 
 	store := NewStore()
@@ -71,7 +80,11 @@ func setupRouter(store *Store, tmpl *template.Template) http.Handler {
 	mux.Handle("/static/", http.StripPrefix("/static/", staticHandler))
 
 	// Home page with session middleware
-	mux.Handle("/", sessionMiddleware(store, homeHandler(tmpl)))
+	mux.Handle("/", sessionMiddleware(store, homeHandler(store, tmpl)))
+
+	// Wheel option CRUD routes
+	mux.Handle("POST /wheel/{id}/option", sessionMiddleware(store, addOptionHandler(store, tmpl)))
+	mux.Handle("DELETE /wheel/{id}/option/{idx}", sessionMiddleware(store, deleteOptionHandler(store, tmpl)))
 
 	return mux
 }

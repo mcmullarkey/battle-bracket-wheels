@@ -4,18 +4,32 @@ package main
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
+
+	"battle-bracket-wheels/internal/wheel"
 )
 
 // cookieName is the name of the session cookie.
 const cookieName = "bbw_session"
 
-// Session represents a user session with a unique ID and creation timestamp.
+// Session represents a user session with a unique ID, creation timestamp,
+// and 8 configurable wheels.
 type Session struct {
-	ID        string    `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        string         `json:"id"`
+	CreatedAt time.Time      `json:"created_at"`
+	Wheels    [8]wheel.Wheel `json:"wheels"`
+}
+
+// newWheels initializes 8 empty wheels with IDs "0" through "7".
+func newWheels() [8]wheel.Wheel {
+	var wh [8]wheel.Wheel
+	for i := range wh {
+		wh[i] = wheel.Wheel{ID: fmt.Sprint(i)}
+	}
+	return wh
 }
 
 // Store is a concurrency-safe, in-memory session store.
@@ -45,6 +59,7 @@ func (s *Store) Create() (*Session, error) {
 	session := &Session{
 		ID:        id,
 		CreatedAt: time.Now(),
+		Wheels:    newWheels(),
 	}
 
 	s.mu.Lock()
