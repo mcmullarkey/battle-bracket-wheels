@@ -21,11 +21,12 @@ var ErrSessionNotFound = errors.New("session not found")
 const cookieName = "bbw_session"
 
 // Session represents a user session with a unique ID, creation timestamp,
-// and 8 configurable wheels.
+// 8 configurable wheels, and resolved match tracking.
 type Session struct {
-	ID        string         `json:"id"`
-	CreatedAt time.Time      `json:"created_at"`
-	Wheels    [8]wheel.Wheel `json:"wheels"`
+	ID              string          `json:"id"`
+	CreatedAt       time.Time       `json:"created_at"`
+	Wheels          [8]wheel.Wheel  `json:"wheels"`
+	ResolvedMatches map[string]bool `json:"resolved_matches"`
 }
 
 // newWheels initializes 8 empty wheels with IDs "0" through "7".
@@ -62,9 +63,10 @@ func (s *Store) Create() (*Session, error) {
 	id := hex.EncodeToString(bytes)
 
 	session := &Session{
-		ID:        id,
-		CreatedAt: time.Now(),
-		Wheels:    newWheels(),
+		ID:              id,
+		CreatedAt:       time.Now(),
+		Wheels:          newWheels(),
+		ResolvedMatches: make(map[string]bool),
 	}
 
 	s.mu.Lock()

@@ -1,0 +1,13 @@
+{{define "matchResult"}}
+<div id="match-{{.MatchID}}" hx-swap-oob="true">
+  <div class="match-result">
+    <p><strong>Winner:</strong> Wheel {{.WinnerID}} (roll: {{.WinnerRoll}})</p>
+    <p><strong>Loser:</strong> Wheel {{.LoserID}} (roll: {{.LoserRoll}})</p>
+    {{if gt .Ties 0}}<p><strong>Ties:</strong> {{.Ties}}</p>{{end}}
+  </div>
+</div>
+<div id="next-{{.MatchID}}" hx-swap-oob="true"></div>
+<div id="battle-btn-{{.MatchID}}" hx-swap-oob="true">
+  <button disabled class="battle-btn">Battle Complete</button>
+</div>
+{{end}}
