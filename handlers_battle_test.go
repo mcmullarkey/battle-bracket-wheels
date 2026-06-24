@@ -380,14 +380,15 @@ func TestBattleHandler_OOBFragmentCount(t *testing.T) {
 	n, _ := resp.Body.Read(buf)
 	body := string(buf[:n])
 
-	// Should have exactly 2 elements with hx-swap-oob="true":
+	// Should have exactly 3 elements with hx-swap-oob="true":
 	//  1. match-{MatchID} — match result fragment
 	//  2. slot-{nextRound}-{side} — next-round slot with absorbed winner wheel
-	// The disabled button is now the non-OOB main swap target (so HTMX 2.x
+	//  3. center-display — advancing text for the next round
+	// The disabled button is the non-OOB main swap target (so HTMX 2.x
 	// processes the HX-Trigger header for the spin-wheel animation).
 	count := strings.Count(body, "hx-swap-oob")
-	if count != 2 {
-		t.Errorf("response has %d hx-swap-oob elements, want 2", count)
+	if count != 3 {
+		t.Errorf("response has %d hx-swap-oob elements, want 3", count)
 	}
 
 	// Verify each expected OOB ID is present
@@ -396,6 +397,9 @@ func TestBattleHandler_OOBFragmentCount(t *testing.T) {
 	}
 	if !strings.Contains(body, "slot-sf1-left") {
 		t.Error("response missing slot-sf1-left OOB element (should be next-round slot for QF1)")
+	}
+	if !strings.Contains(body, "center-display") {
+		t.Error("response missing center-display OOB element")
 	}
 
 	// Verify the disabled button is present as non-OOB content
@@ -905,13 +909,14 @@ func TestPostBattle_FinalOOBCount(t *testing.T) {
 
 	body := readResponseBody(t, resp)
 
-	// Should have exactly 2 hx-swap-oob elements:
+	// Should have exactly 3 hx-swap-oob elements:
 	//  1. match-final — match result fragment
 	//  2. movie-result — movie result (NOT a duplicate nextRoundSlot with id=movie-result)
-	// The disabled button is now the non-OOB main swap target.
+	//  3. center-display — champion text with winning movie
+	// The disabled button is the non-OOB main swap target.
 	oobCount := strings.Count(body, "hx-swap-oob")
-	if oobCount != 2 {
-		t.Errorf("Final response has %d hx-swap-oob elements, want 2", oobCount)
+	if oobCount != 3 {
+		t.Errorf("Final response has %d hx-swap-oob elements, want 3", oobCount)
 	}
 
 	// Verify the expected OOB IDs are present
@@ -920,6 +925,9 @@ func TestPostBattle_FinalOOBCount(t *testing.T) {
 	}
 	if !strings.Contains(body, "movie-result") {
 		t.Error("response missing movie-result OOB element")
+	}
+	if !strings.Contains(body, "center-display") {
+		t.Error("response missing center-display OOB element")
 	}
 
 	// Verify the disabled button is present as non-OOB content

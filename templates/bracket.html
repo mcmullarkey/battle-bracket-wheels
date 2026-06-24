@@ -1,11 +1,18 @@
 {{define "nextRoundSlot"}}
-<div id="{{.SlotID}}" hx-swap-oob="true" class="slot">
+<div id="{{.SlotID}}" hx-swap-oob="true" class="slot pending-reveal">
   {{template "wheel" .Wheel}}
 </div>
 {{end}}
 
 {{define "movieResult"}}
-<div id="movie-result" hx-swap-oob="true" class="movie-result">
+<div id="movie-result" hx-swap-oob="true" class="movie-result pending-reveal">
   <h2 class="movie-hero">You're watching: {{.Text}}</h2>
+</div>
+{{end}}
+
+{{define "centerDisplay"}}
+<div id="center-display" hx-swap-oob="true" class="center-display pending-reveal">
+  <p class="round-label">{{.RoundLabel}}</p>
+  <p class="advancing-option">{{.WinnerText}}</p>
 </div>
 {{end}}
