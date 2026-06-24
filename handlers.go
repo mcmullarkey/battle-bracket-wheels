@@ -68,11 +68,11 @@ func sessionMiddleware(store *Store, next http.Handler) http.Handler {
 			}
 		}
 
-		// Add cookie to request for downstream handlers
-		r.AddCookie(&http.Cookie{
-			Name:  cookieName,
-			Value: cookieValue,
-		})
+		// Add cookie to request for downstream handlers.
+		// Use r.Header.Set to replace the Cookie header entirely, so that
+		// a stale cookie (e.g. from before server restart) does not win
+		// over the fresh session ID we just Set-Cookie'd on the response.
+		r.Header.Set("Cookie", cookieName+"="+cookieValue)
 
 		next.ServeHTTP(w, r)
 	})
