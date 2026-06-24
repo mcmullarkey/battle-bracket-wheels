@@ -701,9 +701,9 @@ func TestPostBattle_NoReTyping(t *testing.T) {
 
 	// The next-round slot (slot-sf1-left) should contain the wheel template with option text rendered
 	// Check that the absorbed wheel's options appear as rendered text in the slot fragment
-	if !strings.Contains(body, "Bicycle") && !strings.Contains(body, "Skateboard") {
-		// At least one of the option texts should be present
-		t.Error("slot-sf1-left fragment missing rendered option text (both Bicycle and Skateboard absent)")
+	if !strings.Contains(body, "Bicycle") || !strings.Contains(body, "Skateboard") {
+		// Both option texts must be present (absorbed wheel's options + winner's original options)
+		t.Error("slot-sf1-left fragment missing absorbed option text (need BOTH Bicycle and Skateboard)")
 	}
 
 	// Check that option text is rendered as visible text, not inside an empty <input>
