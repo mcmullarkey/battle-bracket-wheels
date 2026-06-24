@@ -8,24 +8,16 @@
         {{range $path := $opt.ArcPaths}}
           <path d="{{$path}}" class="wheel-slice" data-option="{{$opt.Text}}"></path>
         {{end}}
+        <text x="{{printf "%.1f" $opt.TextX}}" y="{{printf "%.1f" $opt.TextY}}" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="{{$opt.Text}}">{{$opt.Text}}</text>
       {{end}}
       <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
     </g>
   </svg>
   {{if not .ReadOnly}}
   <form hx-post="/wheel/{{.ID}}/option" hx-target="#wheel-{{.SlotID}}-{{.ID}}" hx-swap="outerHTML">
-    <input type="text" name="text" placeholder="Option text" required>
-    <input type="number" name="weight" step="any" min="0" placeholder="Weight">
+    <input type="text" name="text" placeholder="Add option..." required>
     <button type="submit">Add</button>
   </form>
   {{end}}
-  <ul>
-    {{range $i, $opt := .Options}}
-    <li>
-      {{$opt.Text}}
-      {{if not $.ReadOnly}}<button hx-delete="/wheel/{{$.ID}}/option/{{$opt.Index}}" hx-target="#wheel-{{$.SlotID}}-{{$.ID}}" hx-swap="outerHTML">&times;</button>{{end}}
-    </li>
-    {{end}}
-  </ul>
 </div>
 {{end}}

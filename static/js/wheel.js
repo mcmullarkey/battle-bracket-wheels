@@ -1,7 +1,11 @@
 // wheel.js — Spin animation for Battle Bracket Wheels.
 //
 // Listens for the "spin-wheel" custom event fired by HTMX after
-// a POST /wheel/{id}/spin response includes the HX-Trigger header.
+// a response includes the HX-Trigger header with a "spin-wheel" key.
+// Handles both single-wheel spins (POST /wheel/{id}/spin) and
+// two-wheel battle spins (POST /battle/{matchID}) where the detail
+// is an array of spin data objects.
+//
 // Rotates the SVG wheel group to the target angle with a smooth
 // CSS transition, adding multiple full rotations for a realistic
 // spin effect.
@@ -12,17 +16,16 @@
   // Number of full 360-degree rotations before landing on the target.
   var FULL_SPINS = 5;
 
-  document.addEventListener("spin-wheel", function (evt) {
-    var detail = evt.detail;
-    if (!detail) return;
-
-    var wheelID = detail.wheelID;
-    var slotID = detail.slotID || "";
-    var targetAngle = detail.targetAngle;
+  function spinWheel(data) {
+    var wheelID = data.wheelID;
+    var slotID = data.slotID || "";
+    var targetAngle = data.targetAngle;
     if (wheelID === undefined || targetAngle === undefined) return;
 
     // Find the wheel's rotating group element using scoped ID.
-    var scopedGroupID = slotID ? "wheel-group-" + slotID + "-" + wheelID : "wheel-group-" + wheelID;
+    var scopedGroupID = slotID
+      ? "wheel-group-" + slotID + "-" + wheelID
+      : "wheel-group-" + wheelID;
     var group = document.getElementById(scopedGroupID);
     if (!group) return;
 
@@ -43,5 +46,19 @@
       "transform 3.5s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
     group.style.transformOrigin = "100px 100px";
     group.style.transform = "rotate(" + totalAngle + "deg)";
+  }
+
+  document.addEventListener("spin-wheel", function (evt) {
+    var detail = evt.detail;
+    if (!detail) return;
+
+    // The battle handler sends an array of spin data objects
+    // (one per wheel), while the single-spin handler sends a
+    // single object.  Normalise to an array for uniform handling.
+    var items = Array.isArray(detail) ? detail : [detail];
+
+    for (var i = 0; i < items.length; i++) {
+      spinWheel(items[i]);
+    }
   });
 })();
