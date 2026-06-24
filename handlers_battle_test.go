@@ -9,10 +9,13 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+
+	"battle-bracket-wheels/internal/wheel"
 )
 
 // battleTestServer creates a test server with deterministic rand and battle handler.
-func battleTestServer(t *testing.T) (*httptest.Server, *template.Template) {
+// Returns the server, template, and store (for state inspection in tests).
+func battleTestServer(t *testing.T) (*httptest.Server, *template.Template, *Store) {
 	t.Helper()
 	store := NewStore()
 	tmpl := testBattleTemplate(t)
@@ -25,7 +28,7 @@ func battleTestServer(t *testing.T) (*httptest.Server, *template.Template) {
 	mux.Handle("/", sessionMiddleware(store, homeHandler(store, tmpl)))
 	ts := httptest.NewServer(mux)
 	t.Cleanup(ts.Close)
-	return ts, tmpl
+	return ts, tmpl, store
 }
 
 // testBattleTemplate parses templates for battle tests, including match.html.
@@ -64,7 +67,7 @@ func addOptionToWheel(t *testing.T, ts *httptest.Server, sessionID, wheelID, tex
 }
 
 func TestBattleHandler_Success(t *testing.T) {
-	ts, _ := battleTestServer(t)
+	ts, _, _ := battleTestServer(t)
 	sessionID := getSessionCookie(t, ts)
 
 	// Add options to both wheels (QF1 = wheel 0 vs wheel 1)
@@ -126,7 +129,7 @@ func TestBattleHandler_Success(t *testing.T) {
 }
 
 func TestBattleHandler_EmptyWheel(t *testing.T) {
-	ts, _ := battleTestServer(t)
+	ts, _, _ := battleTestServer(t)
 	sessionID := getSessionCookie(t, ts)
 
 	// Only add option to one wheel (wheel 0 has options, wheel 1 is empty)
@@ -151,7 +154,7 @@ func TestBattleHandler_EmptyWheel(t *testing.T) {
 }
 
 func TestBattleHandler_InvalidMatchID(t *testing.T) {
-	ts, _ := battleTestServer(t)
+	ts, _, _ := battleTestServer(t)
 	sessionID := getSessionCookie(t, ts)
 
 	// POST /battle/invalid
@@ -173,7 +176,7 @@ func TestBattleHandler_InvalidMatchID(t *testing.T) {
 }
 
 func TestBattleHandler_AlreadyResolved(t *testing.T) {
-	ts, _ := battleTestServer(t)
+	ts, _, _ := battleTestServer(t)
 	sessionID := getSessionCookie(t, ts)
 
 	// Add options to both wheels
@@ -210,7 +213,7 @@ func TestBattleHandler_AlreadyResolved(t *testing.T) {
 }
 
 func TestBattleHandler_HXTriggerBothWheels(t *testing.T) {
-	ts, _ := battleTestServer(t)
+	ts, _, _ := battleTestServer(t)
 	sessionID := getSessionCookie(t, ts)
 
 	// Add options
@@ -264,7 +267,7 @@ func TestBattleHandler_HXTriggerBothWheels(t *testing.T) {
 }
 
 func TestBattleHandler_BothWheelsEmpty(t *testing.T) {
-	ts, _ := battleTestServer(t)
+	ts, _, _ := battleTestServer(t)
 	sessionID := getSessionCookie(t, ts)
 
 	// Both wheels are empty (no options added)
@@ -287,7 +290,7 @@ func TestBattleHandler_BothWheelsEmpty(t *testing.T) {
 }
 
 func TestBattleHandler_MatchQF2(t *testing.T) {
-	ts, _ := battleTestServer(t)
+	ts, _, _ := battleTestServer(t)
 	sessionID := getSessionCookie(t, ts)
 
 	// QF2 = wheel 2 vs wheel 3
@@ -334,6 +337,131 @@ func TestBattleHandler_MatchQF2(t *testing.T) {
 	}
 	if !wheelIDs["3"] {
 		t.Error("HX-Trigger missing wheel ID 3")
+	}
+}
+
+func TestBattleHandler_OOBFragmentCount(t *testing.T) {
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// Add options to both wheels (QF1 = wheel 0 vs wheel 1)
+	addOptionToWheel(t, ts, sessionID, "0", "Bicycle")
+	addOptionToWheel(t, ts, sessionID, "1", "Skateboard")
+
+	req, err := http.NewRequest(http.MethodPost, ts.URL+"/battle/qf1", nil)
+	if err != nil {
+		t.Fatalf("creating battle request: %v", err)
+	}
+	req.AddCookie(&http.Cookie{Name: "bbw_session", Value: sessionID})
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("POST /battle/qf1: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
+
+	buf := make([]byte, 65536)
+	n, _ := resp.Body.Read(buf)
+	body := string(buf[:n])
+
+	// Should have exactly 3 elements with hx-swap-oob="true":
+	//  1. match-{MatchID} — match result fragment
+	//  2. next-{MatchID} — next-round slot placeholder
+	//  3. battle-btn-{MatchID} — disabled battle button
+	count := strings.Count(body, "hx-swap-oob")
+	if count != 3 {
+		t.Errorf("response has %d hx-swap-oob elements, want 3", count)
+	}
+
+	// Verify each expected OOB ID is present
+	if !strings.Contains(body, "match-qf1") {
+		t.Error("response missing match-qf1 OOB element")
+	}
+	if !strings.Contains(body, "next-qf1") {
+		t.Error("response missing next-qf1 OOB element")
+	}
+	if !strings.Contains(body, "battle-btn-qf1") {
+		t.Error("response missing battle-btn-qf1 OOB element")
+	}
+}
+
+func TestBattleHandler_PostBattleStoreState(t *testing.T) {
+	ts, _, store := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// Add distinct options to both wheels
+	addOptionToWheel(t, ts, sessionID, "0", "Bicycle")
+	addOptionToWheel(t, ts, sessionID, "1", "Skateboard")
+
+	// Execute battle
+	req, err := http.NewRequest(http.MethodPost, ts.URL+"/battle/qf1", nil)
+	if err != nil {
+		t.Fatalf("creating battle request: %v", err)
+	}
+	req.AddCookie(&http.Cookie{Name: "bbw_session", Value: sessionID})
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("POST /battle/qf1: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
+
+	// Extract winner ID from response body
+	buf := make([]byte, 65536)
+	n, _ := resp.Body.Read(buf)
+	body := string(buf[:n])
+
+	winnerPrefix := "<strong>Winner:</strong> Wheel "
+	idx := strings.Index(body, winnerPrefix)
+	if idx < 0 {
+		t.Fatal("could not find winner in response body")
+	}
+	winnerID := string(body[idx+len(winnerPrefix)])
+
+	// Verify store state: winner wheel absorbed the loser's option
+	var wh0, wh1 wheel.Wheel
+	err = store.View(sessionID, func(s *Session) error {
+		wh0 = s.Wheels[0]
+		wh1 = s.Wheels[1]
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("store.View: %v", err)
+	}
+
+	if winnerID == "0" {
+		if len(wh0.Options) != 2 {
+			t.Errorf("winner wheel 0 has %d options, want 2", len(wh0.Options))
+		}
+		if len(wh1.Options) != 1 {
+			t.Errorf("loser wheel 1 has %d options, want 1", len(wh1.Options))
+		}
+	} else {
+		if len(wh1.Options) != 2 {
+			t.Errorf("winner wheel 1 has %d options, want 2", len(wh1.Options))
+		}
+		if len(wh0.Options) != 1 {
+			t.Errorf("loser wheel 0 has %d options, want 1", len(wh0.Options))
+		}
+	}
+
+	// Verify match is marked as resolved in the store
+	var resolved bool
+	err = store.View(sessionID, func(s *Session) error {
+		resolved = s.ResolvedMatches["qf1"]
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("store.View: %v", err)
+	}
+	if !resolved {
+		t.Error("match qf1 not marked as resolved in store")
 	}
 }
 
