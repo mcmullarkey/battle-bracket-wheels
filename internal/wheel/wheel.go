@@ -166,7 +166,8 @@ func Spin(w Wheel, src rand.Source) (SpinResult, error) {
 // computeTargetAngle computes the rotation angle (degrees) needed to align
 // the midpoint of slice idx under the top pointer (0°).
 //
-// Slice midpoint = (2*idx+1) * 180 / N degrees clockwise from top.
+// It uses ComputeArcAngles to get the actual arc boundaries (which respect
+// weighted probabilities), then computes the midpoint from the real arc.
 // Target rotation = (360 - midpoint) mod 360, so the midpoint lands at 0°.
 //
 // For a single option, returns 0 (no rotation needed — the entire wheel is
@@ -176,7 +177,9 @@ func computeTargetAngle(probs []float64, idx int) float64 {
 	if n <= 1 {
 		return 0
 	}
-	midpoint := float64(2*idx+1) * 180.0 / float64(n)
+	arcs := ComputeArcAngles(probs)
+	arc := arcs[idx]
+	midpoint := (arc.StartDeg + arc.EndDeg) / 2.0
 	target := math.Mod(360.0-midpoint, 360.0)
 	if target < 0 {
 		target += 360.0

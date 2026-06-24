@@ -380,6 +380,19 @@ func TestComputeTargetAngle_TwoEqual(t *testing.T) {
 	}
 }
 
+func TestComputeTargetAngle_Weighted(t *testing.T) {
+	// weights [1,2,7] → probs [0.1, 0.2, 0.7]
+	// arcs: [0,36], [36,108], [108,360] → midpoints 18,72,234 → targets 342,288,126
+	probs := []float64{0.1, 0.2, 0.7}
+	expected := []float64{342, 288, 126}
+	for i, want := range expected {
+		got := computeTargetAngle(probs, i)
+		if math.Abs(got-want) > 0.001 {
+			t.Errorf("idx %d: target = %f, want %f", i, got, want)
+		}
+	}
+}
+
 func TestComputeTargetAngle_FourEqual(t *testing.T) {
 	// N=4: midpoints are 45°, 135°, 225°, 315°
 	// targets: (360-45)=315°, (360-135)=225°, (360-225)=135°, (360-315)=45°

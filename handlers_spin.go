@@ -73,7 +73,7 @@ func spinHandler(store *Store, renderer Renderer, newSource func() rand.Source) 
 		triggerJSON, err := json.Marshal(triggerData)
 		if err != nil {
 			log.Printf("json marshal HX-Trigger: %v", err)
-			http.Error(w, "internal server error", http.StatusInternalServerError)
+			writeJSONError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}
 		w.Header().Set("HX-Trigger", string(triggerJSON))

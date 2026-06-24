@@ -189,6 +189,28 @@ func TestSpinHandlerEmptyWheel(t *testing.T) {
 	}
 }
 
+func TestSpinHandlerInvalidWheelID(t *testing.T) {
+	ts, _ := spinTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// POST to non-existent wheel ID (valid range is 0-7)
+	req, err := http.NewRequest(http.MethodPost, ts.URL+"/wheel/999/spin", nil)
+	if err != nil {
+		t.Fatalf("creating spin request: %v", err)
+	}
+	req.AddCookie(&http.Cookie{Name: "bbw_session", Value: sessionID})
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("POST /wheel/999/spin: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNotFound {
+		t.Errorf("status = %d, want 404", resp.StatusCode)
+	}
+}
+
 func TestSpinHandlerAllZeroWeight(t *testing.T) {
 	ts, _ := spinTestServer(t)
 	sessionID := getSessionCookie(t, ts)
