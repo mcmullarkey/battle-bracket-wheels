@@ -567,6 +567,28 @@ footer p {
     animation: pulse 2s ease-in-out infinite;
 }
 
+.center-display .advancing-options {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.center-display .advancing-options li {
+    background: rgba(255, 215, 0, 0.08);
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    border-radius: 8px;
+    padding: 0.35rem 0.8rem;
+    font-size: 1.1rem;
+    color: var(--neon-gold);
+    text-shadow: var(--neon-text-gold);
+    font-weight: bold;
+    animation: pulse 2s ease-in-out infinite;
+}
+
 /* ===== Match Result ===== */
 
 .match-result {

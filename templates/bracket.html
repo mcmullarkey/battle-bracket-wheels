@@ -13,6 +13,14 @@
 {{define "centerDisplay"}}
 <div id="center-display" hx-swap-oob="true" class="center-display pending-reveal">
   <p class="round-label">{{.RoundLabel}}</p>
+  {{if .Options}}
+  <ul class="advancing-options">
+    {{range .Options}}
+    <li>{{.}}</li>
+    {{end}}
+  </ul>
+  {{else}}
   <p class="advancing-option">{{.WinnerText}}</p>
+  {{end}}
 </div>
 {{end}}

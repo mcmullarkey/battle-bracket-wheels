@@ -36,6 +36,16 @@ func roundLabelFromMatchID(mid bracket.MatchID) string {
 	}
 }
 
+// advancingDisplayOptions extracts the text from each option in the absorbed
+// wheel into a []string for use in the centerDisplay view-model.
+func advancingDisplayOptions(absorbedWheel wheel.Wheel) []string {
+	opts := make([]string, len(absorbedWheel.Options))
+	for i, o := range absorbedWheel.Options {
+		opts[i] = o.Text
+	}
+	return opts
+}
+
 // bracketMatchIDs lists match IDs that use bracket state (SF and Final).
 // Uses typed MatchID constants per §1.1 (encode invariants in types).
 var bracketMatchIDs = map[bracket.MatchID]bool{
@@ -55,9 +65,13 @@ type matchResultData struct {
 }
 
 // centerDisplayData holds the data for rendering the center display OOB fragment.
+// For QF/SF, Options carries the full advancing option list (winner's originals + absorbed loser);
+// WinnerText is unused. For Final, Options is nil/empty and WinnerText carries the single
+// champion movie text.
 type centerDisplayData struct {
 	RoundLabel string
 	WinnerText string
+	Options    []string
 }
 
 // nextRoundSlotData holds the data for rendering the next-round slot OOB fragment.
@@ -316,12 +330,19 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 		}
 
 		// 4. Center display OOB fragment with advancing text
+		// For QF/SF, shows all advancing options as a list.
+		// For Final, shows the single champion movie text.
 		{
 			roundLabel := roundLabelFromMatchID(bid)
-			err = renderer.ExecuteTemplate(w, "centerDisplay", centerDisplayData{
+			cdData := centerDisplayData{
 				RoundLabel: roundLabel,
-				WinnerText: battleResult.WinnerLanded.Text,
-			})
+			}
+			if bid == bracket.MatchFinal {
+				cdData.WinnerText = battleResult.WinnerLanded.Text
+			} else {
+				cdData.Options = advancingDisplayOptions(absorbedWheel)
+			}
+			err = renderer.ExecuteTemplate(w, "centerDisplay", cdData)
 			if err != nil {
 				log.Printf("centerDisplay template execution error: %v", err)
 			}

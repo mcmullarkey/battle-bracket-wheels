@@ -20,7 +20,7 @@ import (
 // always tie, making it useful for testing tiebreaker exhaustion.
 type tieSource struct{}
 
-func (tieSource) Int63() int64  { return 0 }
+func (tieSource) Int63() int64    { return 0 }
 func (tieSource) Seed(seed int64) {}
 
 // battleTestServer creates a test server with deterministic rand and battle handler.
@@ -943,6 +943,14 @@ func TestPostBattle_FinalOOBCount(t *testing.T) {
 	if strings.Count(body, `id="movie-result"`) != 1 {
 		t.Error("response has duplicate id=\"movie-result\" — SlotMapping for Final should return empty string")
 	}
+
+	// Verify Final center-display has NO list markup (single champion text only)
+	if strings.Contains(body, `<ul`) {
+		t.Error("Final center-display contains <ul> — expected no list markup for Final")
+	}
+	if strings.Contains(body, "<li") {
+		t.Error("Final center-display contains <li> — expected no list markup for Final")
+	}
 }
 
 func TestPostBattle_QF2Target(t *testing.T) {
@@ -1015,3 +1023,230 @@ func TestPostBattle_SF2Target(t *testing.T) {
 	}
 }
 
+// extractOOBFragment extracts the inner content of an hx-swap-oob="true" element by its id.
+// Returns empty string if not found. Handles simple elements with no nested divs.
+func extractOOBFragment(body, id string) string {
+	startTag := fmt.Sprintf(`id="%s" hx-swap-oob="true"`, id)
+	idx := strings.Index(body, startTag)
+	if idx < 0 {
+		return ""
+	}
+	// Find the closing > of the opening tag
+	gtIdx := strings.Index(body[idx:], ">")
+	if gtIdx < 0 {
+		return ""
+	}
+	contentStart := idx + gtIdx + 1
+
+	// Find closing </div>
+	closeTag := "</div>"
+	closeIdx := strings.Index(body[contentStart:], closeTag)
+	if closeIdx < 0 {
+		return ""
+	}
+	return body[contentStart : contentStart+closeIdx]
+}
+
+func TestPostBattle_CenterDisplayAdvancingOptions(t *testing.T) {
+	ts, _, store := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	t.Run("QF1 list structure with all advancing options", func(t *testing.T) {
+		// Wheel 0 has 3 options, wheel 1 has 1 option
+		// After absorption (regardless of winner), the absorbed wheel contains
+		// the winner's originals + the loser's landed option.
+		addOptionToWheel(t, ts, sessionID, "0", "A")
+		addOptionToWheel(t, ts, sessionID, "0", "B")
+		addOptionToWheel(t, ts, sessionID, "0", "C")
+		addOptionToWheel(t, ts, sessionID, "1", "D")
+
+		resp := battleRequest(t, ts, sessionID, "qf1")
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("status = %d, want 200", resp.StatusCode)
+		}
+
+		body := readResponseBody(t, resp)
+		centerDisplay := extractOOBFragment(body, "center-display")
+		if centerDisplay == "" {
+			t.Fatal("center-display OOB fragment not found")
+		}
+
+		// Read the absorbed wheel from bracket state after the battle
+		var absorbedWheel *wheel.Wheel
+		err := store.View(sessionID, func(s *Session) error {
+			absorbedWheel = s.Bracket.SFLeft[0]
+			return nil
+		})
+		if err != nil {
+			t.Fatalf("store.View: %v", err)
+		}
+		if absorbedWheel == nil {
+			t.Fatal("absorbed wheel is nil — SFLeft[0] not populated")
+		}
+
+		// Every option text from the absorbed wheel must appear in center-display
+		for _, opt := range absorbedWheel.Options {
+			if !strings.Contains(centerDisplay, opt.Text) {
+				t.Errorf("center-display missing absorbed option %q (absorbed wheel has %d options: %v)",
+					opt.Text, len(absorbedWheel.Options), optionTexts(absorbedWheel.Options))
+			}
+		}
+
+		// Must render as list structure, not single <p>
+		if !strings.Contains(centerDisplay, "<li") {
+			t.Error("center-display missing <li> list markup — expected list structure for QF/SF")
+		}
+
+		// Must NOT be the old single-paragraph format
+		if strings.Contains(centerDisplay, `<p class="advancing-option">`) {
+			t.Error("center-display contains old single-paragraph format — expected list for QF/SF")
+		}
+	})
+
+	t.Run("QF1 center-display round label", func(t *testing.T) {
+		defer func() {
+			// Create fresh session for this subtest
+		}()
+
+		ts2, _, _ := battleTestServer(t)
+		sessionID2 := getSessionCookie(t, ts2)
+
+		addOptionToWheel(t, ts2, sessionID2, "0", "A")
+		addOptionToWheel(t, ts2, sessionID2, "1", "B")
+
+		resp := battleRequest(t, ts2, sessionID2, "qf1")
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("status = %d, want 200", resp.StatusCode)
+		}
+
+		body := readResponseBody(t, resp)
+		centerDisplay := extractOOBFragment(body, "center-display")
+		if centerDisplay == "" {
+			t.Fatal("center-display OOB fragment not found")
+		}
+
+		if !strings.Contains(centerDisplay, "Advancing to Semifinal") {
+			t.Error("center-display missing round label 'Advancing to Semifinal' for QF1")
+		}
+	})
+
+	t.Run("QF1 dedupe shared option text", func(t *testing.T) {
+		ts2, _, _ := battleTestServer(t)
+		sessionID2 := getSessionCookie(t, ts2)
+
+		// Both wheels share "Movie" — after absorption it should appear exactly once
+		addOptionToWheel(t, ts2, sessionID2, "0", "Movie")
+		addOptionToWheel(t, ts2, sessionID2, "0", "UniqueA")
+		addOptionToWheel(t, ts2, sessionID2, "1", "Movie")
+
+		resp := battleRequest(t, ts2, sessionID2, "qf1")
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("status = %d, want 200", resp.StatusCode)
+		}
+
+		body := readResponseBody(t, resp)
+		centerDisplay := extractOOBFragment(body, "center-display")
+		if centerDisplay == "" {
+			t.Fatal("center-display OOB fragment not found")
+		}
+
+		// "Movie" should appear exactly once in center-display
+		if strings.Count(centerDisplay, "Movie") != 1 {
+			t.Errorf("center-display contains 'Movie' %d times, want exactly 1 (deduped)",
+				strings.Count(centerDisplay, "Movie"))
+		}
+	})
+
+	t.Run("QF1 edge case 1+1 distinct", func(t *testing.T) {
+		ts2, _, _ := battleTestServer(t)
+		sessionID2 := getSessionCookie(t, ts2)
+
+		// Both wheels have 1 distinct option each
+		addOptionToWheel(t, ts2, sessionID2, "0", "Alpha")
+		addOptionToWheel(t, ts2, sessionID2, "1", "Beta")
+
+		resp := battleRequest(t, ts2, sessionID2, "qf1")
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("status = %d, want 200", resp.StatusCode)
+		}
+
+		body := readResponseBody(t, resp)
+		centerDisplay := extractOOBFragment(body, "center-display")
+		if centerDisplay == "" {
+			t.Fatal("center-display OOB fragment not found")
+		}
+
+		// Both options must appear
+		if !strings.Contains(centerDisplay, "Alpha") {
+			t.Error("center-display missing 'Alpha'")
+		}
+		if !strings.Contains(centerDisplay, "Beta") {
+			t.Error("center-display missing 'Beta'")
+		}
+
+		// Must have list structure
+		if !strings.Contains(centerDisplay, "<li") {
+			t.Error("center-display missing <li> list markup")
+		}
+	})
+
+	t.Run("Final no list markup", func(t *testing.T) {
+		ts2, _, _ := battleTestServer(t)
+		sessionID2 := getSessionCookie(t, ts2)
+
+		// Run full bracket to Final
+		for i := 0; i < 8; i++ {
+			addOptionToWheel(t, ts2, sessionID2, fmt.Sprintf("%d", i), fmt.Sprintf("Opt%d", i))
+		}
+
+		matches := []string{"qf1", "qf2", "qf3", "qf4", "sf1", "sf2"}
+		for _, mid := range matches {
+			resp := battleRequest(t, ts2, sessionID2, mid)
+			if resp.StatusCode != http.StatusOK {
+				t.Fatalf("%s returned status %d, want 200", mid, resp.StatusCode)
+			}
+			resp.Body.Close()
+		}
+
+		// Final battle
+		resp := battleRequest(t, ts2, sessionID2, "final")
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("final returned status %d, want 200", resp.StatusCode)
+		}
+
+		body := readResponseBody(t, resp)
+
+		// Extract center-display
+		centerDisplay := extractOOBFragment(body, "center-display")
+		if centerDisplay == "" {
+			t.Fatal("center-display OOB fragment not found in Final response")
+		}
+
+		// Final MUST NOT have list markup
+		if strings.Contains(centerDisplay, "<ul") {
+			t.Error("Final center-display contains <ul> — expected no list markup")
+		}
+		if strings.Contains(centerDisplay, "<li") {
+			t.Error("Final center-display contains <li> — expected no list markup")
+		}
+
+		// Final must still show the single champion movie
+		if !strings.Contains(body, "movie-result") {
+			t.Error("Final response missing movie-result")
+		}
+		if !strings.Contains(body, "You're watching:") {
+			t.Error("Final response missing 'You're watching:' in movie result")
+		}
+	})
+}
+
+// optionTexts extracts a []string of option texts for test assertions.
+func optionTexts(opts []wheel.Option) []string {
+	texts := make([]string, len(opts))
+	for i, o := range opts {
+		texts[i] = o.Text
+	}
+	return texts
+}
