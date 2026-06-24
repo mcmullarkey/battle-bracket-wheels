@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: battle-bracket-wheels
+    runtime: go
+    repo: https://github.com/mcmullarkey/battle-bracket-wheels
+    plan: free
+    region: oregon
+    startCommand: ./battle-bracket-wheels
+    envVars:
+      - key: PORT
+        value: 10000
