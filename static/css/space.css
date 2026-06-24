@@ -598,6 +598,7 @@ footer p {
     align-items: center;
     justify-content: center;
     height: 100%;
+    width: 100%;
     box-sizing: border-box;
     background: var(--cosmic-bg);
     backdrop-filter: var(--glass-blur);
@@ -644,11 +645,13 @@ footer p {
     z-index: 1;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.4rem;
     color: var(--neon-gold);
     text-shadow: var(--neon-text-gold);
     font-weight: bold;
     margin-bottom: 0.3rem;
+    width: 100%;
 }
 
 .match-winner-icon {
@@ -664,9 +667,11 @@ footer p {
     z-index: 1;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.4rem;
     color: rgba(150, 150, 200, 0.55);
     font-size: 0.8rem;
+    width: 100%;
 }
 
 .match-loser-icon {
