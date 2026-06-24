@@ -25,6 +25,9 @@ func testTemplate(t *testing.T) *template.Template {
 	if _, err = tmpl.New("wheel").Parse(wheelContent); err != nil {
 		t.Fatalf("parsing wheel template: %v", err)
 	}
+	if _, err = tmpl.New("bracket").Parse(bracketContent); err != nil {
+		t.Fatalf("parsing bracket template: %v", err)
+	}
 	return tmpl
 }
 

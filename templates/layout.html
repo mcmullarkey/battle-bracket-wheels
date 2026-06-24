@@ -161,6 +161,34 @@
         .wheel-slice:nth-child(even) {
             fill: rgba(255, 215, 0, 0.4);
         }
+        .bracket-sf, .bracket-final {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            background: rgba(10, 10, 46, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(100, 150, 255, 0.1);
+        }
+        .bracket-final {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .movie-result {
+            text-align: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid #ffd700;
+            border-radius: 8px;
+            color: #ffd700;
+            font-size: 1.2rem;
+        }
+        .slot-placeholder {
+            color: #6666aa;
+            font-style: italic;
+        }
         footer {
             text-align: center;
             margin-top: 2rem;
@@ -173,11 +201,63 @@
     <div class="container">
         <h1>⚔ Battle Bracket Wheels ⚔</h1>
         <div class="bracket" id="bracket">
-            {{range $i, $w := .Wheels}}
-            <div class="slot" id="slot-{{add $i 1}}">
-                {{template "wheel" $w}}
+            <!-- QF1: wheels 0 vs 1 -->
+            <div class="slot" id="slot-1">{{template "wheel" index .Wheels 0}}</div>
+            <div id="battle-btn-qf1"><button hx-post="/battle/qf1" hx-target="this" hx-swap="outerHTML">Battle QF1</button></div>
+            <div id="match-qf1"></div>
+            <div class="slot" id="slot-2">{{template "wheel" index .Wheels 1}}</div>
+
+            <!-- QF2: wheels 2 vs 3 -->
+            <div class="slot" id="slot-3">{{template "wheel" index .Wheels 2}}</div>
+            <div id="battle-btn-qf2"><button hx-post="/battle/qf2" hx-target="this" hx-swap="outerHTML">Battle QF2</button></div>
+            <div id="match-qf2"></div>
+            <div class="slot" id="slot-4">{{template "wheel" index .Wheels 3}}</div>
+
+            <!-- QF3: wheels 4 vs 5 -->
+            <div class="slot" id="slot-5">{{template "wheel" index .Wheels 4}}</div>
+            <div id="battle-btn-qf3"><button hx-post="/battle/qf3" hx-target="this" hx-swap="outerHTML">Battle QF3</button></div>
+            <div id="match-qf3"></div>
+            <div class="slot" id="slot-6">{{template "wheel" index .Wheels 5}}</div>
+
+            <!-- QF4: wheels 6 vs 7 -->
+            <div class="slot" id="slot-7">{{template "wheel" index .Wheels 6}}</div>
+            <div id="battle-btn-qf4"><button hx-post="/battle/qf4" hx-target="this" hx-swap="outerHTML">Battle QF4</button></div>
+            <div id="match-qf4"></div>
+            <div class="slot" id="slot-8">{{template "wheel" index .Wheels 7}}</div>
+        </div>
+        <div class="bracket-sf" id="bracket-sf">
+            <!-- SF1: SFLeft[0] vs SFRight[0] -->
+            <div class="slot" id="slot-sf1-left">
+                {{if .Bracket.SFLeft0}}{{template "wheel" .Bracket.SFLeft0}}{{else}}<span class="slot-placeholder">SF1 Left</span>{{end}}
             </div>
-            {{end}}
+            <div id="battle-btn-sf1"><button hx-post="/battle/sf1" hx-target="this" hx-swap="outerHTML">Battle SF1</button></div>
+            <div id="match-sf1"></div>
+            <div class="slot" id="slot-sf1-right">
+                {{if .Bracket.SFRight0}}{{template "wheel" .Bracket.SFRight0}}{{else}}<span class="slot-placeholder">SF1 Right</span>{{end}}
+            </div>
+
+            <!-- SF2: SFLeft[1] vs SFRight[1] -->
+            <div class="slot" id="slot-sf2-left">
+                {{if .Bracket.SFLeft1}}{{template "wheel" .Bracket.SFLeft1}}{{else}}<span class="slot-placeholder">SF2 Left</span>{{end}}
+            </div>
+            <div id="battle-btn-sf2"><button hx-post="/battle/sf2" hx-target="this" hx-swap="outerHTML">Battle SF2</button></div>
+            <div id="match-sf2"></div>
+            <div class="slot" id="slot-sf2-right">
+                {{if .Bracket.SFRight1}}{{template "wheel" .Bracket.SFRight1}}{{else}}<span class="slot-placeholder">SF2 Right</span>{{end}}
+            </div>
+        </div>
+        <div class="bracket-final" id="bracket-final">
+            <div class="slot" id="slot-final-left">
+                {{if .Bracket.FinalLeft}}{{template "wheel" .Bracket.FinalLeft}}{{else}}<span class="slot-placeholder">Final Left</span>{{end}}
+            </div>
+            <div class="slot" id="slot-final-right">
+                {{if .Bracket.FinalRight}}{{template "wheel" .Bracket.FinalRight}}{{else}}<span class="slot-placeholder">Final Right</span>{{end}}
+            </div>
+            <div id="battle-btn-final"><button hx-post="/battle/final" hx-target="this" hx-swap="outerHTML">Battle Final</button></div>
+            <div id="match-final"></div>
+        </div>
+        <div id="movie-result" class="movie-result">
+            {{if .Bracket.MovieText}}<h2>You're watching: {{.Bracket.MovieText}}</h2>{{end}}
         </div>
         <!-- Session ID rendered for test verification -->
         <div style="display:none;" id="session-data">{{.SessionID}}</div>

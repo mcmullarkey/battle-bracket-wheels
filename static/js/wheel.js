@@ -17,11 +17,13 @@
     if (!detail) return;
 
     var wheelID = detail.wheelID;
+    var slotID = detail.slotID || "";
     var targetAngle = detail.targetAngle;
     if (wheelID === undefined || targetAngle === undefined) return;
 
-    // Find the wheel's rotating group element.
-    var group = document.getElementById("wheel-group-" + wheelID);
+    // Find the wheel's rotating group element using scoped ID.
+    var scopedGroupID = slotID ? "wheel-group-" + slotID + "-" + wheelID : "wheel-group-" + wheelID;
+    var group = document.getElementById(scopedGroupID);
     if (!group) return;
 
     // Calculate total rotation: full spins + target angle.

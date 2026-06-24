@@ -5,6 +5,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"battle-bracket-wheels/internal/bracket"
 )
 
 // Renderer is the contract for template execution.
@@ -14,6 +16,62 @@ import (
 type Renderer interface {
 	Execute(w io.Writer, data any) error
 	ExecuteTemplate(w io.Writer, name string, data any) error
+}
+
+// BracketViewData holds the view data for the bracket layout template.
+// Each field is a *WheelViewData or nil if the slot is empty.
+type BracketViewData struct {
+	SFLeft0    *WheelViewData
+	SFRight0   *WheelViewData
+	SFLeft1    *WheelViewData
+	SFRight1   *WheelViewData
+	FinalLeft  *WheelViewData
+	FinalRight *WheelViewData
+	MovieText  string
+}
+
+// bracketViewFromBracket builds BracketViewData from a bracket.Bracket model.
+// Propagated (SF/Final) wheels are set as ReadOnly since battle-resolved wheels
+// should not be editable via spin/add/delete forms.
+func bracketViewFromBracket(b *bracket.Bracket) BracketViewData {
+	v := BracketViewData{}
+	if b == nil {
+		return v
+	}
+	if b.SFLeft[0] != nil {
+		wh := wheelViewFromWheel(*b.SFLeft[0], "slot-sf1-left")
+		wh.ReadOnly = true
+		v.SFLeft0 = &wh
+	}
+	if b.SFRight[0] != nil {
+		wh := wheelViewFromWheel(*b.SFRight[0], "slot-sf1-right")
+		wh.ReadOnly = true
+		v.SFRight0 = &wh
+	}
+	if b.SFLeft[1] != nil {
+		wh := wheelViewFromWheel(*b.SFLeft[1], "slot-sf2-left")
+		wh.ReadOnly = true
+		v.SFLeft1 = &wh
+	}
+	if b.SFRight[1] != nil {
+		wh := wheelViewFromWheel(*b.SFRight[1], "slot-sf2-right")
+		wh.ReadOnly = true
+		v.SFRight1 = &wh
+	}
+	if b.FinalLeft != nil {
+		wh := wheelViewFromWheel(*b.FinalLeft, "slot-final-left")
+		wh.ReadOnly = true
+		v.FinalLeft = &wh
+	}
+	if b.FinalRight != nil {
+		wh := wheelViewFromWheel(*b.FinalRight, "slot-final-right")
+		wh.ReadOnly = true
+		v.FinalRight = &wh
+	}
+	if b.Winner != nil {
+		v.MovieText = b.Winner.LandedOption.Text
+	}
+	return v
 }
 
 // healthHandler returns {"status":"ok"} as JSON.
@@ -33,12 +91,14 @@ func homeHandler(store *Store, renderer Renderer) http.HandlerFunc {
 			return
 		}
 
-		// Build wheel views from session data under read lock
+		// Build wheel views and bracket view from session data under read lock
 		wheelsView := make([]WheelViewData, 0, 8)
+		var bracketView BracketViewData
 		err := store.View(sessionID, func(session *Session) error {
-			for _, wh := range session.Wheels {
-				wheelsView = append(wheelsView, wheelViewFromWheel(wh))
+			for i, wh := range session.Wheels {
+				wheelsView = append(wheelsView, wheelViewFromWheel(wh, slotIDFromWheelIdx(i)))
 			}
+			bracketView = bracketViewFromBracket(session.Bracket)
 			return nil
 		})
 		if err != nil {
@@ -49,6 +109,7 @@ func homeHandler(store *Store, renderer Renderer) http.HandlerFunc {
 		data := map[string]interface{}{
 			"SessionID": sessionID,
 			"Wheels":    wheelsView,
+			"Bracket":   bracketView,
 		}
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")

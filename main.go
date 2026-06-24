@@ -24,6 +24,9 @@ var wheelContent string
 //go:embed templates/match.html
 var matchContent string
 
+//go:embed templates/bracket.html
+var bracketContent string
+
 // staticFS is the embedded filesystem for serving static assets.
 var staticFS fs.FS
 
@@ -53,6 +56,10 @@ func main() {
 	// Parse match result template as an associated template.
 	if _, err = tmpl.New("matchResult").Parse(matchContent); err != nil {
 		log.Fatalf("failed to parse match template: %v", err)
+	}
+	// Parse bracket fragment templates as associated templates.
+	if _, err = tmpl.New("bracket").Parse(bracketContent); err != nil {
+		log.Fatalf("failed to parse bracket template: %v", err)
 	}
 
 	store := NewStore()
@@ -112,7 +119,10 @@ func setupRouter(store *Store, tmpl *template.Template) http.Handler {
 	mux.Handle("POST /wheel/{id}/spin", sessionMiddleware(store, spinHandler(store, tmpl, newSpinSource)))
 
 	// Battle route — spin two wheels, resolve, absorb loser's option
-	mux.Handle("POST /battle/{matchID}", sessionMiddleware(store, battleHandler(store, tmpl, newSpinSource)))
+	// Method is validated in the handler to allow proper 405 Method Not Allowed
+	// handling (Go 1.22+ ServeMux route-method-patterns fall through to catch-all
+	// for unmatched methods instead of returning 405).
+	mux.Handle("/battle/{matchID}", sessionMiddleware(store, battleHandler(store, tmpl, newSpinSource)))
 
 	return mux
 }

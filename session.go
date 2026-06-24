@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"battle-bracket-wheels/internal/bracket"
 	"battle-bracket-wheels/internal/wheel"
 )
 
@@ -21,12 +22,13 @@ var ErrSessionNotFound = errors.New("session not found")
 const cookieName = "bbw_session"
 
 // Session represents a user session with a unique ID, creation timestamp,
-// 8 configurable wheels, and resolved match tracking.
+// 8 configurable wheels, bracket progression state, and resolved match tracking.
 type Session struct {
-	ID              string          `json:"id"`
-	CreatedAt       time.Time       `json:"created_at"`
-	Wheels          [8]wheel.Wheel  `json:"wheels"`
-	ResolvedMatches map[string]bool `json:"resolved_matches"`
+	ID              string           `json:"id"`
+	CreatedAt       time.Time        `json:"created_at"`
+	Wheels          [8]wheel.Wheel   `json:"wheels"`
+	Bracket         *bracket.Bracket `json:"bracket"`
+	ResolvedMatches map[string]bool  `json:"resolved_matches"`
 }
 
 // newWheels initializes 8 empty wheels with IDs "0" through "7".
@@ -62,10 +64,12 @@ func (s *Store) Create() (*Session, error) {
 	}
 	id := hex.EncodeToString(bytes)
 
+	wheels := newWheels()
 	session := &Session{
 		ID:              id,
 		CreatedAt:       time.Now(),
-		Wheels:          newWheels(),
+		Wheels:          wheels,
+		Bracket:         bracket.New(wheels),
 		ResolvedMatches: make(map[string]bool),
 	}
 

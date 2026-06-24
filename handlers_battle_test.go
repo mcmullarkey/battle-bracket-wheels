@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"math/rand"
 	"net/http"
@@ -31,7 +32,7 @@ func battleTestServer(t *testing.T) (*httptest.Server, *template.Template, *Stor
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", healthHandler)
 	mux.Handle("POST /wheel/{id}/option", sessionMiddleware(store, addOptionHandler(store, tmpl)))
-	mux.Handle("POST /battle/{matchID}", sessionMiddleware(store, battleHandler(store, tmpl, func() rand.Source {
+	mux.Handle("/battle/{matchID}", sessionMiddleware(store, battleHandler(store, tmpl, func() rand.Source {
 		return rand.NewSource(42)
 	})))
 	mux.Handle("/", sessionMiddleware(store, homeHandler(store, tmpl)))
@@ -54,6 +55,9 @@ func testBattleTemplate(t *testing.T) *template.Template {
 	}
 	if _, err = tmpl.New("matchResult").Parse(matchContent); err != nil {
 		t.Fatalf("parsing match template: %v", err)
+	}
+	if _, err = tmpl.New("bracket").Parse(bracketContent); err != nil {
+		t.Fatalf("parsing bracket template: %v", err)
 	}
 	return tmpl
 }
@@ -378,7 +382,7 @@ func TestBattleHandler_OOBFragmentCount(t *testing.T) {
 
 	// Should have exactly 3 elements with hx-swap-oob="true":
 	//  1. match-{MatchID} — match result fragment
-	//  2. next-{MatchID} — next-round slot placeholder
+	//  2. slot-{nextRound}-{side} — next-round slot with absorbed winner wheel
 	//  3. battle-btn-{MatchID} — disabled battle button
 	count := strings.Count(body, "hx-swap-oob")
 	if count != 3 {
@@ -389,8 +393,8 @@ func TestBattleHandler_OOBFragmentCount(t *testing.T) {
 	if !strings.Contains(body, "match-qf1") {
 		t.Error("response missing match-qf1 OOB element")
 	}
-	if !strings.Contains(body, "next-qf1") {
-		t.Error("response missing next-qf1 OOB element")
+	if !strings.Contains(body, "slot-sf1-left") {
+		t.Error("response missing slot-sf1-left OOB element (should be next-round slot for QF1)")
 	}
 	if !strings.Contains(body, "battle-btn-qf1") {
 		t.Error("response missing battle-btn-qf1 OOB element")
@@ -569,7 +573,7 @@ func TestBattleHandler_TiebreakerExhaustion(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", healthHandler)
 	mux.Handle("POST /wheel/{id}/option", sessionMiddleware(store, addOptionHandler(store, tmpl)))
-	mux.Handle("POST /battle/{matchID}", sessionMiddleware(store, battleHandler(store, tmpl, func() rand.Source {
+	mux.Handle("/battle/{matchID}", sessionMiddleware(store, battleHandler(store, tmpl, func() rand.Source {
 		return tieSource{}
 	})))
 	mux.Handle("/", sessionMiddleware(store, homeHandler(store, tmpl)))
@@ -597,6 +601,398 @@ func TestBattleHandler_TiebreakerExhaustion(t *testing.T) {
 
 	if resp.StatusCode != http.StatusInternalServerError {
 		t.Errorf("status = %d, want 500", resp.StatusCode)
+	}
+}
+
+// battleRequest is a test helper that performs a single battle POST and returns the response.
+func battleRequest(t *testing.T, ts *httptest.Server, sessionID, matchID string) *http.Response {
+	t.Helper()
+	req, err := http.NewRequest(http.MethodPost, ts.URL+"/battle/"+matchID, nil)
+	if err != nil {
+		t.Fatalf("creating battle request for %s: %v", matchID, err)
+	}
+	req.AddCookie(&http.Cookie{Name: "bbw_session", Value: sessionID})
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("POST /battle/%s: %v", matchID, err)
+	}
+	return resp
+}
+
+// readResponseBody reads the full response body into a string.
+func readResponseBody(t *testing.T, resp *http.Response) string {
+	t.Helper()
+	buf := make([]byte, 65536)
+	n, _ := resp.Body.Read(buf)
+	resp.Body.Close()
+	return string(buf[:n])
+}
+
+func TestPostBattle_OOBTargets(t *testing.T) {
+	// Sneaky-pass guard (i): POST /battle/qf1 → response contains id="slot-sf1-left"
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// Add options to wheels 0 and 1 (QF1)
+	addOptionToWheel(t, ts, sessionID, "0", "Bicycle")
+	addOptionToWheel(t, ts, sessionID, "1", "Skateboard")
+
+	resp := battleRequest(t, ts, sessionID, "qf1")
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
+
+	body := readResponseBody(t, resp)
+
+	// Must contain slot-sf1-left OOB target
+	if !strings.Contains(body, "slot-sf1-left") {
+		t.Error("response missing slot-sf1-left OOB element")
+	}
+	if !strings.Contains(body, "hx-swap-oob") {
+		t.Error("response missing hx-swap-oob attributes")
+	}
+}
+
+func TestPostBattle_QF3Target(t *testing.T) {
+	// Sneaky-pass guard (i): POST /battle/qf3 → response contains id="slot-sf2-left" (not slot-sf1-left)
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// Add options to wheels 4 and 5 (QF3)
+	addOptionToWheel(t, ts, sessionID, "4", "E")
+	addOptionToWheel(t, ts, sessionID, "5", "F")
+
+	resp := battleRequest(t, ts, sessionID, "qf3")
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
+
+	body := readResponseBody(t, resp)
+
+	// Must contain slot-sf2-left (not slot-sf1-left)
+	if !strings.Contains(body, "slot-sf2-left") {
+		t.Error("response missing slot-sf2-left OOB element (QF3 should target sf2-left)")
+	}
+	if strings.Contains(body, "slot-sf1-left") {
+		t.Error("response contains slot-sf1-left, but QF3 should target slot-sf2-left")
+	}
+}
+
+func TestPostBattle_NoReTyping(t *testing.T) {
+	// Sneaky-pass guard (h): next-round slot fragment contains rendered option text, NOT empty <input> elements
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	addOptionToWheel(t, ts, sessionID, "0", "Bicycle")
+	addOptionToWheel(t, ts, sessionID, "1", "Skateboard")
+
+	resp := battleRequest(t, ts, sessionID, "qf1")
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
+
+	body := readResponseBody(t, resp)
+
+	// The next-round slot (slot-sf1-left) should contain the wheel template with option text rendered
+	// Check that the absorbed wheel's options appear as rendered text in the slot fragment
+	if !strings.Contains(body, "Bicycle") || !strings.Contains(body, "Skateboard") {
+		// Both option texts must be present (absorbed wheel's options + winner's original options)
+		t.Error("slot-sf1-left fragment missing absorbed option text (need BOTH Bicycle and Skateboard)")
+	}
+
+	// Check that option text is rendered as visible text, not inside an empty <input>
+	// The wheel template renders option text in <li> elements, not in empty inputs
+	if strings.Contains(body, `<input type="text" name="text" placeholder="Option text" value="">`) {
+		t.Error("slot fragment contains empty input instead of pre-filled rendered options")
+	}
+}
+
+func TestPostBattle_FinalMovie(t *testing.T) {
+	// Full bracket progression to reach the final match
+	ts, _, store := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// Add options to all 8 wheels
+	for i := 0; i < 8; i++ {
+		addOptionToWheel(t, ts, sessionID, fmt.Sprintf("%d", i), fmt.Sprintf("Opt%d", i))
+	}
+
+	// Run QF matches (all need to succeed)
+	matches := []string{"qf1", "qf2", "qf3", "qf4", "sf1", "sf2"}
+	for _, mid := range matches {
+		resp := battleRequest(t, ts, sessionID, mid)
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("%s returned status %d, want 200", mid, resp.StatusCode)
+		}
+		resp.Body.Close()
+	}
+
+	// Now run the Final match
+	resp := battleRequest(t, ts, sessionID, "final")
+	defer resp.Body.Close()
+
+	body := readResponseBody(t, resp)
+
+	// Response must contain movie-result with "You're watching:"
+	if !strings.Contains(body, "movie-result") {
+		t.Error("response missing movie-result element")
+	}
+	if !strings.Contains(body, "You're watching:") {
+		t.Error("response missing 'You're watching:' in movie result")
+	}
+
+	// Check HX-Trigger has bracketComplete
+	hxTrigger := resp.Header.Get("HX-Trigger")
+	if hxTrigger == "" {
+		t.Fatal("missing HX-Trigger header")
+	}
+
+	var triggerData map[string]interface{}
+	if err := json.Unmarshal([]byte(hxTrigger), &triggerData); err != nil {
+		t.Fatalf("unmarshal HX-Trigger: %v", err)
+	}
+
+	bracketComplete, ok := triggerData["bracketComplete"]
+	if !ok {
+		t.Error("HX-Trigger missing bracketComplete for final match")
+	} else {
+		// Should be true (or truthy)
+		if bc, ok := bracketComplete.(bool); !ok || !bc {
+			t.Errorf("bracketComplete = %v, want true", bracketComplete)
+		}
+	}
+
+	// Verify store has the winner populated
+	err := store.View(sessionID, func(s *Session) error {
+		if s.Bracket == nil {
+			t.Fatal("Bracket is nil")
+		}
+		if s.Bracket.Winner == nil {
+			t.Fatal("Winner is nil after final")
+		}
+		if s.Bracket.Winner.LandedOption.Text == "" {
+			t.Error("Winner.LandedOption.Text is empty")
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("store.View: %v", err)
+	}
+}
+
+func TestPostBattle_InvalidMatchID(t *testing.T) {
+	// POST /battle/invalid → 404
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	resp := battleRequest(t, ts, sessionID, "invalid")
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNotFound {
+		t.Errorf("status = %d, want 404", resp.StatusCode)
+	}
+}
+
+func TestPostBattle_GETMethod(t *testing.T) {
+	// GET /battle/qf1 → 405
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	addOptionToWheel(t, ts, sessionID, "0", "A")
+	addOptionToWheel(t, ts, sessionID, "1", "B")
+
+	req, err := http.NewRequest(http.MethodGet, ts.URL+"/battle/qf1", nil)
+	if err != nil {
+		t.Fatalf("creating GET request: %v", err)
+	}
+	req.AddCookie(&http.Cookie{Name: "bbw_session", Value: sessionID})
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("GET /battle/qf1: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusMethodNotAllowed {
+		t.Errorf("status = %d, want 405", resp.StatusCode)
+	}
+}
+
+func TestPostBattle_NonExistentWheel(t *testing.T) {
+	// SF1 without QF1+QF2 should fail (dependency gate)
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// Add options to all 8 wheels
+	for i := 0; i < 8; i++ {
+		addOptionToWheel(t, ts, sessionID, fmt.Sprintf("%d", i), fmt.Sprintf("Opt%d", i))
+	}
+
+	// Try SF1 directly without running QF1+QF2 first
+	resp := battleRequest(t, ts, sessionID, "sf1")
+	defer resp.Body.Close()
+
+	// Should fail with conflict (dependency not met)
+	if resp.StatusCode != http.StatusConflict {
+		t.Errorf("status = %d, want 409 (conflict - dependency not met)", resp.StatusCode)
+	}
+}
+
+func TestPostBattle_BracketIdempotency(t *testing.T) {
+	// Verify that resolving a QF match twice fails the second time
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	addOptionToWheel(t, ts, sessionID, "0", "A")
+	addOptionToWheel(t, ts, sessionID, "1", "B")
+
+	// First battle should succeed
+	resp1 := battleRequest(t, ts, sessionID, "qf1")
+	if resp1.StatusCode != http.StatusOK {
+		t.Fatalf("first battle status = %d, want 200", resp1.StatusCode)
+	}
+	resp1.Body.Close()
+
+	// Second battle for same match should fail
+	resp2 := battleRequest(t, ts, sessionID, "qf1")
+	defer resp2.Body.Close()
+
+	if resp2.StatusCode != http.StatusConflict {
+		t.Errorf("second battle status = %d, want 409", resp2.StatusCode)
+	}
+}
+
+func TestPostBattle_FinalOOBCount(t *testing.T) {
+	// Run full bracket to Final, then assert the Final response has exactly 3 OOB elements
+	// (matchResult: match-final + battle-btn-final; movieResult: movie-result).
+	// NOT 4 — there should be no nextRoundSlot fragment for the Final.
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// Add options to all 8 wheels
+	for i := 0; i < 8; i++ {
+		addOptionToWheel(t, ts, sessionID, fmt.Sprintf("%d", i), fmt.Sprintf("Opt%d", i))
+	}
+
+	// Run QF + SF matches to reach the Final
+	matches := []string{"qf1", "qf2", "qf3", "qf4", "sf1", "sf2"}
+	for _, mid := range matches {
+		resp := battleRequest(t, ts, sessionID, mid)
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("%s returned status %d, want 200", mid, resp.StatusCode)
+		}
+		resp.Body.Close()
+	}
+
+	// Now run the Final match
+	resp := battleRequest(t, ts, sessionID, "final")
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("final returned status %d, want 200", resp.StatusCode)
+	}
+
+	body := readResponseBody(t, resp)
+
+	// Should have exactly 3 hx-swap-oob elements:
+	//  1. match-final — match result fragment
+	//  2. battle-btn-final — disabled battle button
+	//  3. movie-result — movie result (NOT a duplicate nextRoundSlot with id=movie-result)
+	oobCount := strings.Count(body, "hx-swap-oob")
+	if oobCount != 3 {
+		t.Errorf("Final response has %d hx-swap-oob elements, want 3", oobCount)
+	}
+
+	// Verify all three expected IDs are present
+	if !strings.Contains(body, "match-final") {
+		t.Error("response missing match-final OOB element")
+	}
+	if !strings.Contains(body, "battle-btn-final") {
+		t.Error("response missing battle-btn-final OOB element")
+	}
+	if !strings.Contains(body, "movie-result") {
+		t.Error("response missing movie-result OOB element")
+	}
+
+	// Verify no duplicate id="movie-result" (which would happen if SlotMapping
+	// still returned "movie-result" AND the movieResult template also used it)
+	if strings.Count(body, `id="movie-result"`) != 1 {
+		t.Error("response has duplicate id=\"movie-result\" — SlotMapping for Final should return empty string")
+	}
+}
+
+func TestPostBattle_QF2Target(t *testing.T) {
+	// POST /battle/qf2 → response contains id="slot-sf1-right" (not slot-sf1-left)
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// QF2 uses wheels 2 and 3
+	addOptionToWheel(t, ts, sessionID, "2", "C")
+	addOptionToWheel(t, ts, sessionID, "3", "D")
+
+	resp := battleRequest(t, ts, sessionID, "qf2")
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
+
+	body := readResponseBody(t, resp)
+
+	// Must contain slot-sf1-right OOB target (QF2 winner goes to SFRight[0])
+	if !strings.Contains(body, "slot-sf1-right") {
+		t.Error("response missing slot-sf1-right OOB element (QF2 should target sf1-right)")
+	}
+	if strings.Contains(body, "slot-sf1-left") {
+		t.Error("response contains slot-sf1-left, but QF2 should target slot-sf1-right, not sf1-left")
+	}
+}
+
+func TestPostBattle_SF2Target(t *testing.T) {
+	// Run QF3+QF4 first, then POST /battle/sf2 → response contains id="slot-final-right"
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// Add options to wheels 4,5,6,7 (QF3+QF4)
+	addOptionToWheel(t, ts, sessionID, "4", "E")
+	addOptionToWheel(t, ts, sessionID, "5", "F")
+	addOptionToWheel(t, ts, sessionID, "6", "G")
+	addOptionToWheel(t, ts, sessionID, "7", "H")
+
+	// Run QF3 and QF4 first (SF2 depends on them)
+	respQF3 := battleRequest(t, ts, sessionID, "qf3")
+	if respQF3.StatusCode != http.StatusOK {
+		t.Fatalf("qf3 returned status %d, want 200", respQF3.StatusCode)
+	}
+	respQF3.Body.Close()
+
+	respQF4 := battleRequest(t, ts, sessionID, "qf4")
+	if respQF4.StatusCode != http.StatusOK {
+		t.Fatalf("qf4 returned status %d, want 200", respQF4.StatusCode)
+	}
+	respQF4.Body.Close()
+
+	// Now run SF2
+	resp := battleRequest(t, ts, sessionID, "sf2")
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("sf2 returned status %d, want 200", resp.StatusCode)
+	}
+
+	body := readResponseBody(t, resp)
+
+	// Must contain slot-final-right OOB target (SF2 winner goes to FinalRight)
+	if !strings.Contains(body, "slot-final-right") {
+		t.Error("response missing slot-final-right OOB element (SF2 should target final-right)")
+	}
+	if strings.Contains(body, "slot-final-left") {
+		t.Error("response contains slot-final-left, but SF2 should target slot-final-right, not final-left")
 	}
 }
 

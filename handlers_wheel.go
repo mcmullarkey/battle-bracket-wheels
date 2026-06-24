@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"math"
 	"net/http"
@@ -14,8 +15,10 @@ import (
 
 // WheelViewData holds the data needed to render a single wheel template.
 type WheelViewData struct {
-	ID      string
-	Options []WheelOptionView
+	ID       string
+	SlotID   string
+	Options  []WheelOptionView
+	ReadOnly bool
 }
 
 // WheelOptionView holds option data for template rendering, including
@@ -27,9 +30,10 @@ type WheelOptionView struct {
 }
 
 // wheelViewFromWheel builds a WheelViewData from a wheel.Wheel model,
-// computing normalized weights and SVG arc paths.
-func wheelViewFromWheel(wh wheel.Wheel) WheelViewData {
-	view := WheelViewData{ID: wh.ID}
+// computing normalized weights and SVG arc paths. The slotID parameter
+// provides the parent slot context for scoped DOM IDs.
+func wheelViewFromWheel(wh wheel.Wheel, slotID string) WheelViewData {
+	view := WheelViewData{ID: wh.ID, SlotID: slotID}
 
 	probs, err := wheel.NormalizeWeights(wh)
 	if err != nil {
@@ -143,7 +147,7 @@ func addOptionHandler(store *Store, renderer Renderer) http.HandlerFunc {
 			return
 		}
 
-		view := wheelViewFromWheel(wh)
+		view := wheelViewFromWheel(wh, slotIDFromWheelIdx(wheelIdx))
 		renderWheelFragment(w, renderer, view)
 	}
 }
@@ -191,7 +195,7 @@ func deleteOptionHandler(store *Store, renderer Renderer) http.HandlerFunc {
 			return
 		}
 
-		view := wheelViewFromWheel(newWh)
+		view := wheelViewFromWheel(newWh, slotIDFromWheelIdx(wheelIdx))
 		renderWheelFragment(w, renderer, view)
 	}
 }
@@ -206,3 +210,8 @@ func parseWheelID(idStr string) (int, error) {
 }
 
 var errInvalidWheelID = errors.New("invalid wheel ID")
+
+// slotIDFromWheelIdx returns the QF bracket slot ID for a wheel index (0-7 → slot-1-8).
+func slotIDFromWheelIdx(idx int) string {
+	return fmt.Sprintf("slot-%d", idx+1)
+}
