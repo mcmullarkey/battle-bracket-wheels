@@ -589,19 +589,93 @@ footer p {
     animation: pulse 2s ease-in-out infinite;
 }
 
-/* ===== Match Result ===== */
+/* ===== Match Result (space-themed win/lose visual) ===== */
 
 .match-result {
-    background: rgba(15, 15, 50, 0.85);
-    border: 1px solid rgba(100, 150, 255, 0.25);
-    border-radius: 8px;
-    padding: 0.75rem;
-    font-size: 0.8rem;
-    color: var(--star-blue);
+    position: relative;
+    background: var(--cosmic-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--cosmic-border);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    box-shadow: var(--cosmic-shadow);
+    transition: border-color 0.3s ease;
 }
 
-.match-result p {
-    margin: 0.25rem 0;
+.match-result:hover {
+    border-color: rgba(100, 150, 255, 0.4);
+}
+
+/* Meteor streak pseudo-element — wired from unused @keyframes meteor */
+.match-result::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 0;
+    width: 3px;
+    height: 3px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--neon-cyan), 0 0 12px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+    animation: meteor 5s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Winner — neon gold glow */
+.match-winner {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--neon-gold);
+    text-shadow: var(--neon-text-gold);
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+}
+
+.match-winner-icon {
+    color: var(--neon-gold);
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 4px var(--neon-gold));
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Loser — dimmed/muted */
+.match-loser {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: rgba(150, 150, 200, 0.55);
+    font-size: 0.8rem;
+}
+
+.match-loser-icon {
+    color: rgba(150, 150, 200, 0.35);
+    flex-shrink: 0;
+}
+
+/* Ties text */
+.match-ties {
+    margin-top: 0.3rem;
+    font-size: 0.75rem;
+    color: var(--star-blue);
+    font-style: italic;
+}
+
+/* Winner and loser labels — text without <strong> markup */
+.winner-label,
+.loser-label {
+    font-weight: 600;
+}
+
+.winner-label {
+    color: var(--neon-gold);
+}
+
+.loser-label {
+    color: rgba(150, 150, 200, 0.5);
 }
 
 /* ===== Responsive Breakpoints ===== */
@@ -657,6 +731,19 @@ footer p {
         font-size: 0.85rem;
         padding: 0.4rem 1rem;
     }
+
+    .match-result {
+        padding: 0.65rem 0.85rem;
+        font-size: 0.8rem;
+    }
+
+    .match-winner {
+        font-size: 0.85rem;
+    }
+
+    .match-loser {
+        font-size: 0.75rem;
+    }
 }
 
 /* Mobile: full stack */
@@ -699,5 +786,30 @@ footer p {
 
     .movie-hero {
         font-size: 1.25rem;
+    }
+
+    .match-result {
+        padding: 0.5rem 0.65rem;
+        font-size: 0.75rem;
+    }
+
+    .match-winner {
+        font-size: 0.8rem;
+        gap: 0.3rem;
+    }
+
+    .match-winner-icon {
+        width: 14px;
+        height: 14px;
+    }
+
+    .match-loser {
+        font-size: 0.7rem;
+        gap: 0.3rem;
+    }
+
+    .match-loser-icon {
+        width: 14px;
+        height: 14px;
     }
 }

@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"regexp"
 	"strings"
 	"sync"
 	"testing"
@@ -440,10 +442,10 @@ func TestBattleHandler_PostBattleStoreState(t *testing.T) {
 	n, _ := resp.Body.Read(buf)
 	body := string(buf[:n])
 
-	winnerPrefix := "<strong>Winner:</strong> Wheel "
+	winnerPrefix := `class="winner-text">Wheel `
 	idx := strings.Index(body, winnerPrefix)
 	if idx < 0 {
-		t.Fatal("could not find winner in response body")
+		t.Fatal("could not find winner in response body (no winner-text pattern)")
 	}
 	winnerID := string(body[idx+len(winnerPrefix)])
 
@@ -945,10 +947,12 @@ func TestPostBattle_FinalOOBCount(t *testing.T) {
 	}
 
 	// Verify Final center-display has NO list markup (single champion text only)
+	// Note: use <li> or <li with a tag-terminating char to avoid false-positive
+	// matching SVG <line> elements in the match-result template.
 	if strings.Contains(body, `<ul`) {
 		t.Error("Final center-display contains <ul> — expected no list markup for Final")
 	}
-	if strings.Contains(body, "<li") {
+	if regexp.MustCompile(`<li[\s>]`).MatchString(body) {
 		t.Error("Final center-display contains <li> — expected no list markup for Final")
 	}
 }
@@ -1249,4 +1253,104 @@ func optionTexts(opts []wheel.Option) []string {
 		texts[i] = o.Text
 	}
 	return texts
+}
+
+func TestMatchResult_SpaceThemeVisual(t *testing.T) {
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	// Add options to both wheels (QF1 = wheel 0 vs wheel 1)
+	addOptionToWheel(t, ts, sessionID, "0", "Bicycle")
+	addOptionToWheel(t, ts, sessionID, "1", "Skateboard")
+
+	resp := battleRequest(t, ts, sessionID, "qf1")
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
+
+	body := readResponseBody(t, resp)
+
+	// 1. Exactly 3 hx-swap-oob="true" elements (existing contract preserved)
+	oobCount := strings.Count(body, "hx-swap-oob")
+	if oobCount != 3 {
+		t.Errorf("response has %d hx-swap-oob elements, want 3", oobCount)
+	}
+
+	// 2. #match-qf1 OOB div carries class="pending-reveal" (reveal contract preserved)
+	if !strings.Contains(body, `id="match-qf1" hx-swap-oob="true" class="pending-reveal"`) {
+		t.Error("match-qf1 OOB div missing pending-reveal class or correct attribute order")
+	}
+
+	// 3. #match-qf1 contains distinct structural CSS classes for winner vs loser
+	if !strings.Contains(body, "match-winner") {
+		t.Error("response missing match-winner class for winner visual")
+	}
+	if !strings.Contains(body, "match-loser") {
+		t.Error("response missing match-loser class for loser visual")
+	}
+
+	// 4. #match-qf1 contains an inline <svg> element (space-themed visual marker)
+	if !strings.Contains(body, "<svg") {
+		t.Error("response missing inline SVG element")
+	}
+
+	// 5. Response body no longer contains the old <strong>Winner:</strong> label markup
+	if strings.Contains(body, "<strong>Winner:</strong>") {
+		t.Error("response still contains old <strong>Winner:</strong> label markup as primary indicator")
+	}
+
+	// 6. Response body still contains the text "Winner" and "Loser" (data integrity)
+	if !strings.Contains(body, "Winner") {
+		t.Error("response missing text 'Winner' (data integrity)")
+	}
+	if !strings.Contains(body, "Loser") {
+		t.Error("response missing text 'Loser' (data integrity)")
+	}
+
+	// 7. space.css contains animation referencing meteor in a rule scoped to .match-result or descendant
+	cssData, err := fs.ReadFile(staticFS, "css/space.css")
+	if err != nil {
+		t.Fatalf("reading embedded static/css/space.css: %v", err)
+	}
+	css := string(cssData)
+
+	// Parse CSS rules by splitting on closing braces to find selector-content pairs
+	meteorScopedToMatchResult := false
+	rules := strings.Split(css, "}")
+	for _, rule := range rules {
+		rule = strings.TrimSpace(rule)
+		if rule == "" {
+			continue
+		}
+		// Split on first { to get selector and content
+		braceIdx := strings.Index(rule, "{")
+		if braceIdx < 0 {
+			continue
+		}
+		selector := strings.TrimSpace(rule[:braceIdx])
+		content := rule[braceIdx+1:]
+		if strings.Contains(selector, ".match-result") &&
+			strings.Contains(content, "animation") &&
+			strings.Contains(content, "meteor") {
+			meteorScopedToMatchResult = true
+			break
+		}
+	}
+	if !meteorScopedToMatchResult {
+		t.Error("space.css missing animation:meteor in a rule scoped to .match-result or descendant")
+	}
+
+	// 8. .match-result CSS rule has at least one of: background, border, box-shadow, backdrop-filter, or --neon-*
+	matchResultRule := extractCSSRule(css, ".match-result")
+	if matchResultRule == "" {
+		t.Fatal(".match-result CSS rule not found in space.css")
+	}
+	hasVisualToken := strings.Contains(matchResultRule, "background") ||
+		strings.Contains(matchResultRule, "border") ||
+		strings.Contains(matchResultRule, "box-shadow") ||
+		strings.Contains(matchResultRule, "backdrop-filter") ||
+		strings.Contains(matchResultRule, "--neon-")
+	if !hasVisualToken {
+		t.Error(".match-result CSS rule missing visual tokens (background, border, box-shadow, backdrop-filter, or --neon-*)")
+	}
 }
