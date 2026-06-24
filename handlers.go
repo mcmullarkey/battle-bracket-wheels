@@ -31,6 +31,8 @@ type BracketViewData struct {
 }
 
 // bracketViewFromBracket builds BracketViewData from a bracket.Bracket model.
+// Propagated (SF/Final) wheels are set as ReadOnly since battle-resolved wheels
+// should not be editable via spin/add/delete forms.
 func bracketViewFromBracket(b *bracket.Bracket) BracketViewData {
 	v := BracketViewData{}
 	if b == nil {
@@ -38,26 +40,32 @@ func bracketViewFromBracket(b *bracket.Bracket) BracketViewData {
 	}
 	if b.SFLeft[0] != nil {
 		wh := wheelViewFromWheel(*b.SFLeft[0], "slot-sf1-left")
+		wh.ReadOnly = true
 		v.SFLeft0 = &wh
 	}
 	if b.SFRight[0] != nil {
 		wh := wheelViewFromWheel(*b.SFRight[0], "slot-sf1-right")
+		wh.ReadOnly = true
 		v.SFRight0 = &wh
 	}
 	if b.SFLeft[1] != nil {
 		wh := wheelViewFromWheel(*b.SFLeft[1], "slot-sf2-left")
+		wh.ReadOnly = true
 		v.SFLeft1 = &wh
 	}
 	if b.SFRight[1] != nil {
 		wh := wheelViewFromWheel(*b.SFRight[1], "slot-sf2-right")
+		wh.ReadOnly = true
 		v.SFRight1 = &wh
 	}
 	if b.FinalLeft != nil {
 		wh := wheelViewFromWheel(*b.FinalLeft, "slot-final-left")
+		wh.ReadOnly = true
 		v.FinalLeft = &wh
 	}
 	if b.FinalRight != nil {
 		wh := wheelViewFromWheel(*b.FinalRight, "slot-final-right")
+		wh.ReadOnly = true
 		v.FinalRight = &wh
 	}
 	if b.Winner != nil {

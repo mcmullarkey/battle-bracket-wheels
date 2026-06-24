@@ -15,9 +15,10 @@ import (
 
 // WheelViewData holds the data needed to render a single wheel template.
 type WheelViewData struct {
-	ID      string
-	SlotID  string
-	Options []WheelOptionView
+	ID       string
+	SlotID   string
+	Options  []WheelOptionView
+	ReadOnly bool
 }
 
 // WheelOptionView holds option data for template rendering, including

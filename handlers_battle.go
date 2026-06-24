@@ -14,11 +14,11 @@ import (
 )
 
 // matchWheelIDs maps quarter-final match IDs to the two wheel indices they pair.
-var matchWheelIDs = map[string][2]int{
-	"qf1": {0, 1},
-	"qf2": {2, 3},
-	"qf3": {4, 5},
-	"qf4": {6, 7},
+var matchWheelIDs = map[bracket.MatchID][2]int{
+	bracket.MatchQF1: {0, 1},
+	bracket.MatchQF2: {2, 3},
+	bracket.MatchQF3: {4, 5},
+	bracket.MatchQF4: {6, 7},
 }
 
 // bracketMatchIDs lists match IDs that use bracket state (SF and Final).
@@ -72,8 +72,8 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 		matchIDStr := r.PathValue("matchID")
 
 		// Validate match ID — check both QF and bracket match sets
-		indices, isQF := matchWheelIDs[matchIDStr]
 		bid := bracket.MatchID(matchIDStr)
+		indices, isQF := matchWheelIDs[bid]
 		if !isQF && !bracketMatchIDs[bid] {
 			writeJSONError(w, http.StatusNotFound, "invalid match ID")
 			return
@@ -269,9 +269,12 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 		}
 
 		// 2. Next-round slot fragment with absorbed winner wheel
+		// Absorbed wheels in next-round slots are read-only — they are propagated
+		// from a previous battle and should not be editable.
 		nextRoundSlotID := bracket.SlotMapping(bid)
 		if nextRoundSlotID != "" {
 			whView := wheelViewFromWheel(absorbedWheel, nextRoundSlotID)
+			whView.ReadOnly = true
 			err = renderer.ExecuteTemplate(w, "nextRoundSlot", nextRoundSlotData{
 				SlotID: nextRoundSlotID,
 				Wheel:  whView,

@@ -12,6 +12,7 @@
       <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
     </g>
   </svg>
+  {{if not .ReadOnly}}
   <form hx-post="/wheel/{{.ID}}/spin" hx-target="#wheel-{{.SlotID}}-{{.ID}}" hx-swap="outerHTML">
     <button type="submit">Spin</button>
   </form>
@@ -20,11 +21,12 @@
     <input type="number" name="weight" step="any" min="0" placeholder="Weight">
     <button type="submit">Add</button>
   </form>
+  {{end}}
   <ul>
     {{range $i, $opt := .Options}}
     <li>
       {{$opt.Text}}
-      <button hx-delete="/wheel/{{$.ID}}/option/{{$opt.Index}}" hx-target="#wheel-{{$.SlotID}}-{{$.ID}}" hx-swap="outerHTML">&times;</button>
+      {{if not $.ReadOnly}}<button hx-delete="/wheel/{{$.ID}}/option/{{$opt.Index}}" hx-target="#wheel-{{$.SlotID}}-{{$.ID}}" hx-swap="outerHTML">&times;</button>{{end}}
     </li>
     {{end}}
   </ul>
