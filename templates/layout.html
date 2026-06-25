@@ -14,26 +14,34 @@
         <div class="bracket" id="bracket">
             <!-- QF1: wheels 0 vs 1 -->
             <div class="slot" id="slot-1">{{template "wheel" index .Wheels 0}}</div>
-            <div id="battle-btn-qf1"><button class="neon-button" hx-post="/battle/qf1" hx-target="this" hx-swap="outerHTML">Battle QF1</button></div>
-            <div id="match-qf1"></div>
+            <div class="match-center">
+                <div id="battle-btn-qf1"><button class="neon-button" hx-post="/battle/qf1" hx-target="this" hx-swap="outerHTML">Battle QF1</button></div>
+                <div id="match-qf1"></div>
+            </div>
             <div class="slot" id="slot-2">{{template "wheel" index .Wheels 1}}</div>
 
             <!-- QF2: wheels 2 vs 3 -->
             <div class="slot" id="slot-3">{{template "wheel" index .Wheels 2}}</div>
-            <div id="battle-btn-qf2"><button class="neon-button" hx-post="/battle/qf2" hx-target="this" hx-swap="outerHTML">Battle QF2</button></div>
-            <div id="match-qf2"></div>
+            <div class="match-center">
+                <div id="battle-btn-qf2"><button class="neon-button" hx-post="/battle/qf2" hx-target="this" hx-swap="outerHTML">Battle QF2</button></div>
+                <div id="match-qf2"></div>
+            </div>
             <div class="slot" id="slot-4">{{template "wheel" index .Wheels 3}}</div>
 
             <!-- QF3: wheels 4 vs 5 -->
             <div class="slot" id="slot-5">{{template "wheel" index .Wheels 4}}</div>
-            <div id="battle-btn-qf3"><button class="neon-button" hx-post="/battle/qf3" hx-target="this" hx-swap="outerHTML">Battle QF3</button></div>
-            <div id="match-qf3"></div>
+            <div class="match-center">
+                <div id="battle-btn-qf3"><button class="neon-button" hx-post="/battle/qf3" hx-target="this" hx-swap="outerHTML">Battle QF3</button></div>
+                <div id="match-qf3"></div>
+            </div>
             <div class="slot" id="slot-6">{{template "wheel" index .Wheels 5}}</div>
 
             <!-- QF4: wheels 6 vs 7 -->
             <div class="slot" id="slot-7">{{template "wheel" index .Wheels 6}}</div>
-            <div id="battle-btn-qf4"><button class="neon-button" hx-post="/battle/qf4" hx-target="this" hx-swap="outerHTML">Battle QF4</button></div>
-            <div id="match-qf4"></div>
+            <div class="match-center">
+                <div id="battle-btn-qf4"><button class="neon-button" hx-post="/battle/qf4" hx-target="this" hx-swap="outerHTML">Battle QF4</button></div>
+                <div id="match-qf4"></div>
+            </div>
             <div class="slot" id="slot-8">{{template "wheel" index .Wheels 7}}</div>
         </div>
         <hr class="bracket-connector">
@@ -43,8 +51,10 @@
             <div class="slot" id="slot-sf1-left">
                 {{if .Bracket.SFLeft0}}{{template "wheel" .Bracket.SFLeft0}}{{else}}<span class="slot-placeholder">SF1 Left</span>{{end}}
             </div>
-            <div id="battle-btn-sf1"><button class="neon-button" hx-post="/battle/sf1" hx-target="this" hx-swap="outerHTML">Battle SF1</button></div>
-            <div id="match-sf1"></div>
+            <div class="match-center">
+                <div id="battle-btn-sf1"><button class="neon-button" hx-post="/battle/sf1" hx-target="this" hx-swap="outerHTML">Battle SF1</button></div>
+                <div id="match-sf1"></div>
+            </div>
             <div class="slot" id="slot-sf1-right">
                 {{if .Bracket.SFRight0}}{{template "wheel" .Bracket.SFRight0}}{{else}}<span class="slot-placeholder">SF1 Right</span>{{end}}
             </div>
@@ -53,8 +63,10 @@
             <div class="slot" id="slot-sf2-left">
                 {{if .Bracket.SFLeft1}}{{template "wheel" .Bracket.SFLeft1}}{{else}}<span class="slot-placeholder">SF2 Left</span>{{end}}
             </div>
-            <div id="battle-btn-sf2"><button class="neon-button" hx-post="/battle/sf2" hx-target="this" hx-swap="outerHTML">Battle SF2</button></div>
-            <div id="match-sf2"></div>
+            <div class="match-center">
+                <div id="battle-btn-sf2"><button class="neon-button" hx-post="/battle/sf2" hx-target="this" hx-swap="outerHTML">Battle SF2</button></div>
+                <div id="match-sf2"></div>
+            </div>
             <div class="slot" id="slot-sf2-right">
                 {{if .Bracket.SFRight1}}{{template "wheel" .Bracket.SFRight1}}{{else}}<span class="slot-placeholder">SF2 Right</span>{{end}}
             </div>
@@ -67,8 +79,10 @@
             <div class="slot" id="slot-final-right">
                 {{if .Bracket.FinalRight}}{{template "wheel" .Bracket.FinalRight}}{{else}}<span class="slot-placeholder">Final Right</span>{{end}}
             </div>
-            <div id="battle-btn-final"><button class="neon-button" hx-post="/battle/final" hx-target="this" hx-swap="outerHTML">Battle Final</button></div>
-            <div id="match-final"></div>
+            <div class="match-center">
+                <div id="battle-btn-final"><button class="neon-button" hx-post="/battle/final" hx-target="this" hx-swap="outerHTML">Battle Final</button></div>
+                <div id="match-final"></div>
+            </div>
         </div>
         <div id="movie-result" class="movie-result">
             {{if .Bracket.MovieText}}<h2 class="movie-hero">You're watching: {{.Bracket.MovieText}}</h2>{{end}}
