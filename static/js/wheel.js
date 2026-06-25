@@ -30,6 +30,68 @@
   // Timer ID for the reveal timeout, to avoid multiple reveals.
   var revealTimer = null;
 
+  // Exposed for rodney probes to read trigger data from tests.
+  window.__lastSpinItems = null;
+
+  // Hide the battle pointer at the start of a spin-wheel handler.
+  // This serves as the round-reset guard: ensures the pointer is hidden
+  // before any new reveal timeout fires, even if the previous battle's
+  // pointer survived the DOM swap.
+  //
+  // Uses setTimeout(0) because HX-Trigger fires BEFORE the OOB swap
+  // completes, so the #battle-pointer element (inside the matchResult
+  // OOB fragment) doesn't exist yet when this function is called.
+  function hidePointer() {
+    setTimeout(function () {
+      var p = document.getElementById("battle-pointer");
+      if (!p) return;
+      p.style.display = "none";
+      p.style.position = "";
+      p.style.left = "";
+      p.style.top = "";
+      p.style.zIndex = "";
+    }, 0);
+  }
+
+  // Position the pointer's center within 10px of the given slot's center.
+  // Uses fixed positioning to break out of the .match-result flow.
+  // The slotID comes from trigger data (NOT scraped from HTML — §3.2 boundary).
+  function positionPointerAtSlot(slotID) {
+    var p = document.getElementById("battle-pointer");
+    if (!p) return;
+    var slot = document.getElementById(slotID);
+    if (!slot) return;
+
+    var slotRect = slot.getBoundingClientRect();
+    var slotCX = slotRect.left + slotRect.width / 2;
+    var slotCY = slotRect.top + slotRect.height / 2;
+
+    var pRect = p.getBoundingClientRect();
+    var pW = pRect.width || 20;
+    var pH = pRect.height || 20;
+
+    p.style.position = "fixed";
+    p.style.left = (slotCX - pW / 2) + "px";
+    p.style.top = (slotCY - pH / 2) + "px";
+    p.style.zIndex = "1000";
+    p.style.display = "";
+  }
+
+  // Find the winning wheel from trigger data and position the pointer at its slot.
+  // Only runs for battles (items.length > 1). Skipped for solo spins.
+  function revealPointerWithResults() {
+    var items = window.__lastSpinItems;
+    if (!items || items.length <= 1) return;
+
+    // READ winner from trigger data — NOT scraped from matchResult HTML (§3.2)
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].winner === true) {
+        positionPointerAtSlot(items[i].slotID);
+        return;
+      }
+    }
+  }
+
   function spinWheel(data) {
     var wheelID = data.wheelID;
     var slotID = data.slotID || "";
@@ -73,6 +135,9 @@
       pending[i].classList.add("revealed");
     }
     revealTimer = null;
+
+    // Position and reveal the battle pointer at the winning wheel's slot
+    revealPointerWithResults();
   }
 
   // Schedule reveal after the spin animation finishes.
@@ -98,6 +163,13 @@
     // (one per wheel), while the single-spin handler sends a
     // single object.  Normalise to an array for uniform handling.
     var items = Array.isArray(triggerValue) ? triggerValue : [triggerValue];
+
+    // Round-reset guard: hide pointer at START of handler so it never
+    // flashes from a previous battle's positioning.
+    hidePointer();
+
+    // Store for rodney probes and revealPointerWithResults.
+    window.__lastSpinItems = items;
 
     for (var i = 0; i < items.length; i++) {
       spinWheel(items[i]);

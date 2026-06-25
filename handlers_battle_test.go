@@ -1491,3 +1491,83 @@ func TestBattlePointer_SpaceTheme(t *testing.T) {
 		t.Error(".battle-pointer referenced inside @media (max-width: 640px) — would be hidden on mobile")
 	}
 }
+
+// TestBattleHandler_HXTrigger_WinnerInTrigger verifies that:
+//   - HX-Trigger spin-wheel array has exactly one entry with "winner":true
+//   - The winner:true entry's wheelID matches the battle result WinnerID
+//   - The non-winner entry has winner:false (or absent, defaulting to false)
+func TestBattleHandler_HXTrigger_WinnerInTrigger(t *testing.T) {
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	addOptionToWheel(t, ts, sessionID, "0", "A")
+	addOptionToWheel(t, ts, sessionID, "1", "B")
+
+	req, err := http.NewRequest(http.MethodPost, ts.URL+"/battle/qf1", nil)
+	if err != nil {
+		t.Fatalf("creating battle request: %v", err)
+	}
+	req.AddCookie(&http.Cookie{Name: "bbw_session", Value: sessionID})
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("POST /battle/qf1: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
+
+	hxTrigger := resp.Header.Get("HX-Trigger")
+	if hxTrigger == "" {
+		t.Fatal("missing HX-Trigger header")
+	}
+
+	// Parse HX-Trigger with winner field
+	var triggerData struct {
+		SpinWheel []struct {
+			WheelID     string  `json:"wheelID"`
+			SlotID      string  `json:"slotID"`
+			TargetIndex int     `json:"targetIndex"`
+			TargetAngle float64 `json:"targetAngle"`
+			Winner      bool    `json:"winner"`
+		} `json:"spin-wheel"`
+	}
+	if err := json.Unmarshal([]byte(hxTrigger), &triggerData); err != nil {
+		t.Fatalf("unmarshal HX-Trigger: %v", err)
+	}
+
+	if len(triggerData.SpinWheel) != 2 {
+		t.Fatalf("spin-wheel array length = %d, want 2", len(triggerData.SpinWheel))
+	}
+
+	// Count winner:true entries — must be exactly 1
+	winnerCount := 0
+	var winnerWheelID string
+	for _, sw := range triggerData.SpinWheel {
+		if sw.Winner {
+			winnerCount++
+			winnerWheelID = sw.WheelID
+		}
+	}
+	if winnerCount != 1 {
+		t.Errorf("got %d winner:true entries, want exactly 1", winnerCount)
+	}
+
+	// Extract actual WinnerID from the response body (matchResult fragment)
+	buf := make([]byte, 65536)
+	n, _ := resp.Body.Read(buf)
+	body := string(buf[:n])
+
+	// The template renders: <span class="winner-text">Wheel {ID} (roll: {N})</span>
+	winnerMatch := regexp.MustCompile(`winner-text">Wheel\s+(\S+)`).FindStringSubmatch(body)
+	if len(winnerMatch) < 2 {
+		t.Fatal("could not extract WinnerID from response body")
+	}
+	expectedWinnerID := winnerMatch[1]
+
+	if winnerWheelID != expectedWinnerID {
+		t.Errorf("winner:true entry has wheelID=%q, want %q (from matchResult)", winnerWheelID, expectedWinnerID)
+	}
+}

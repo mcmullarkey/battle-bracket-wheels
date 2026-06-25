@@ -264,12 +264,14 @@ func battleHandler(store *Store, renderer Renderer, newSource func() rand.Source
 					"slotID":      wheelASlotID,
 					"targetIndex": resultA.Index,
 					"targetAngle": resultA.TargetAngle,
+					"winner":      battleResult.WinnerID == whA.ID,
 				},
 				{
 					"wheelID":     whB.ID,
 					"slotID":      wheelBSlotID,
 					"targetIndex": resultB.Index,
 					"targetAngle": resultB.TargetAngle,
+					"winner":      battleResult.WinnerID == whB.ID,
 				},
 			},
 		}

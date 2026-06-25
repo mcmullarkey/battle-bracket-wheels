@@ -1,0 +1,25 @@
+{
+  "HX-Trigger": {
+    "spin-wheel": [
+      {
+        "slotID": "slot-1",
+        "targetAngle": 0,
+        "targetIndex": 0,
+        "wheelID": "0",
+        "winner": true
+      },
+      {
+        "slotID": "slot-2",
+        "targetAngle": 0,
+        "targetIndex": 0,
+        "wheelID": "1",
+        "winner": false
+      }
+    ]
+  },
+  "matchResult": {
+    "winner": "Wheel 0 (roll: 89)",
+    "loser": "Wheel 1 (roll: 43)",
+    "verification": "winner:true entry wheelID (0) matches matchResult winner"
+  }
+}
