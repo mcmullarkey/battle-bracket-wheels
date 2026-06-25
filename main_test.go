@@ -366,6 +366,27 @@ func extractCSSRule(css, selector string) string {
 	return ""
 }
 
+func TestSpaceCSS_RevealTransitionPlacement(t *testing.T) {
+	data, err := fs.ReadFile(staticFS, "css/space.css")
+	if err != nil {
+		t.Fatalf("reading embedded static/css/space.css: %v", err)
+	}
+	css := string(data)
+
+	// No selector matching .pending-reveal (bare or compound) may declare transition.
+	// A transition on any .pending-reveal selector causes result flash on HTMX OOB insertion.
+	re := regexp.MustCompile(`\.pending-reveal[^{]*\{[^}]*transition`)
+	if re.MatchString(css) {
+		t.Error("no selector matching .pending-reveal may declare 'transition' (causes result flash on OOB insertion)")
+	}
+
+	// .revealed must declare transition for the fade-in on class swap.
+	revealedRule := extractCSSRule(css, ".revealed")
+	if !strings.Contains(revealedRule, "transition") {
+		t.Error(".revealed must declare 'transition' (fade-in on class swap)")
+	}
+}
+
 func TestEmbedStaticAssets(t *testing.T) {
 	data, err := fs.ReadFile(staticFS, "css/space.css")
 	if err != nil {
