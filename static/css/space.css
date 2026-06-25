@@ -689,6 +689,16 @@ footer p {
     font-style: italic;
 }
 
+/* Battle pointer — decorative arrow indicating result flow to next round */
+.battle-pointer {
+    color: var(--neon-cyan);
+    filter: drop-shadow(0 0 6px var(--nebula-purple));
+    display: block;
+    margin: 0.25rem auto 0;
+    width: 20px;
+    height: 20px;
+}
+
 /* Winner and loser labels — text without <strong> markup */
 .winner-label,
 .loser-label {

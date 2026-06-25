@@ -1365,3 +1365,129 @@ func TestMatchResult_SpaceThemeVisual(t *testing.T) {
 		t.Error(".match-result missing justify-content: center (vertical centering)")
 	}
 }
+
+// TestBattlePointer_SpaceTheme verifies the decorative .battle-pointer element:
+//   - Present in POST /battle/qf1 response inside matchResult OOB fragment
+//   - Uses inline SVG (no url() images)
+//   - space.css has .battle-pointer rule with >=2 space-theme custom properties
+//   - NOT hidden by @media (max-width: 640px)
+func TestBattlePointer_SpaceTheme(t *testing.T) {
+	// ---- Part 1: Battle response contains .battle-pointer with inline SVG ----
+	ts, _, _ := battleTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+
+	addOptionToWheel(t, ts, sessionID, "0", "A")
+	addOptionToWheel(t, ts, sessionID, "1", "B")
+
+	req, err := http.NewRequest(http.MethodPost, ts.URL+"/battle/qf1", nil)
+	if err != nil {
+		t.Fatalf("creating battle request: %v", err)
+	}
+	req.AddCookie(&http.Cookie{Name: "bbw_session", Value: sessionID})
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("POST /battle/qf1: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
+
+	buf := make([]byte, 65536)
+	n, _ := resp.Body.Read(buf)
+	body := string(buf[:n])
+
+	// The .battle-pointer must appear inside the match-{matchID} OOB fragment
+	if !strings.Contains(body, `class="battle-pointer"`) {
+		t.Error("battle response missing .battle-pointer element")
+	}
+
+	// Must contain an inline SVG inside the pointer
+	pointerIdx := strings.Index(body, "battle-pointer")
+	if pointerIdx >= 0 {
+		fragmentAfter := body[pointerIdx:]
+		if !strings.Contains(fragmentAfter, "<svg") {
+			t.Error(".battle-pointer missing inline SVG")
+		}
+	}
+
+	// Must NOT contain url() referencing images in the battle response
+	if strings.Contains(body, `url(`) {
+		// Check for image url() references
+		imageExts := []string{".gif", ".png", ".jpg", ".jpeg", ".webp", ".svg"}
+		for _, ext := range imageExts {
+			if strings.Contains(body, "url("+ext) {
+				t.Errorf("battle response contains url() referencing %s", ext)
+			}
+		}
+	}
+
+	// ---- Part 2: space.css has .battle-pointer rule with >=2 theme tokens ----
+	data, err := fs.ReadFile(staticFS, "css/space.css")
+	if err != nil {
+		t.Fatalf("reading embedded static/css/space.css: %v", err)
+	}
+	css := string(data)
+
+	pointerRule := extractCSSRule(css, ".battle-pointer")
+	if pointerRule == "" {
+		t.Fatal("space.css missing .battle-pointer CSS rule")
+	}
+
+	// Count space-theme custom properties referenced
+	themeTokens := []string{"--neon-", "--cosmic-", "--star-", "--nebula-"}
+	tokenCount := 0
+	for _, token := range themeTokens {
+		if strings.Contains(pointerRule, token) {
+			tokenCount++
+		}
+	}
+	if tokenCount < 2 {
+		t.Errorf(".battle-pointer rule references %d space-theme tokens, want >= 2", tokenCount)
+	}
+
+	// Must NOT contain url() referencing images
+	for _, ext := range []string{".gif", ".png", ".jpg", ".jpeg", ".webp", ".svg"} {
+		if strings.Contains(pointerRule, "url("+ext) {
+			t.Errorf(".battle-pointer rule contains url() referencing %s", ext)
+		}
+	}
+
+	// Must have at least one property for visual substance beyond display/visibility
+	hasVisualSubstance := strings.Contains(pointerRule, "color") ||
+		strings.Contains(pointerRule, "background") ||
+		strings.Contains(pointerRule, "border") ||
+		strings.Contains(pointerRule, "box-shadow") ||
+		strings.Contains(pointerRule, "width") ||
+		strings.Contains(pointerRule, "height") ||
+		strings.Contains(pointerRule, "font-size")
+	if !hasVisualSubstance {
+		t.Error(".battle-pointer rule lacks visual substance (no color/background/border/size properties)")
+	}
+
+	// ---- Part 3: NOT hidden by @media (max-width: 640px) ----
+	// Parse mobile media query block
+	mobileMediaIdx := strings.Index(css, "@media (max-width: 640px)")
+	if mobileMediaIdx < 0 {
+		t.Fatal("space.css missing @media (max-width: 640px)")
+	}
+
+	// Find the mobile query's closing brace
+	mobileDepth := 1
+	mobileEnd := mobileMediaIdx + len("@media (max-width: 640px)")
+	for mobileEnd < len(css) && mobileDepth > 0 {
+		if css[mobileEnd] == '{' {
+			mobileDepth++
+		} else if css[mobileEnd] == '}' {
+			mobileDepth--
+		}
+		mobileEnd++
+	}
+	mobileBlock := css[mobileMediaIdx:mobileEnd]
+
+	// Check that .battle-pointer is NOT mentioned inside the mobile block
+	if strings.Contains(mobileBlock, ".battle-pointer") {
+		t.Error(".battle-pointer referenced inside @media (max-width: 640px) — would be hidden on mobile")
+	}
+}
