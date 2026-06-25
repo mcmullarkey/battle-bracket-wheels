@@ -1,0 +1,23 @@
+Full probe output — 2026-06-25
+Branch: feat/project-agents-md-mem-mirror
+
+Phase 1: AGENTS.md structural conformance
+  test -f AGENTS.md                              PASS
+  grep 'docs/okf'                                PASS
+  grep 'project_f45adc73d392ef18_shard_0.db'     PASS
+  grep 'docs/agent-notes'                        PASS
+  grep 'bbw_session'                             PASS
+  grep 'SameSite=Lax'                            PASS
+  grep 'go test -race'                           PASS
+  grep -qE 'HTMX.*OOB'                           PASS
+  grep 'Store\.Update'                           PASS
+  grep 'Exercising the App'                      PASS
+
+Phase 2: okf-mem-sync.ts
+  Exit 0                                         PASS
+  No "Failed: [1-9]"                             PASS
+  No "pin failed"                                PASS
+  Imported: 21 | Skipped: 8 | Failed: 0
+
+Phase 3: Pinned okf memories
+  expected=21 pinned=63                          PASS (63 >= 21)
