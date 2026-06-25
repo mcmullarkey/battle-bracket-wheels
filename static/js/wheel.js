@@ -43,13 +43,14 @@
   // OOB fragment) doesn't exist yet when this function is called.
   function hidePointer() {
     setTimeout(function () {
-      var p = document.getElementById("battle-pointer");
-      if (!p) return;
-      p.style.display = "none";
-      p.style.position = "";
-      p.style.left = "";
-      p.style.top = "";
-      p.style.zIndex = "";
+      var allPointers = document.querySelectorAll("#battle-pointer");
+      for (var i = 0; i < allPointers.length; i++) {
+        allPointers[i].style.display = "none";
+        allPointers[i].style.position = "";
+        allPointers[i].style.left = "";
+        allPointers[i].style.top = "";
+        allPointers[i].style.zIndex = "";
+      }
     }, 0);
   }
 
