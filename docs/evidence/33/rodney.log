@@ -1,0 +1,52 @@
+=== Building app ===
+
+=== Starting app on port 8081 ===
+
+=== Health check ===
+{"status":"ok"}
+
+=== Starting rodney browser ===
+Chrome started (PID 80192)
+Debug URL: ws://127.0.0.1:55912/devtools/browser/bfcf5458-e249-4e3c-a0c9-35fd2d272db7
+
+=== Opening app ===
+Battle Bracket Wheels
+Page loaded
+
+=== Adding option to wheel 0 ===
+Typed: Starfighter
+Clicked
+
+=== Adding option to wheel 1 ===
+Typed: Space Pirate
+Clicked
+
+=== Clicking Battle QF1 ===
+Clicked
+
+=== Waiting for reveal animation (8s) ===
+
+=== Checking .battle-pointer computed styles (revealed state) ===
+
+--- Computed values ---
+width: 20px
+height: 20px
+visibility: visible
+opacity: 1
+display: block
+
+--- Assertions ---
+pass
+  ✓ pointer width > 0
+pass
+  ✓ pointer height > 0
+pass
+  ✓ pointer visibility visible
+pass
+  ✓ pointer opacity non-zero
+pass
+  ✓ pointer display not none
+
+=== ALL ASSERTIONS PASSED ===
+
+=== Cleanup ===
