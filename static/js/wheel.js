@@ -66,6 +66,17 @@
     var slotCX = slotRect.left + slotRect.width / 2;
     var slotCY = slotRect.top + slotRect.height / 2;
 
+    // Move pointer to the body so its fixed positioning is relative to the
+    // viewport, not an ancestor with backdrop-filter (e.g. .bracket).
+    // Remove any stale pointer(s) from previous battles first.
+    var allPointers = document.querySelectorAll("#battle-pointer");
+    for (var i = 0; i < allPointers.length; i++) {
+      if (allPointers[i] !== p && allPointers[i].parentNode) {
+        allPointers[i].parentNode.removeChild(allPointers[i]);
+      }
+    }
+    document.body.appendChild(p);
+
     var pRect = p.getBoundingClientRect();
     var pW = pRect.width || 20;
     var pH = pRect.height || 20;
