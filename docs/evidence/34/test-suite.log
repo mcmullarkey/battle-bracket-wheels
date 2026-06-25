@@ -1,6 +1,4 @@
-# Review cycle 2 fix: hidePointer() now uses querySelectorAll for all #battle-pointer instances
-# Run: 2026-06-25
-ok  	battle-bracket-wheels	1.429s
-ok  	battle-bracket-wheels/internal/battle	1.543s
-ok  	battle-bracket-wheels/internal/bracket	1.321s
-ok  	battle-bracket-wheels/internal/wheel	1.434s
+ok  	battle-bracket-wheels	2.156s
+ok  	battle-bracket-wheels/internal/battle	2.147s
+ok  	battle-bracket-wheels/internal/bracket	1.894s
+ok  	battle-bracket-wheels/internal/wheel	1.400s

@@ -1,13 +1,10 @@
 # Rodney UI probe results for issue #34
-# Generated: 2026-06-25 (JS FIXED 2026-06-25 — probes need re-execution)
-# Browser: Chrome via uvx rodney (headless)
+# Generated: 2026-06-25 (re-executed by builder-vision after fix commit 173cff0)
+# Browser: Chrome via uvx rodney (headless, local session)
 # App: http://localhost:8080
 #
-# NOTE: This file was updated during review cycle 2 fix:
-#   - All probes now use querySelectorAll("#battle-pointer") to catch
-#     stale body-appended pointers (was querySelector — first-match flaw)
-#   - Probe E: added missing `const start = performance.now();` declaration
-# Probes need re-execution by builder-vision in the next cycle.
+# Setup: fresh page load; added two options each to wheels 0-3 via HTMX forms
+# (click on Add button) so QF1 and QF2 battles could resolve.
 #
 # Note: The ui: block's example commands used pseudo-options (--step, --at,
 # --watch) not supported by this rodney build. Equivalent probes were run with
@@ -17,6 +14,7 @@
 Command:
   uvx rodney click '#battle-btn-qf1 button' && \
   uvx rodney sleep 2 && \
+  uvx rodney screenshot docs/evidence/34/02-battle-qf1-t2000-hidden.png && \
   uvx rodney assert '((all)=>all.length===0 || Array.from(all).every(p=>getComputedStyle(p).display==="none" || getComputedStyle(p).opacity==="0"))(document.querySelectorAll("#battle-pointer"))' -m 'Run A: pointer hidden at t=2000ms'
 Result: PASS
 Screenshot: docs/evidence/34/02-battle-qf1-t2000-hidden.png
@@ -24,6 +22,7 @@ Screenshot: docs/evidence/34/02-battle-qf1-t2000-hidden.png
 ## Probe B — pointer visible and centered on winner slot (t ≈ 4000ms)
 Command:
   uvx rodney sleep 2 && \
+  uvx rodney screenshot docs/evidence/34/03-battle-qf1-t4000-visible.png && \
   uvx rodney assert '((all,items)=>{const p=all[0]; if(!p)return false; const cs=getComputedStyle(p); const r=p.getBoundingClientRect(); const w=items.find(i=>i.winner===true); if(!w)return false; const slot=document.getElementById(w.slotID); if(!slot)return false; const sr=slot.getBoundingClientRect(); return cs.display!=="none" && parseFloat(cs.opacity)>0.1 && r.width>0 && Math.abs((r.left+r.width/2)-(sr.left+sr.width/2))<=10 && Math.abs((r.top+r.height/2)-(sr.top+sr.height/2))<=10;})(document.querySelectorAll("#battle-pointer"), window.__lastSpinItems)' -m 'Run B: pointer visible + centered at winner slot at t=4000ms'
 Result: PASS
 Screenshot: docs/evidence/34/03-battle-qf1-t4000-visible.png
@@ -32,6 +31,7 @@ Screenshot: docs/evidence/34/03-battle-qf1-t4000-visible.png
 Command:
   uvx rodney click '#battle-btn-qf2 button' && \
   uvx rodney sleep 2 && \
+  uvx rodney screenshot docs/evidence/34/04-battle-qf2-t2000-hidden.png && \
   uvx rodney assert '((all)=>all.length===0 || Array.from(all).every(p=>getComputedStyle(p).display==="none" || getComputedStyle(p).opacity==="0"))(document.querySelectorAll("#battle-pointer"))' -m 'Round reset: pointer hidden at t=2000ms of new battle'
 Result: PASS
 Screenshot: docs/evidence/34/04-battle-qf2-t2000-hidden.png
@@ -39,6 +39,7 @@ Screenshot: docs/evidence/34/04-battle-qf2-t2000-hidden.png
 ## Probe D — round-reset continuation: pointer re-centered at new winner (t ≈ 4000ms)
 Command:
   uvx rodney sleep 2 && \
+  uvx rodney screenshot docs/evidence/34/05-battle-qf2-t4000-visible.png && \
   uvx rodney assert '((all,items)=>{const p=all[0]; if(!p)return false; const cs=getComputedStyle(p); const r=p.getBoundingClientRect(); const w=items.find(i=>i.winner===true); if(!w)return false; const slot=document.getElementById(w.slotID); if(!slot)return false; const sr=slot.getBoundingClientRect(); return cs.display!=="none" && parseFloat(cs.opacity)>0.1 && r.width>0 && Math.abs((r.left+r.width/2)-(sr.left+sr.width/2))<=10 && Math.abs((r.top+r.height/2)-(sr.top+sr.height/2))<=10;})(document.querySelectorAll("#battle-pointer"), window.__lastSpinItems)' -m 'Round reset: pointer visible + centered at new winner at t=4000ms'
 Result: PASS
 Screenshot: docs/evidence/34/05-battle-qf2-t4000-visible.png
@@ -59,7 +60,7 @@ Command:
     const delays=[500,2500,4500,6500,8500,10500];
     return Promise.all(delays.map(d=>new Promise(resolve=>setTimeout(()=>{check(d); resolve();},d)))).then(()=>({violations,elapsed:performance.now()-start}));
   })()'
-Result: PASS (violations: [], elapsed: ~10510ms)
+Result: PASS (violations: [], elapsed: ~10512ms)
 Screenshot: docs/evidence/34/06-solo-spin-pointer-hidden.png
 
 ## Summary
