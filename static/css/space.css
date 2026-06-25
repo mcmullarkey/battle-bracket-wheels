@@ -591,64 +591,9 @@ footer p {
 
 /* ===== Match Result (space-themed win/lose visual) ===== */
 
-/* Center the match result between the two competing wheels by spanning
-   the two middle grid tracks. Explicit placement keeps the left/right
-   slots and battle buttons in their intended columns so auto-placement
-   does not wrap them onto new rows. */
-#slot-1, #slot-3, #slot-5, #slot-7,
-#slot-sf1-left, #slot-sf2-left {
-    grid-column: 1;
-}
-
-#battle-btn-qf1, #battle-btn-qf2, #battle-btn-qf3, #battle-btn-qf4,
-#battle-btn-sf1, #battle-btn-sf2 {
-    grid-column: 2;
-}
-
-#match-qf1, #match-qf2, #match-qf3, #match-qf4,
-#match-sf1, #match-sf2 {
-    grid-column: 2 / span 2;
-    place-self: stretch;
-}
-
-#slot-2, #slot-4, #slot-6, #slot-8,
-#slot-sf1-right, #slot-sf2-right {
-    grid-column: 4;
-}
-
-/* Final bracket (2-column grid): result spans both columns and sits
-   centered under the two final slots. */
-#slot-final-left, #battle-btn-final {
-    grid-column: 1;
-}
-
-#match-final {
-    grid-column: 1 / span 2;
-    place-self: stretch;
-}
-
-#slot-final-right {
-    grid-column: 2;
-}
-
-/* Hide the disabled "Battle Complete" button so the spanning match result
-   can occupy the full center space without visual overlap. */
-.battle-btn:disabled {
-    display: none;
-}
-
-/* Empty match containers sit above the active battle buttons because they
-   span the same grid cells. Disable pointer events on the container so
-   clicks pass through to the buttons below; re-enable on the rendered
-   result so its own content behaves normally. */
-[id^="match-"] {
-    pointer-events: none;
-}
-
 .match-result {
     position: relative;
     display: flex;
-    pointer-events: auto;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -662,7 +607,6 @@ footer p {
     border-radius: 12px;
     padding: 0.75rem 1rem;
     font-size: 0.85rem;
-    text-align: center;
     box-shadow: var(--cosmic-shadow);
     transition: border-color 0.3s ease;
     overflow: hidden;
@@ -706,7 +650,8 @@ footer p {
     color: var(--neon-gold);
     text-shadow: var(--neon-text-gold);
     font-weight: bold;
-    margin: 0 auto 0.3rem;
+    margin-bottom: 0.3rem;
+    width: 100%;
 }
 
 .match-winner-icon {
@@ -726,7 +671,7 @@ footer p {
     gap: 0.4rem;
     color: rgba(150, 150, 200, 0.55);
     font-size: 0.8rem;
-    margin: 0 auto;
+    width: 100%;
 }
 
 .match-loser-icon {
@@ -810,21 +755,6 @@ footer p {
     .neon-button {
         font-size: 0.85rem;
         padding: 0.4rem 1rem;
-    }
-
-    /* Reset explicit grid placement at tablet width so the reduced-column
-       grids can auto-place slots, buttons, and match results cleanly. */
-    #slot-1, #slot-3, #slot-5, #slot-7,
-    #slot-2, #slot-4, #slot-6, #slot-8,
-    #slot-sf1-left, #slot-sf2-left,
-    #slot-sf1-right, #slot-sf2-right,
-    #battle-btn-qf1, #battle-btn-qf2, #battle-btn-qf3, #battle-btn-qf4,
-    #battle-btn-sf1, #battle-btn-sf2,
-    #match-qf1, #match-qf2, #match-qf3, #match-qf4,
-    #match-sf1, #match-sf2,
-    #slot-final-left, #slot-final-right,
-    #battle-btn-final, #match-final {
-        grid-column: auto;
     }
 
     .match-result {
