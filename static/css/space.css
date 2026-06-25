@@ -703,22 +703,26 @@ footer p {
     color: rgba(150, 150, 200, 0.5);
 }
 
-/* Span the two center tracks so the match result sits centered between the competing wheels.
-   Scoped to the 4-column desktop grid — responsive breakpoints use fewer columns. */
+/* Center cell: stacks the battle button and match result, centered between the competing wheels.
+   On the 4-column desktop grid it spans the two center tracks (cols 2-3) so it sits between
+   the left and right wheels. At reduced-column breakpoints it auto-places naturally. */
+.match-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
 @media (min-width: 1025px) {
-    #match-qf1, #match-qf2, #match-qf3, #match-qf4,
-    #match-sf1, #match-sf2 {
+    .bracket .match-center,
+    .bracket-sf .match-center {
         grid-column: 2 / 4;
     }
-    #match-final {
+    .bracket-final .match-center {
         grid-column: 1 / -1;
     }
 }
-
-/* Empty match containers are click-through so the battle button stays clickable
-   before a battle; the populated result panel re-enables interaction (hover). */
-[id^="match-"] { pointer-events: none; }
-.match-result { pointer-events: auto; }
 
 /* ===== Responsive Breakpoints ===== */
 
