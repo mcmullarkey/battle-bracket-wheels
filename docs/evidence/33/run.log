@@ -1,0 +1,110 @@
+=== E2E Evidence: Issue #33 — Space-themed battle pointer ===
+Date: 2026-06-25
+
+=== 1. Test Suite ===
+See test-suite.log (all tests pass with race detector)
+
+=== 2. App Startup ===
+Battle Bracket Wheels listening on 0.0.0.0:8080
+
+=== 3. CSS Rule Verification ===
+.battle-pointer {
+    color: var(--neon-cyan);
+    filter: drop-shadow(0 0 6px var(--nebula-purple));
+    display: block;
+    margin: 0.25rem auto 0;
+    width: 20px;
+    height: 20px;
+}
+
+Theme tokens used: --neon-cyan (--neon-*), --nebula-purple (--nebula-*)
+→ 2 different space-theme token categories ✓
+
+No url() image references ✓
+Not referenced in @media (max-width: 640px) block ✓
+
+=== 4. Battle Response (POST /battle/qf1) ===
+
+<div id="match-qf1" hx-swap-oob="true" class="pending-reveal">
+  <div class="match-result">
+    <div class="match-winner">
+      <svg class="match-winner-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9" fill="currentColor"/>
+      </svg>
+      <span class="winner-label">Winner:</span>
+      <span class="winner-text">Wheel 1 (roll: 86)</span>
+    </div>
+    <div class="match-loser">
+      <svg class="match-loser-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+        <line x1="8" y1="8" x2="16" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="16" y1="8" x2="8" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="loser-label">Loser:</span>
+      <span class="loser-text">Wheel 0 (roll: 20)</span>
+    </div>
+    
+    <svg class="battle-pointer" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+      <polygon points="2,2 22,12 2,22" fill="currentColor"/>
+    </svg>
+  </div>
+</div>
+
+<div id="slot-sf1-left" hx-swap-oob="true" class="slot pending-reveal">
+  
+<div id="wheel-slot-sf1-left-1">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-sf1-left-1">
+      
+        
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Space Pirate"></path>
+        
+        <text x="155.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Space Pirate">Space Pirate</text>
+      
+        
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Starfighter"></path>
+        
+        <text x="45.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Starfighter">Starfighter</text>
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+</div>
+
+</div>
+
+<div id="center-display" hx-swap-oob="true" class="center-display pending-reveal">
+  <p class="round-label">Advancing to Semifinal</p>
+  
+  <ul class="advancing-options">
+    
+    <li>Space Pirate</li>
+    
+    <li>Starfighter</li>
+    
+  </ul>
+  
+</div>
+
+<button disabled class="battle-btn">Battle Complete</button>
+
+=== 5. .battle-pointer present in response ===
+→ PASS: .battle-pointer element found
+
+=== 6. Inline SVG inside .battle-pointer ===
+→ PASS: SVG polygon arrow with currentColor fill
+
+=== 7. CSS serves correctly via HTTP ===
+.battle-pointer {
+    color: var(--neon-cyan);
+    filter: drop-shadow(0 0 6px var(--nebula-purple));
+    display: block;
+    margin: 0.25rem auto 0;
+    width: 20px;
+    height: 20px;
+}
+
+→ PASS: CSS rule served via /static/css/space.css
