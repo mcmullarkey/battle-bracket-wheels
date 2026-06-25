@@ -18,7 +18,7 @@
       <span class="loser-text">Wheel {{.LoserID}} (roll: {{.LoserRoll}})</span>
     </div>
     {{if gt .Ties 0}}<div class="match-ties"><span>Ties: {{.Ties}}</span></div>{{end}}
-    <svg class="battle-pointer" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+    <svg id="battle-pointer" class="battle-pointer" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
       <polygon points="2,2 22,12 2,22" fill="currentColor"/>
     </svg>
   </div>
