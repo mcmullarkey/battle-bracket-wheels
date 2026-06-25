@@ -366,6 +366,24 @@ func extractCSSRule(css, selector string) string {
 	return ""
 }
 
+func TestSpaceCSS_RevealTransitionPlacement(t *testing.T) {
+	data, err := fs.ReadFile(staticFS, "css/space.css")
+	if err != nil {
+		t.Fatalf("reading embedded static/css/space.css: %v", err)
+	}
+	css := string(data)
+
+	pendingRule := extractCSSRule(css, ".pending-reveal")
+	if strings.Contains(pendingRule, "transition") {
+		t.Error(".pending-reveal must not declare 'transition' (causes result flash on OOB insertion)")
+	}
+
+	revealedRule := extractCSSRule(css, ".revealed")
+	if !strings.Contains(revealedRule, "transition") {
+		t.Error(".revealed must declare 'transition' (fade-in on class swap)")
+	}
+}
+
 func TestEmbedStaticAssets(t *testing.T) {
 	data, err := fs.ReadFile(staticFS, "css/space.css")
 	if err != nil {
