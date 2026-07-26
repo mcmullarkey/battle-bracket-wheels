@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -239,19 +239,25 @@ func TestPopulateHandler_TooFewEntries(t *testing.T) {
 		t.Fatalf("status = %d, want 400", resp.StatusCode)
 	}
 
+	// Content-Type must be text/html — error rendered as HTML fragment
+	// so HTMX can swap it into #populate-status (not JSON).
 	ct := resp.Header.Get("Content-Type")
-	if !strings.HasPrefix(ct, "application/json") {
-		t.Errorf("Content-Type = %q, want application/json", ct)
+	if !strings.HasPrefix(ct, "text/html") {
+		t.Errorf("Content-Type = %q, want text/html", ct)
 	}
 
-	var body struct {
-		Error string `json:"error"`
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("reading body: %v", err)
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
-		t.Fatalf("decoding JSON error: %v", err)
+	htmlBody := string(body)
+
+	// Error text rendered inside #populate-status element
+	if !strings.Contains(htmlBody, `id="populate-status"`) {
+		t.Error("error response missing #populate-status element")
 	}
-	if !strings.Contains(body.Error, "at least 8 entries") {
-		t.Errorf("error message = %q, want it to contain 'at least 8 entries'", body.Error)
+	if !strings.Contains(htmlBody, "at least 8 entries") {
+		t.Errorf("error response missing 'at least 8 entries', got: %s", htmlBody)
 	}
 
 	// Session unchanged: wheel 0 still has "OLD"

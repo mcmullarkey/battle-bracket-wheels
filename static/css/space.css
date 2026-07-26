@@ -902,3 +902,64 @@ footer p {
 .theme-selector select:focus {
     outline: 2px solid rgba(100, 200, 255, 0.8);
 }
+
+/* Populate form — scoped styles (no edits to existing rules) */
+.populate-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 400px;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: var(--cosmic-bg);
+    border: 1px solid var(--cosmic-border);
+    border-radius: 8px;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    box-shadow: var(--cosmic-shadow);
+}
+
+.populate-form label {
+    color: #c0c0ff;
+    font-size: 0.9rem;
+}
+
+.populate-form textarea {
+    background: rgba(10, 10, 35, 0.9);
+    color: #e0e0ff;
+    border: 1px solid rgba(100, 100, 255, 0.5);
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    font-family: 'Courier New', 'Courier', monospace;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.populate-form textarea:focus {
+    outline: 2px solid rgba(100, 200, 255, 0.8);
+    border-color: var(--neon-cyan);
+}
+
+.populate-form button {
+    align-self: flex-start;
+}
+
+/* Populate status — visible by default (no display:none) */
+.populate-status {
+    min-height: 1.5rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.populate-status p {
+    margin: 0;
+}
+
+/* Error state — visually distinct from success */
+.populate-error {
+    color: var(--neon-magenta);
+    background: rgba(255, 0, 255, 0.1);
+    border: 1px solid rgba(255, 0, 255, 0.3);
+}

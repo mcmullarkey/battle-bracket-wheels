@@ -1,0 +1,27 @@
+=== RUN   TestPopulateUI_FormStructure
+--- PASS: TestPopulateUI_FormStructure (0.00s)
+=== RUN   TestPopulateUI_Success
+--- PASS: TestPopulateUI_Success (0.00s)
+=== RUN   TestPopulateUI_ErrorTooFew
+--- PASS: TestPopulateUI_ErrorTooFew (0.00s)
+=== RUN   TestPopulateUI_ErrorEmpty
+--- PASS: TestPopulateUI_ErrorEmpty (0.00s)
+=== RUN   TestPopulateUI_ErrorWhitespace
+--- PASS: TestPopulateUI_ErrorWhitespace (0.00s)
+PASS
+ok  	battle-bracket-wheels	1.589s
+testing: warning: no tests to run
+PASS
+ok  	battle-bracket-wheels/internal/battle	1.231s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	battle-bracket-wheels/internal/bracket	1.132s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	battle-bracket-wheels/internal/populate	1.328s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	battle-bracket-wheels/internal/theme	1.669s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	battle-bracket-wheels/internal/wheel	1.426s [no tests to run]

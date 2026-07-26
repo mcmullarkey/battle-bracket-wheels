@@ -29,6 +29,9 @@ var matchContent string
 //go:embed templates/bracket.html
 var bracketContent string
 
+//go:embed templates/populate.html
+var populateContent string
+
 // staticFS is the embedded filesystem for serving static assets.
 var staticFS fs.FS
 
@@ -62,6 +65,10 @@ func main() {
 	// Parse bracket fragment templates as associated templates.
 	if _, err = tmpl.New("bracket").Parse(bracketContent); err != nil {
 		log.Fatalf("failed to parse bracket template: %v", err)
+	}
+	// Parse populate form template as an associated template.
+	if _, err = tmpl.New("populate").Parse(populateContent); err != nil {
+		log.Fatalf("failed to parse populate template: %v", err)
 	}
 
 	store := NewStore()

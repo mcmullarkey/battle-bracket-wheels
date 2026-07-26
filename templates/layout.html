@@ -20,6 +20,7 @@
             </select>
             <button type="submit" class="neon-button">Apply</button>
         </form>
+        {{template "populateForm"}}
         <div class="bracket" id="bracket">
             <!-- QF1: wheels 0 vs 1 -->
             <div class="slot" id="slot-1">{{template "wheel" index .Wheels 0}}</div>

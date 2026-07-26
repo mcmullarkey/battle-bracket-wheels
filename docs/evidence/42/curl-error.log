@@ -1,0 +1,7 @@
+
+<div id="populate-status" class="populate-status populate-error">
+  <p>at least 8 entries required</p>
+</div>
+
+HTTP_STATUS: 400
+CONTENT_TYPE: text/html; charset=utf-8
