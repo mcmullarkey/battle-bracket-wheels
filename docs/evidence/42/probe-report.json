@@ -1,0 +1,81 @@
+{
+  "issue": 42,
+  "branch": "42-auto-populate-ui",
+  "worktree": "/Users/carbonite/Documents/coding/portfolio/worktree-issue-42",
+  "timestamp": "2026-07-26T13:57:16-06:00",
+  "probes": [
+    {
+      "name": "form-exists",
+      "status": "PASS",
+      "details": "document.querySelector('.populate-form') !== null"
+    },
+    {
+      "name": "textarea-exists",
+      "status": "PASS",
+      "details": "document.querySelector('textarea[name=\"items\"]') !== null"
+    },
+    {
+      "name": "submit-exists",
+      "status": "PASS",
+      "details": "document.querySelector('button[type=\"submit\"]') !== null"
+    },
+    {
+      "name": "hx-post",
+      "status": "PASS",
+      "details": "form hx-post attribute === '/wheels/populate'"
+    },
+    {
+      "name": "hx-target",
+      "status": "PASS",
+      "details": "form hx-target attribute === '#populate-status'"
+    },
+    {
+      "name": "error-status-exists",
+      "status": "PASS",
+      "details": "#populate-status exists after submitting 3 items"
+    },
+    {
+      "name": "error-status-display",
+      "status": "PASS",
+      "details": "#populate-status display !== 'none'"
+    },
+    {
+      "name": "error-status-height",
+      "status": "PASS",
+      "details": "#populate-status getBoundingClientRect().height > 0"
+    },
+    {
+      "name": "error-status-text",
+      "status": "FAIL",
+      "details": "#populate-status.textContent.trim().length === 0 after requestSubmit() with 3 items. Server returns HTTP 400 with error fragment, but HTMX 2.x does not swap 4xx responses by default, so the error text is never inserted."
+    },
+    {
+      "name": "success-8-slots",
+      "status": "PASS",
+      "details": "All 8 slots (#slot-1 .. #slot-8) present after requestSubmit() with 8 items"
+    },
+    {
+      "name": "success-option-text",
+      "status": "PASS",
+      "details": "Slots contain option text A..H after successful populate"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "docs/evidence/42/form-empty.png",
+      "ui_state": "Populate form with empty textarea before submit",
+      "ac_reference": "AC-6"
+    },
+    {
+      "path": "docs/evidence/42/error-case.png",
+      "ui_state": "Error case after submitting 3 items (status remains empty due to HTMX 4xx swap behavior)",
+      "ac_reference": "AC-6"
+    },
+    {
+      "path": "docs/evidence/42/success-case.png",
+      "ui_state": "Success case after submitting 8 items (8 wheels populated with A..H)",
+      "ac_reference": "AC-6"
+    }
+  ],
+  "verdict": "PROBES_FAIL"
+}

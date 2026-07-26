@@ -1,0 +1,27 @@
+=== Rodney Probes for issue #42 ===
+Sun Jul 26 13:57:16 MDT 2026
+
+PASS: .populate-form exists
+PASS: textarea[name="items"] exists
+PASS: button[type="submit"] exists
+PASS: hx-post=/wheels/populate
+PASS: hx-target=#populate-status
+
+ERROR CASE (3 items: A B C):
+PASS: #populate-status exists
+PASS: #populate-status display !== 'none'
+PASS: #populate-status height > 0
+FAIL: #populate-status textContent.trim().length > 0
+      Status element remains empty after submit. Server returns HTTP 400 with
+      the error fragment, but HTMX 2.x does not swap 4xx responses by default,
+      so the error text is never inserted into #populate-status.
+NOTE: uvx rodney click on the submit button did not trigger HTMX (no XHR).
+      Used document.querySelector('.populate-form').requestSubmit() to trigger
+      the submit event, which HTMX then intercepted and issued the POST.
+
+SUCCESS CASE (8 items: A B C D E F G H):
+PASS: 8 slots present (#slot-1 .. #slot-8)
+PASS: at least one slot contains option text (A..H visible in wheels)
+NOTE: Populated via requestSubmit(); slots updated via hx-swap-oob.
+
+VERDICT: PROBES_FAIL (error case: 400 response not swapped into status)
