@@ -258,6 +258,7 @@ func TestBattleHandler_HXTriggerBothWheels(t *testing.T) {
 			WheelID     string  `json:"wheelID"`
 			TargetIndex int     `json:"targetIndex"`
 			TargetAngle float64 `json:"targetAngle"`
+			Winner      bool    `json:"winner"`
 		} `json:"spin-wheel"`
 	}
 	if err := json.Unmarshal([]byte(hxTrigger), &triggerData); err != nil {
@@ -278,6 +279,17 @@ func TestBattleHandler_HXTriggerBothWheels(t *testing.T) {
 	}
 	if !wheelIDs["1"] {
 		t.Error("HX-Trigger missing wheel ID 1")
+	}
+
+	// AC-1: exactly one item has winner:true
+	winnerCount := 0
+	for _, sw := range triggerData.SpinWheel {
+		if sw.Winner {
+			winnerCount++
+		}
+	}
+	if winnerCount != 1 {
+		t.Errorf("winner:true count = %d, want exactly 1", winnerCount)
 	}
 }
 
@@ -1466,6 +1478,17 @@ func TestBattlePointer_SpaceTheme(t *testing.T) {
 		t.Error(".battle-pointer rule lacks visual substance (no color/background/border/size properties)")
 	}
 
+	// ---- Part 2b: .battle-pointer.pointer-left CSS rule for direction flip ----
+	// AC-2/AC-3: pointer direction driven by winner via .pointer-left class + CSS transform.
+	// Left-winner → scaleX(-1) flip; right-winner → identity (no class).
+	pointerLeftRule := extractCSSRule(css, ".battle-pointer.pointer-left")
+	if pointerLeftRule == "" {
+		t.Fatal("space.css missing .battle-pointer.pointer-left CSS rule for direction flip")
+	}
+	if !strings.Contains(pointerLeftRule, "scaleX(-1)") {
+		t.Error(".battle-pointer.pointer-left rule must contain transform: scaleX(-1)")
+	}
+
 	// ---- Part 3: NOT hidden by @media (max-width: 640px) ----
 	// Parse mobile media query block
 	mobileMediaIdx := strings.Index(css, "@media (max-width: 640px)")
@@ -1569,5 +1592,117 @@ func TestBattleHandler_HXTrigger_WinnerInTrigger(t *testing.T) {
 
 	if winnerWheelID != expectedWinnerID {
 		t.Errorf("winner:true entry has wheelID=%q, want %q (from matchResult)", winnerWheelID, expectedWinnerID)
+	}
+}
+
+// TestBattlePointer_WinnerDirectionMatchesTrigger verifies the JS pointer-flip
+// logic that correlates pointer direction with the battle winner:
+//   - AC-2: JS toggles .pointer-left class based on winner (left-winner → flip, right-winner → identity)
+//   - AC-3: JS uses querySelectorAll(".battle-pointer") (not getElementById first-match)
+//   - AC-4: flip is applied inside revealResults (at reveal time), NOT synchronously in spin-wheel handler
+//   - AC-2 negative: NO geometry positioning (no getBoundingClientRect, no document.body.appendChild)
+//   - AC-5: solo spin (items.length <= 1) triggers NO flip; solo spin handler sets NO winner field
+//   - AC-1: window.__lastSpinItems oracle exists
+func TestBattlePointer_WinnerDirectionMatchesTrigger(t *testing.T) {
+	// ---- Part 1: wheel.js flip logic ----
+	jsData, err := fs.ReadFile(staticFS, "js/wheel.js")
+	if err != nil {
+		t.Fatalf("reading embedded static/js/wheel.js: %v", err)
+	}
+	js := string(jsData)
+
+	// AC-3: JS uses querySelectorAll(".battle-pointer") — class selector for ALL instances
+	if !strings.Contains(js, `querySelectorAll(".battle-pointer")`) {
+		t.Error(`wheel.js must use querySelectorAll(".battle-pointer") for all instances (not getElementById first-match)`)
+	}
+
+	// AC-2: JS toggles .pointer-left class based on winner
+	if !strings.Contains(js, "pointer-left") {
+		t.Error("wheel.js must reference .pointer-left class for direction flip")
+	}
+	if !strings.Contains(js, `classList.add("pointer-left")`) {
+		t.Error(`wheel.js must add .pointer-left class via classList.add("pointer-left")`)
+	}
+
+	// AC-4: flip is inside revealPointerWithResults (called from revealResults at reveal time)
+	if !strings.Contains(js, "revealPointerWithResults") {
+		t.Error("wheel.js must have revealPointerWithResults function for flip at reveal time")
+	}
+
+	// AC-4 negative: flip is NOT applied synchronously in spin-wheel event handler.
+	// The spin-wheel handler should store items + call spinWheel + scheduleReveal,
+	// but NOT directly toggle .pointer-left.
+	spinHandlerStart := strings.Index(js, `document.addEventListener("spin-wheel"`)
+	if spinHandlerStart < 0 {
+		t.Fatal("wheel.js missing spin-wheel event listener")
+	}
+	handlerSlice := js[spinHandlerStart:]
+	if strings.Contains(handlerSlice, `classList.add("pointer-left")`) {
+		t.Error("spin-wheel handler must NOT flip pointer synchronously — defer to revealResults")
+	}
+
+	// AC-2 negative: NO geometry positioning (getBoundingClientRect for pointer)
+	if strings.Contains(js, "getBoundingClientRect") {
+		t.Error("wheel.js must NOT use geometry positioning (getBoundingClientRect) — use CSS scaleX(-1) flip")
+	}
+
+	// AC-2 negative: NO moving pointer to document.body (causes zombie pointers)
+	if strings.Contains(js, "document.body.appendChild") {
+		t.Error("wheel.js must NOT move pointer to document.body — pointer stays in matchResult OOB fragment")
+	}
+
+	// AC-5: solo spin check — items.length <= 1 returns early (no flip)
+	if !strings.Contains(js, "items.length <= 1") {
+		t.Error("wheel.js must check items.length <= 1 to skip flip for solo spins")
+	}
+
+	// AC-1: window.__lastSpinItems oracle exists
+	if !strings.Contains(js, "window.__lastSpinItems") {
+		t.Error("wheel.js must expose window.__lastSpinItems as test oracle")
+	}
+
+	// ---- Part 2: Solo spin handler sets NO winner field (AC-5) ----
+	ts, _ := spinTestServer(t)
+	sessionID := getSessionCookie(t, ts)
+	addOptionToWheel(t, ts, sessionID, "0", "Solo")
+
+	req, err := http.NewRequest(http.MethodPost, ts.URL+"/wheel/0/spin", nil)
+	if err != nil {
+		t.Fatalf("creating spin request: %v", err)
+	}
+	req.AddCookie(&http.Cookie{Name: "bbw_session", Value: sessionID})
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("POST /wheel/0/spin: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
+
+	hxTrigger := resp.Header.Get("HX-Trigger")
+	if hxTrigger == "" {
+		t.Fatal("missing HX-Trigger header")
+	}
+
+	// Solo spin sends a single object (not array), no winner field
+	var soloTrigger map[string]interface{}
+	if err := json.Unmarshal([]byte(hxTrigger), &soloTrigger); err != nil {
+		t.Fatalf("unmarshal solo spin HX-Trigger: %v", err)
+	}
+
+	spinVal, ok := soloTrigger["spin-wheel"]
+	if !ok {
+		t.Fatal("solo spin HX-Trigger missing spin-wheel key")
+	}
+
+	spinMap, ok := spinVal.(map[string]interface{})
+	if !ok {
+		t.Fatalf("solo spin trigger value is %T, want map (single object)", spinVal)
+	}
+
+	if _, hasWinner := spinMap["winner"]; hasWinner {
+		t.Error("solo spin trigger must NOT contain winner field (AC-5)")
 	}
 }
