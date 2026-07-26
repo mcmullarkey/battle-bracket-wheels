@@ -13,3 +13,10 @@ battle-bracket-wheels
 # OS
 .DS_Store
 Thumbs.db
+
+# Local agent tool state
+.goose/
+.rodney/
+.serena/
+.opencode/node_modules/
+skills-lock.json
