@@ -1,0 +1,255 @@
+
+<div id="slot-1" hx-swap-oob="true" class="slot pending-reveal">
+  
+<div id="wheel-slot-1-0">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-1-0">
+      
+        
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 01"></path>
+        
+        <text x="155.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 01">Movie 01</text>
+      
+        
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 09"></path>
+        
+        <text x="45.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 09">Movie 09</text>
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/0/option" hx-target="#wheel-slot-1-0" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+
+</div>
+
+<div id="slot-2" hx-swap-oob="true" class="slot pending-reveal">
+  
+<div id="wheel-slot-2-1">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-2-1">
+      
+        
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 02"></path>
+        
+        <text x="155.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 02">Movie 02</text>
+      
+        
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 10"></path>
+        
+        <text x="45.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 10">Movie 10</text>
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/1/option" hx-target="#wheel-slot-2-1" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+
+</div>
+
+<div id="slot-3" hx-swap-oob="true" class="slot pending-reveal">
+  
+<div id="wheel-slot-3-2">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-3-2">
+      
+        
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 03"></path>
+        
+        <text x="155.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 03">Movie 03</text>
+      
+        
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 11"></path>
+        
+        <text x="45.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 11">Movie 11</text>
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/2/option" hx-target="#wheel-slot-3-2" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+
+</div>
+
+<div id="slot-4" hx-swap-oob="true" class="slot pending-reveal">
+  
+<div id="wheel-slot-4-3">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-4-3">
+      
+        
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 04"></path>
+        
+        <text x="155.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 04">Movie 04</text>
+      
+        
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 12"></path>
+        
+        <text x="45.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 12">Movie 12</text>
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/3/option" hx-target="#wheel-slot-4-3" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+
+</div>
+
+<div id="slot-5" hx-swap-oob="true" class="slot pending-reveal">
+  
+<div id="wheel-slot-5-4">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-5-4">
+      
+        
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 05"></path>
+        
+        <text x="155.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 05">Movie 05</text>
+      
+        
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 13"></path>
+        
+        <text x="45.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 13">Movie 13</text>
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/4/option" hx-target="#wheel-slot-5-4" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+
+</div>
+
+<div id="slot-6" hx-swap-oob="true" class="slot pending-reveal">
+  
+<div id="wheel-slot-6-5">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-6-5">
+      
+        
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 06"></path>
+        
+        <text x="155.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 06">Movie 06</text>
+      
+        
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 14"></path>
+        
+        <text x="45.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 14">Movie 14</text>
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/5/option" hx-target="#wheel-slot-6-5" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+
+</div>
+
+<div id="slot-7" hx-swap-oob="true" class="slot pending-reveal">
+  
+<div id="wheel-slot-7-6">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-7-6">
+      
+        
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 07"></path>
+        
+        <text x="155.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 07">Movie 07</text>
+      
+        
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 15"></path>
+        
+        <text x="45.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 15">Movie 15</text>
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/6/option" hx-target="#wheel-slot-7-6" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+
+</div>
+
+<div id="slot-8" hx-swap-oob="true" class="slot pending-reveal">
+  
+<div id="wheel-slot-8-7">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-8-7">
+      
+        
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 08"></path>
+        
+        <text x="155.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 08">Movie 08</text>
+      
+        
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 16"></path>
+        
+        <text x="45.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 16">Movie 16</text>
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/7/option" hx-target="#wheel-slot-8-7" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+
+</div>
+
+<div id="populate-status" class="populate-status">
+  <p>Wheels populated successfully</p>
+</div>
+
+HTTP_STATUS:200
+CONTENT_TYPE:text/html; charset=utf-8
