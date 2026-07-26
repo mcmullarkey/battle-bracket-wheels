@@ -17,7 +17,7 @@ func testWheelServer(t *testing.T) (*httptest.Server, *template.Template) {
 	t.Helper()
 	store := NewStore()
 	tmpl := testTemplate(t)
-	mux := setupRouter(store, tmpl)
+	mux := setupRouter(store, tmpl, testRegistry(t))
 	ts := httptest.NewServer(mux)
 	t.Cleanup(ts.Close)
 	return ts, tmpl
@@ -307,7 +307,7 @@ func TestIndex_EightSlots(t *testing.T) {
 func TestConcurrentWheelMutation(t *testing.T) {
 	store := NewStore()
 	tmpl := testTemplate(t)
-	mux := setupRouter(store, tmpl)
+	mux := setupRouter(store, tmpl, testRegistry(t))
 	ts := httptest.NewServer(mux)
 	t.Cleanup(ts.Close)
 
@@ -357,7 +357,7 @@ func TestConcurrentWheelMutation(t *testing.T) {
 func TestConcurrentReadWriteRace(t *testing.T) {
 	store := NewStore()
 	tmpl := testTemplate(t)
-	mux := setupRouter(store, tmpl)
+	mux := setupRouter(store, tmpl, testRegistry(t))
 	ts := httptest.NewServer(mux)
 	t.Cleanup(ts.Close)
 

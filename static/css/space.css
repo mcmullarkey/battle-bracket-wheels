@@ -875,3 +875,30 @@ footer p {
         height: 14px;
     }
 }
+
+/* Theme selector dropdown — scoped styles (no edits to existing rules) */
+.theme-selector {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+}
+
+.theme-selector label {
+    color: #c0c0ff;
+    font-size: 0.9rem;
+}
+
+.theme-selector select {
+    background: rgba(10, 10, 35, 0.9);
+    color: #e0e0ff;
+    border: 1px solid rgba(100, 100, 255, 0.5);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.theme-selector select:focus {
+    outline: 2px solid rgba(100, 200, 255, 0.8);
+}

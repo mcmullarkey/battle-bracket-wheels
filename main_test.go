@@ -12,6 +12,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"battle-bracket-wheels/internal/theme"
 )
 
 // testTemplate parses the embedded layout and wheel templates for use in tests.
@@ -33,9 +35,21 @@ func testTemplate(t *testing.T) *template.Template {
 	return tmpl
 }
 
+// testRegistry creates a registry with the default "space" theme registered,
+// mirroring production main(). Used by tests that need a valid registry but
+// do not test theme-specific behavior.
+func testRegistry(t *testing.T) *theme.Registry {
+	t.Helper()
+	r := theme.NewRegistry()
+	if err := r.Register("space", "Space", "/static/css/space.css"); err != nil {
+		t.Fatalf("testRegistry Register: %v", err)
+	}
+	return r
+}
+
 func TestHealthEndpoint(t *testing.T) {
 	store := NewStore()
-	mux := setupRouter(store, testTemplate(t))
+	mux := setupRouter(store, testTemplate(t), testRegistry(t))
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
@@ -65,7 +79,7 @@ func TestHealthEndpoint(t *testing.T) {
 func TestHealthEndpointBareOK(t *testing.T) {
 	// Sneaky-pass guard: /health must return structured JSON, not bare "OK"
 	store := NewStore()
-	mux := setupRouter(store, testTemplate(t))
+	mux := setupRouter(store, testTemplate(t), testRegistry(t))
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
@@ -88,7 +102,7 @@ func TestHealthEndpointBareOK(t *testing.T) {
 
 func TestLayoutRenders(t *testing.T) {
 	store := NewStore()
-	mux := setupRouter(store, testTemplate(t))
+	mux := setupRouter(store, testTemplate(t), testRegistry(t))
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
@@ -401,7 +415,7 @@ func TestStaticCSSServedViaHTTP(t *testing.T) {
 	// Integration test: verify that /static/css/space.css is served correctly
 	// through the HTTP router (not just readable from embed.FS).
 	store := NewStore()
-	mux := setupRouter(store, testTemplate(t))
+	mux := setupRouter(store, testTemplate(t), testRegistry(t))
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 

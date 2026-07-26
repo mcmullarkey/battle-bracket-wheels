@@ -37,7 +37,7 @@ func battleTestServer(t *testing.T) (*httptest.Server, *template.Template, *Stor
 	mux.Handle("/battle/{matchID}", sessionMiddleware(store, battleHandler(store, tmpl, func() rand.Source {
 		return rand.NewSource(42)
 	})))
-	mux.Handle("/", sessionMiddleware(store, homeHandler(store, tmpl)))
+	mux.Handle("/", sessionMiddleware(store, homeHandler(store, tmpl, testRegistry(t))))
 	ts := httptest.NewServer(mux)
 	t.Cleanup(ts.Close)
 	return ts, tmpl, store
@@ -600,7 +600,7 @@ func TestBattleHandler_TiebreakerExhaustion(t *testing.T) {
 	mux.Handle("/battle/{matchID}", sessionMiddleware(store, battleHandler(store, tmpl, func() rand.Source {
 		return tieSource{}
 	})))
-	mux.Handle("/", sessionMiddleware(store, homeHandler(store, tmpl)))
+	mux.Handle("/", sessionMiddleware(store, homeHandler(store, tmpl, testRegistry(t))))
 	ts := httptest.NewServer(mux)
 	t.Cleanup(ts.Close)
 

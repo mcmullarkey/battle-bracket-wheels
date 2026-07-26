@@ -6,11 +6,20 @@
     <title>Battle Bracket Wheels</title>
     <script src="/static/js/htmx.min.js"></script>
     <script src="/static/js/wheel.js"></script>
-    <link rel="stylesheet" href="/static/css/space.css">
+    <link rel="stylesheet" href="{{.ThemeCSS}}">
 </head>
 <body>
     <div class="container">
         <h1 class="neon-gold">Battle Bracket Wheels</h1>
+        <form class="theme-selector" action="/theme" method="post">
+            <label for="theme-select">Theme:</label>
+            <select name="theme" id="theme-select">
+                {{range .Themes}}
+                <option value="{{.Key}}"{{if eq .Key $.CurrentTheme}} selected{{end}}>{{.Name}}</option>
+                {{end}}
+            </select>
+            <button type="submit" class="neon-button">Apply</button>
+        </form>
         <div class="bracket" id="bracket">
             <!-- QF1: wheels 0 vs 1 -->
             <div class="slot" id="slot-1">{{template "wheel" index .Wheels 0}}</div>

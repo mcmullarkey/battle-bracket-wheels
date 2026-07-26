@@ -10,6 +10,8 @@ import (
 	mathrand "math/rand"
 	"net/http"
 	"os"
+
+	"battle-bracket-wheels/internal/theme"
 )
 
 //go:embed static/*
@@ -63,7 +65,15 @@ func main() {
 	}
 
 	store := NewStore()
-	mux := setupRouter(store, tmpl)
+
+	// Construct theme registry — registered once at startup.
+	// The first registered theme ("space") becomes the Default.
+	registry := theme.NewRegistry()
+	if err := registry.Register("space", "Space", "/static/css/space.css"); err != nil {
+		log.Fatalf("failed to register space theme: %v", err)
+	}
+
+	mux := setupRouter(store, tmpl, registry)
 
 	log.Printf("Battle Bracket Wheels listening on %s", addr)
 	if err := http.ListenAndServe(addr, mux); err != nil {
@@ -98,7 +108,7 @@ func newSpinSource() mathrand.Source {
 }
 
 // setupRouter creates and configures the HTTP mux with all routes.
-func setupRouter(store *Store, tmpl *template.Template) http.Handler {
+func setupRouter(store *Store, tmpl *template.Template, registry *theme.Registry) http.Handler {
 	mux := http.NewServeMux()
 
 	// /health registered before / per spec
@@ -108,8 +118,15 @@ func setupRouter(store *Store, tmpl *template.Template) http.Handler {
 	staticHandler := http.FileServer(http.FS(staticFS))
 	mux.Handle("/static/", http.StripPrefix("/static/", staticHandler))
 
+	// Theme selection — NOT wrapped in sessionMiddleware.
+	// Theme is per-browser, session-independent (precedent: /health, /static/).
+	// Registered without method prefix so non-POST methods get 405 from the
+	// handler (Go 1.22+ ServeMux method-patterns fall through to catch-all
+	// instead of returning 405 — mirrors the battleHandler pattern).
+	mux.Handle("/theme", themeHandler(registry))
+
 	// Home page with session middleware
-	mux.Handle("/", sessionMiddleware(store, homeHandler(store, tmpl)))
+	mux.Handle("/", sessionMiddleware(store, homeHandler(store, tmpl, registry)))
 
 	// Wheel option CRUD routes
 	mux.Handle("POST /wheel/{id}/option", sessionMiddleware(store, addOptionHandler(store, tmpl)))

@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"battle-bracket-wheels/internal/bracket"
+	"battle-bracket-wheels/internal/theme"
 )
 
 // Renderer is the contract for template execution.
@@ -81,8 +82,13 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 }
 
-// homeHandler executes the layout template with session data and wheel views.
-func homeHandler(store *Store, renderer Renderer) http.HandlerFunc {
+// homeHandler executes the layout template with session data, wheel views,
+// and theme information. It reads the bbw_theme cookie, resolves it against
+// the registry (falling back to Default for absent/unknown values), and
+// injects ThemeCSS (the active stylesheet path), Themes (all registered
+// themes for the dropdown), and CurrentTheme (the active key for the
+// selected attribute) into the template data.
+func homeHandler(store *Store, renderer Renderer, registry *theme.Registry) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sessionID := GetCookie(r)
 		if sessionID == "" {
@@ -106,10 +112,16 @@ func homeHandler(store *Store, renderer Renderer) http.HandlerFunc {
 			return
 		}
 
+		// Resolve theme from cookie (pure — no side effects).
+		currentTheme := resolveTheme(r, registry)
+
 		data := map[string]interface{}{
-			"SessionID": sessionID,
-			"Wheels":    wheelsView,
-			"Bracket":   bracketView,
+			"SessionID":    sessionID,
+			"Wheels":       wheelsView,
+			"Bracket":      bracketView,
+			"ThemeCSS":     currentTheme.CSSPath,
+			"Themes":       registry.Themes(),
+			"CurrentTheme": currentTheme.Key,
 		}
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -152,11 +164,10 @@ func sessionMiddleware(store *Store, next http.Handler) http.Handler {
 			}
 		}
 
-		// Add cookie to request for downstream handlers.
-		// Use r.Header.Set to replace the Cookie header entirely, so that
-		// a stale cookie (e.g. from before server restart) does not win
-		// over the fresh session ID we just Set-Cookie'd on the response.
-		r.Header.Set("Cookie", cookieName+"="+cookieValue)
+		// Update the session cookie on the request for downstream handlers.
+		// Use setRequestCookie to replace only bbw_session, preserving other
+		// cookies (e.g. bbw_theme) so downstream handlers can read them.
+		setRequestCookie(r, cookieName, cookieValue)
 
 		next.ServeHTTP(w, r)
 	})
