@@ -1,19 +1,52 @@
-Rodney probes for issue #39 (AC-3: Y2K theme stylesheet)
+Rodney probe log for issue #39 (Y2K theme stylesheet)
 Branch: 39-y2k-theme-stylesheet
-Worktree: ../worktree-issue-39
-App: http://localhost:8080/
+Worktree: /Users/carbonite/Documents/coding/portfolio/worktree-issue-39
 
-1. y2k.css link present
-   Command: uvx rodney assert "document.querySelector('link[href=\"/static/css/y2k.css\"]') !== null"
-   Status: PASS
+Build + run:
+  go build -o battle-bracket-wheels .
+  ./battle-bracket-wheels &
+  curl http://localhost:8080/ -> 200
 
-2. h1 color is not space gold
-   Command: uvx rodney assert "getComputedStyle(document.querySelector('h1')).color !== 'rgb(255, 215, 0)'"
-   Status: PASS
+Rodney session:
+  uvx rodney start
+  uvx rodney open http://localhost:8080/
+  uvx rodney js "document.cookie='bbw_theme=y2k;path=/'"
+  uvx rodney open http://localhost:8080/
 
-3. .cosmic-panel backgroundColor differs from space cosmic-bg
-   Command: uvx rodney assert "getComputedStyle(document.querySelector('.cosmic-panel')).backgroundColor !== 'rgba(10, 10, 46, 0.75)'"
-   Status: FAIL
-   Details: JS error: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'. (document.querySelector('.cosmic-panel') returned null)
+Deterministic checks:
+  1. y2k.css link present
+     command: uvx rodney assert "document.querySelector('link[href=\"/static/css/y2k.css\"]') !== null"
+     result: PASS
 
-Probe run halted after deterministic check failure.
+  2. h1 color is not space gold
+     command: uvx rodney assert "getComputedStyle(document.querySelector('h1')).color !== 'rgb(255, 215, 0)'"
+     result: PASS
+
+  3. body has gradient background (not starfield)
+     command: uvx rodney assert "getComputedStyle(document.body).backgroundImage.includes('gradient')"
+     result: FAIL — got false. Actual body backgroundImage is "none"; Y2K theme applies gradients through body::before/body::after pseudo-elements, not through the body element's backgroundImage property.
+
+  4. h1 has a color defined
+     command: uvx rodney assert "getComputedStyle(document.querySelector('h1')).color !== ''"
+     result: PASS
+
+Slot population + styling:
+  uvx rodney input "#slot-1 input[name='text']" "Movie A"
+  uvx rodney click "#slot-1 form button"
+  uvx rodney input "#slot-2 input[name='text']" "Movie B"
+  uvx rodney click "#slot-2 form button"
+
+  5. .slot elements exist
+     command: uvx rodney assert "document.querySelectorAll('.slot').length > 0"
+     result: PASS
+
+  6. .slot has rounded/bubble shape (borderRadius >= 8px)
+     command: uvx rodney assert "parseFloat(getComputedStyle(document.querySelector('.slot')).borderRadius) >= 8"
+     result: PASS
+
+Screenshots captured:
+  docs/evidence/39/y2k-theme-full-page.png
+  docs/evidence/39/y2k-theme-bracket.png
+  docs/evidence/39/y2k-theme-dropdown.png
+
+Rodney stopped.

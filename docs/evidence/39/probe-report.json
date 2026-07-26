@@ -2,24 +2,55 @@
   "issue": 39,
   "branch": "39-y2k-theme-stylesheet",
   "worktree": "/Users/carbonite/Documents/coding/portfolio/worktree-issue-39",
-  "timestamp": "2026-07-26T19:13:24Z",
+  "timestamp": "2026-07-26T19:21:10Z",
   "probes": [
     {
       "name": "y2k.css link present",
       "status": "PASS",
-      "details": null
+      "details": "document.querySelector('link[href=\"/static/css/y2k.css\"]') !== null"
     },
     {
       "name": "h1 color is not space gold",
       "status": "PASS",
-      "details": null
+      "details": "getComputedStyle(document.querySelector('h1')).color !== 'rgb(255, 215, 0)'"
     },
     {
-      "name": ".cosmic-panel backgroundColor differs from space cosmic-bg",
+      "name": "body has gradient background (not starfield)",
       "status": "FAIL",
-      "details": "JS error: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'. document.querySelector('.cosmic-panel') returned null."
+      "details": "getComputedStyle(document.body).backgroundImage.includes('gradient') returned false; actual body backgroundImage is 'none'. Y2K theme applies grid gradients through body::before/body::after pseudo-elements instead of the body backgroundImage property."
+    },
+    {
+      "name": "h1 has a color defined",
+      "status": "PASS",
+      "details": "getComputedStyle(document.querySelector('h1')).color !== ''"
+    },
+    {
+      "name": ".slot elements exist",
+      "status": "PASS",
+      "details": "document.querySelectorAll('.slot').length > 0 after adding Movie A and Movie B options"
+    },
+    {
+      "name": ".slot has rounded/bubble shape",
+      "status": "PASS",
+      "details": "parseFloat(getComputedStyle(document.querySelector('.slot')).borderRadius) >= 8"
     }
   ],
-  "screenshots": [],
+  "screenshots": [
+    {
+      "path": "docs/evidence/39/y2k-theme-full-page.png",
+      "ui_state": "Full page with Y2K theme applied and two populated wheel slots",
+      "ac_reference": "AC-3 Y2K theme stylesheet"
+    },
+    {
+      "path": "docs/evidence/39/y2k-theme-bracket.png",
+      "ui_state": "Bracket area close-up showing Y2K-styled slots and battle center",
+      "ac_reference": "AC-3 Y2K theme stylesheet"
+    },
+    {
+      "path": "docs/evidence/39/y2k-theme-dropdown.png",
+      "ui_state": "Theme selector dropdown close-up with Y2K selected",
+      "ac_reference": "AC-3 Y2K theme stylesheet"
+    }
+  ],
   "verdict": "PROBES_FAIL"
 }
