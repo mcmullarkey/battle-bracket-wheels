@@ -72,6 +72,9 @@ func main() {
 	if err := registry.Register("space", "Space", "/static/css/space.css"); err != nil {
 		log.Fatalf("failed to register space theme: %v", err)
 	}
+	if err := registry.Register("y2k", "Y2K", "/static/css/y2k.css"); err != nil {
+		log.Fatalf("failed to register y2k theme: %v", err)
+	}
 
 	mux := setupRouter(store, tmpl, registry)
 
