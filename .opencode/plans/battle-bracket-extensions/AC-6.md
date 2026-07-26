@@ -2,7 +2,7 @@
 ac: 6
 depends_on: AC-5
 risk: medium
-status: in-progress
+status: complete
 ---
 
 ## AC-6: Auto-populate UI — textarea+submit form, HTMX re-render 8 QF slots, visible error surface
