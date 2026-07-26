@@ -1,0 +1,20 @@
+Rodney probes for PR #49 (Y2K tie-dye lava lamp wheel slices)
+Branch: y2k-tiedye-wheels
+Worktree: ../worktree-y2k-tiedye
+URL: http://localhost:8080/
+Theme cookie: bbw_theme=y2k
+
+Probes:
+1. wheel-slice elements exist
+   command: uvx rodney assert "document.querySelectorAll('.wheel-slice').length > 0"
+   status: PASS
+
+2. at least one wheel-slice uses a gradient fill
+   command: uvx rodney assert "Array.from(document.querySelectorAll('.wheel-slice')).some(el => { const f = el.getAttribute('fill'); return f && f.startsWith('url'); })"
+   status: PASS
+
+Screenshots:
+- docs/evidence/49/y2k-tiedye-wheel.png (element screenshot of #wheel-slot-1-0)
+- docs/evidence/49/y2k-tiedye-full-page.png (full page screenshot)
+
+Browser: stopped after capture
