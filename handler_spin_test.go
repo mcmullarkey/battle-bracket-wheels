@@ -25,7 +25,7 @@ func spinTestServer(t *testing.T) (*httptest.Server, *template.Template) {
 		return rand.NewSource(42)
 	})))
 	// Home for session creation
-	mux.Handle("/", sessionMiddleware(store, homeHandler(store, tmpl)))
+	mux.Handle("/", sessionMiddleware(store, homeHandler(store, tmpl, testRegistry(t))))
 	ts := httptest.NewServer(mux)
 	t.Cleanup(ts.Close)
 	return ts, tmpl

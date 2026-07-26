@@ -141,3 +141,28 @@ func GetCookie(r *http.Request) string {
 	}
 	return cookie.Value
 }
+
+// setRequestCookie replaces (or adds) a single named cookie in the request's
+// Cookie header, preserving all other cookies. This ensures downstream handlers
+// can still read cookies that were set by the client (e.g. bbw_theme) after
+// sessionMiddleware updates the session cookie.
+//
+// Without this, calling r.Header.Set("Cookie", ...) would wipe out every
+// cookie except the session cookie, breaking per-browser cookies that are
+// independent of the session lifecycle.
+func setRequestCookie(r *http.Request, name, value string) {
+	existing := r.Cookies()
+	r.Header.Del("Cookie")
+	found := false
+	for _, c := range existing {
+		if c.Name == name {
+			r.AddCookie(&http.Cookie{Name: name, Value: value})
+			found = true
+			continue
+		}
+		r.AddCookie(c)
+	}
+	if !found {
+		r.AddCookie(&http.Cookie{Name: name, Value: value})
+	}
+}
