@@ -2,7 +2,7 @@
 ac: 1
 depends_on: none
 risk: high
-status: spec
+status: complete
 ---
 
 ## AC-1: Fix right-wheel-always-wins bug
@@ -42,11 +42,11 @@ status: spec
 - **subjective_residual:** pointer visual polish (color, glow, arrow shape)
 
 ### Progress
-- [ ] Red: write integration test, confirm fails
-- [ ] ADR if new interface/boundary
-- [ ] Inner loop: unit red → code → unit green → refactor
-- [ ] Green: integration passes → commit
-- [ ] E2E self-validation: produce evidence at docs/evidence/<issue-number>/
+- [x] Red: write integration test, confirm fails — 2026-07-26 (tests 2+3 failed; test 1 passed, negative control verified)
+- [x] ADR if new interface/boundary — skipped (no docs/adr/ convention in repo; decisions recorded in Decision Log)
+- [x] Inner loop: unit red → code → unit green → refactor — 2026-07-26 (CSS rule + JS flip replaced geometry)
+- [x] Green: integration passes → commit — 2026-07-26 (commits 8a62890 + 9199eb1)
+- [x] E2E self-validation: produce evidence at docs/evidence/37/ — 2026-07-26 (test-suite.log + run.log + battle-response.html)
 
 ### Decision Log
 - 2026-07-26 — winner flag per-array-item (not top-level winnerID): HTMX event detail = array only; top-level field invisible to spin-wheel handler
@@ -54,7 +54,9 @@ status: spec
 - 2026-07-26 — reveal-time timing (not setTimeout(0)): OOB swap guaranteed complete at 3700ms
 
 ### Surprises & Discoveries
-- (none yet)
+- PR #36 (merged on main) had already implemented the winner flag in the trigger payload (handlers_battle.go:267,274) and the `id="battle-pointer"` + `class="battle-pointer"` hook in match.html. It also added `window.__lastSpinItems` oracle and `revealPointerWithResults` in wheel.js. However, PR #36 used a GEOMETRY positioning approach (positionPointerAtSlot with getBoundingClientRect + document.body.appendChild) rather than the spec's required CSS scaleX(-1) flip. Issue #37's work was primarily replacing the geometry approach with the flip approach + adding the .pointer-left CSS rule. The winner flag and template hook were already correct from PR #36.
+- The existing test `TestBattleHandler_HXTrigger_WinnerInTrigger` (handlers_battle_test.go:1499) already covered AC-1 comprehensively. The spec asked to extend `TestBattleHandler_HXTriggerBothWheels` (line 230) with the Winner field — this was redundant with the existing test but added for spec compliance. Negative control confirmed it catches the bug when winner flag is removed.
+- `hidePointer` function (removed) used setTimeout(0) to hide the pointer before OOB swap. With the flip approach, this is unnecessary: the pointer stays inside the matchResult OOB fragment, which gets replaced by the OOB swap. The `pending-reveal` CSS class hides it during animation. No zombie pointer risk since the pointer is no longer moved to document.body.
 
 ### Idempotence & Recovery
 - Safe retry: re-run go test -race ./... and rodney probes
