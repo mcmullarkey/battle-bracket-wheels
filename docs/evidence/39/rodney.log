@@ -1,0 +1,19 @@
+Rodney probes for issue #39 (AC-3: Y2K theme stylesheet)
+Branch: 39-y2k-theme-stylesheet
+Worktree: ../worktree-issue-39
+App: http://localhost:8080/
+
+1. y2k.css link present
+   Command: uvx rodney assert "document.querySelector('link[href=\"/static/css/y2k.css\"]') !== null"
+   Status: PASS
+
+2. h1 color is not space gold
+   Command: uvx rodney assert "getComputedStyle(document.querySelector('h1')).color !== 'rgb(255, 215, 0)'"
+   Status: PASS
+
+3. .cosmic-panel backgroundColor differs from space cosmic-bg
+   Command: uvx rodney assert "getComputedStyle(document.querySelector('.cosmic-panel')).backgroundColor !== 'rgba(10, 10, 46, 0.75)'"
+   Status: FAIL
+   Details: JS error: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'. (document.querySelector('.cosmic-panel') returned null)
+
+Probe run halted after deterministic check failure.
