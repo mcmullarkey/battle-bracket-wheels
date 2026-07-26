@@ -167,7 +167,7 @@ func TestApplyBattleResult_PositionalMapping(t *testing.T) {
 		t.Fatal("SFRight[0] is nil after QF2 — wrong slot mapping")
 	}
 	if b.SFLeft[0] != nil {
-		t.Error("SFLeft[0] should remain nil — QF2 goes to SFRight[0], not SFLeft[0]"+
+		t.Error("SFLeft[0] should remain nil — QF2 goes to SFRight[0], not SFLeft[0]" +
 			"\nWarning: SFLeft[0] was set — this is because QF1 hasn't run yet but QF2 mapped incorrectly")
 		// Actually after QF3, SFLeft[1] is set, SFLeft[0] should still be nil.
 	}

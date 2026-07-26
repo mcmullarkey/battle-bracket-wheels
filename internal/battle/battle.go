@@ -20,10 +20,10 @@ type RollFunc func() int
 
 // BattleResult bundles the outcome of a single match between two wheels.
 type BattleResult struct {
-	WinnerID, LoserID     string
-	WinnerRoll, LoserRoll int
+	WinnerID, LoserID         string
+	WinnerRoll, LoserRoll     int
 	WinnerLanded, LoserLanded wheel.Option
-	Ties                  int
+	Ties                      int
 }
 
 // ErrTiebreakerExhausted is returned when a match cannot be decided within
