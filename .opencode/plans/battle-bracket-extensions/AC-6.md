@@ -47,6 +47,7 @@ status: complete
 - [x] Inner loop: unit red → code → unit green → refactor — 2026-07-26T13:44
 - [x] Green: integration passes → commit — 2026-07-26T13:44
 - [x] E2E self-validation: produce evidence at docs/evidence/42/ — 2026-07-26T13:46
+- [x] PR review fix: HTMX 4xx swap + nested duplicate ID — 2026-07-26T14:22
 
 ### Decision Log
 - 2026-07-26 — Separate template file (templates/populate.html): follows repo convention (wheel.html/bracket.html/match.html all use {{define}} + {{template}}). Isolates layout.html conflict with AC-2 to single line.
@@ -55,10 +56,12 @@ status: complete
 - 2026-07-26 — Changed error response from JSON to HTML: AC-5 used writeJSONError (JSON), but AC-3 requires error text rendered inside #populate-status as HTML for HTMX swap. Created writePopulateError helper that renders populateStatus template with IsError=true. Updated TestPopulateHandler_TooFewEntries to expect text/html instead of application/json.
 - 2026-07-26 — Added IsError field to populateStatusData: enables conditional populate-error CSS class for visual distinction between success and error states. Minimal change to bracket.html template (one {{if}} addition).
 - 2026-07-26 — Added hx-disabled-elt on submit button (double-submit prevention), aria-live="polite" on #populate-status (accessibility), label for textarea (accessibility). Low-cost optional enhancements from spec.
+- 2026-07-26 — PR review fix: HTMX 2.x does not swap 4xx/5xx responses by default. Added global htmx:beforeSwap listener in layout.html that sets evt.detail.shouldSwap = true when xhr.status >= 400. Error fragments now reach the DOM. 400 status code preserved (AC spec). Also changed form hx-swap from default innerHTML to outerHTML — prevents nested duplicate #populate-status IDs (response div replaces target div entirely, no nesting). Added aria-live="polite" to populateStatus template so swapped-in div retains accessibility attribute.
 
 ### Surprises & Discoveries
 - AC-5's TestPopulateHandler_TooFewEntries expected JSON error response (application/json + json.Decode). AC-6 changes error rendering to HTML fragments for HTMX swap compatibility. Updated the test to expect text/html + string matching instead of JSON decoding. This is a shared-behavior change — the test was updated in the same commit as the handler change.
-- The populateStatus template in bracket.html renders a full <div id="populate-status"> element. When HTMX swaps this into the target #populate-status (innerHTML), it creates nested divs with the same ID. This is the existing pattern from AC-5's success case — not ideal but consistent. The outer div has aria-live="polite" for screen reader announcements.
+- The populateStatus template in bracket.html renders a full <div id="populate-status"> element. When HTMX swaps this into the target #populate-status (innerHTML), it creates nested divs with the same ID. RESOLVED in PR review fix: changed form hx-swap to outerHTML — response div replaces target div entirely, no nesting on success or error.
+- HTMX 2.x does not swap 4xx/5xx responses by default. The populate error path returns 400 + HTML fragment, but HTMX never swapped it into the DOM — user saw empty #populate-status div. Discovered by builder-vision-probe during PR review. RESOLVED: added global htmx:beforeSwap listener in layout.html that forces shouldSwap=true for status >= 400. The correct HTMX 2.x event is htmx:beforeSwap (not htmx:beforeOnLoad) — shouldSwap is a property on the beforeSwap event detail, not beforeOnLoad.
 
 ### Idempotence & Recovery
 - Safe retry: re-run go test -race -run TestPopulateUI
