@@ -1,0 +1,45 @@
+# Issue #38 — Theme Infrastructure E2E Evidence
+
+## Build
+$ go build -o battle-bracket-wheels .
+$ ./battle-bracket-wheels
+2026/07/26 12:01:53 Battle Bracket Wheels listening on 0.0.0.0:8080
+
+## Probe 1: GET / no cookie — default theme link + dropdown
+GET / → 200
+- <link rel="stylesheet" href="/static/css/space.css">  (default theme)
+- <form class="theme-selector" action="/theme" method="post">
+- <select name="theme" id="theme-select">
+- <option value="space" selected>Space</option>  (server-rendered selected)
+
+## Probe 2: POST /theme theme=space — 303 + Set-Cookie
+HTTP/1.1 303 See Other
+Location: /
+Set-Cookie: bbw_theme=space; Path=/; HttpOnly; SameSite=Lax
+
+## Probe 3: POST /theme empty — 400 + no Set-Cookie
+HTTP/1.1 400 Bad Request
+(no Set-Cookie: bbw_theme)
+
+## Probe 4: POST /theme unknown — 400
+HTTP/1.1 400 Bad Request
+(no Set-Cookie: bbw_theme)
+
+## Probe 5: GET /theme — 405
+HTTP/1.1 405 Method Not Allowed
+
+## Probe 6: GET / with bbw_theme=space — theme link
+<link rel="stylesheet" href="/static/css/space.css">
+
+## Probe 7: GET / with bbw_theme=unknown — fallback to default
+<link rel="stylesheet" href="/static/css/space.css">  (Default().CSSPath)
+
+## Probe 8: POST /theme — session-independence (no bbw_session)
+(no Set-Cookie: bbw_session — /theme NOT wrapped in sessionMiddleware)
+
+## Probe 9: Cookie attributes
+Set-Cookie: bbw_theme=space; Path=/; HttpOnly; SameSite=Lax
+(HttpOnly ✓, Path=/ ✓, SameSite=Lax ✓, Secure=false ✓)
+
+## Probe 10: Session cookie still set on GET /
+Set-Cookie: bbw_session=7bdf9ff88190a8d940ba47d9191b4f77; Path=/; HttpOnly; SameSite=Lax
