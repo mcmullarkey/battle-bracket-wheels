@@ -38,6 +38,31 @@
     66% { border-color: #ccff00; }
 }
 
+@keyframes lava-swirl {
+    0%, 100% {
+        filter:
+            drop-shadow(0 0 4px rgba(255, 105, 180, 0.4))
+            drop-shadow(0 0 8px rgba(0, 191, 255, 0.3))
+            hue-rotate(0deg);
+        stroke: rgba(255, 255, 255, 0.5);
+    }
+    25% { stroke: rgba(0, 191, 255, 0.7); }
+    33% {
+        filter:
+            drop-shadow(0 0 6px rgba(0, 191, 255, 0.4))
+            drop-shadow(0 0 10px rgba(204, 255, 0, 0.3))
+            hue-rotate(120deg);
+    }
+    50% { stroke: rgba(255, 105, 180, 0.7); }
+    66% {
+        filter:
+            drop-shadow(0 0 6px rgba(204, 255, 0, 0.4))
+            drop-shadow(0 0 10px rgba(255, 105, 180, 0.3))
+            hue-rotate(240deg);
+    }
+    75% { stroke: rgba(204, 255, 0, 0.7); }
+}
+
 /* ===== CSS Custom Properties (Theme Tokens) ===== */
 
 :root {
@@ -412,41 +437,50 @@ h1 {
     transform-box: view-box;
 }
 
-/* ===== Themed Wheel SVG Slices ===== */
+/* ===== Themed Wheel SVG Slices — Tie-Dye / Lava Lamp ===== */
+/* Fill is set via SVG gradient refs in wheel.html (radialGradient defs).
+   Space theme overrides via CSS fill property (CSS > presentation attribute).
+   Y2K theme leaves fill to the HTML attribute so gradients show through. */
 
 .wheel-slice {
     cursor: pointer;
-    stroke: var(--space-deep);
-    stroke-width: 1;
-    transition: opacity 0.3s ease;
+    stroke: rgba(255, 255, 255, 0.5);
+    stroke-width: 1.5;
+    transition: opacity 0.3s ease, stroke-width 0.3s ease;
+    animation: lava-swirl 12s ease-in-out infinite;
 }
 
+/* Staggered animation delays — slices swirl out of phase for organic lava-lamp motion */
 .wheel-slice:nth-child(odd) {
-    fill: rgba(0, 191, 255, 0.5);
+    animation-delay: 0s;
 }
 
 .wheel-slice:nth-child(even) {
-    fill: rgba(255, 105, 180, 0.4);
+    animation-delay: 3s;
 }
 
-/* Y2K-colored arc variations based on option index */
 .wheel-slice:nth-child(4n+1) {
-    fill: rgba(0, 191, 255, 0.45);
+    animation-delay: 0s;
 }
 .wheel-slice:nth-child(4n+2) {
-    fill: rgba(255, 105, 180, 0.45);
+    animation-delay: 2s;
 }
 .wheel-slice:nth-child(4n+3) {
-    fill: rgba(204, 255, 0, 0.35);
+    animation-delay: 4s;
 }
 .wheel-slice:nth-child(4n+4) {
-    fill: rgba(192, 192, 192, 0.35);
+    animation-delay: 6s;
 }
 
 .wheel-slice:hover {
-    opacity: 0.85;
-    stroke: var(--neon-cyan);
-    stroke-width: 2;
+    opacity: 0.9;
+    stroke: #fff;
+    stroke-width: 2.5;
+    filter:
+        drop-shadow(0 0 8px rgba(255, 105, 180, 0.6))
+        drop-shadow(0 0 16px rgba(0, 191, 255, 0.5))
+        drop-shadow(0 0 24px rgba(204, 255, 0, 0.3));
+    animation-play-state: paused;
 }
 
 /* ===== Wheel Arc Text Labels ===== */

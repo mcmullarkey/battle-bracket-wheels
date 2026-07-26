@@ -19,7 +19,10 @@ import (
 // testTemplate parses the embedded layout and wheel templates for use in tests.
 func testTemplate(t *testing.T) *template.Template {
 	t.Helper()
-	tmpl := template.New("layout").Funcs(template.FuncMap{"add": func(a, b int) int { return a + b }})
+	tmpl := template.New("layout").Funcs(template.FuncMap{
+		"add": func(a, b int) int { return a + b },
+		"mod": func(a, b int) int { return a % b },
+	})
 	var err error
 	tmpl, err = tmpl.Parse(layoutContent)
 	if err != nil {
@@ -579,7 +582,8 @@ var requiredTokens = []string{
 	"--neon-text-gold",
 }
 
-// requiredKeyframes lists all 6 @keyframes names from space.css.
+// requiredKeyframes lists the 6 @keyframes names mirrored from space.css,
+// plus lava-swirl introduced by the Y2K tie-dye theme.
 var requiredKeyframes = []string{
 	"twinkle",
 	"twinkle-slow",
@@ -587,6 +591,7 @@ var requiredKeyframes = []string{
 	"cosmic-glow",
 	"pulse",
 	"border-glow",
+	"lava-swirl",
 }
 
 // requiredBreakpoints lists all 3 @media breakpoint strings from space.css.
@@ -672,7 +677,7 @@ func TestY2K_TokenValuesDiffer(t *testing.T) {
 }
 
 func TestY2K_Keyframes(t *testing.T) {
-	// AC-3 predicate 4: defines all 6 @keyframes names from space.css
+	// AC-3 predicate 4: mirrors all 6 @keyframes from space.css; also guards lava-swirl (issue #49)
 	y2kCSS := readY2KCSS(t)
 
 	for _, name := range requiredKeyframes {

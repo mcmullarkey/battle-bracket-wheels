@@ -46,7 +46,10 @@ func battleTestServer(t *testing.T) (*httptest.Server, *template.Template, *Stor
 // testBattleTemplate parses templates for battle tests, including match.html.
 func testBattleTemplate(t *testing.T) *template.Template {
 	t.Helper()
-	tmpl := template.New("layout").Funcs(template.FuncMap{"add": func(a, b int) int { return a + b }})
+	tmpl := template.New("layout").Funcs(template.FuncMap{
+		"add": func(a, b int) int { return a + b },
+		"mod": func(a, b int) int { return a % b },
+	})
 	var err error
 	tmpl, err = tmpl.Parse(layoutContent)
 	if err != nil {

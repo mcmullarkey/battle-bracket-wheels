@@ -551,6 +551,11 @@ func TestWheelOption_WeightedSVG(t *testing.T) {
 	if !strings.Contains(body, "A 80.00 80.00 0 1 1") {
 		t.Error("expected a large arc (>180° sweep) — weights may not be reflected in SVG")
 	}
+
+	// Tie-dye gradient fill: each wheel slice references a radialGradient via fill="url(#td<N>)".
+	if !strings.Contains(body, `fill="url(#td`) {
+		t.Error(`expected wheel slice to reference tie-dye gradient fill fill="url(#td..."`)
+	}
 }
 
 func TestWheelOption_NegativeIdx(t *testing.T) {
