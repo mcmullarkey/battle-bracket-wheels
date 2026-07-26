@@ -699,6 +699,12 @@ footer p {
     height: 20px;
 }
 
+/* Direction flip: left-winner → pointer points left via scaleX(-1).
+   Right-winner → no class → identity (points right, default polygon). */
+.battle-pointer.pointer-left {
+    transform: scaleX(-1);
+}
+
 /* Winner and loser labels — text without <strong> markup */
 .winner-label,
 .loser-label {
