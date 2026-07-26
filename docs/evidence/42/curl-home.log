@@ -6,6 +6,16 @@
     <title>Battle Bracket Wheels</title>
     <script src="/static/js/htmx.min.js"></script>
     <script src="/static/js/wheel.js"></script>
+    <script>
+      
+      
+      
+      document.addEventListener('htmx:beforeSwap', function(evt) {
+        if (evt.detail.xhr.status >= 400) {
+          evt.detail.shouldSwap = true;
+        }
+      });
+    </script>
     <link rel="stylesheet" href="/static/css/space.css">
 </head>
 <body>
@@ -23,7 +33,7 @@
             <button type="submit" class="neon-button">Apply</button>
         </form>
         
-<form class="populate-form" hx-post="/wheels/populate" hx-target="#populate-status">
+<form class="populate-form" hx-post="/wheels/populate" hx-target="#populate-status" hx-swap="outerHTML">
   <label for="populate-items">Quick populate (one item per line, min 8):</label>
   <textarea name="items" id="populate-items" rows="4" placeholder="Movie 1&#10;Movie 2&#10;Movie 3&#10;..." required></textarea>
   <button type="submit" class="neon-button" hx-disabled-elt="this">Populate Wheels</button>
@@ -243,7 +253,7 @@
             
         </div>
         
-        <div style="display:none;" id="session-data">fb726167e7a13c02180146d760baaf1a</div>
+        <div style="display:none;" id="session-data">2a9d541214f7762022ea667bf1c38f04</div>
         <footer>
             <p>Battle Bracket Wheels &mdash; May the best wheel spin</p>
         </footer>

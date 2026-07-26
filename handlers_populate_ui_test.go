@@ -238,6 +238,67 @@ func TestPopulateUI_ErrorEmpty(t *testing.T) {
 	}
 }
 
+// TestPopulateUI_HTMXErrorSwapConfig verifies that the layout registers an
+// HTMX beforeSwap event listener that forces swapping of 4xx responses.
+// HTMX 2.x does not swap 4xx/5xx responses by default — without this
+// configuration, error fragments returned with a 400 status never reach
+// the DOM and the user sees an empty #populate-status div.
+func TestPopulateUI_HTMXErrorSwapConfig(t *testing.T) {
+	ts, _ := populateTestServer(t)
+
+	resp, err := http.Get(ts.URL + "/")
+	if err != nil {
+		t.Fatalf("GET /: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("reading body: %v", err)
+	}
+	html := string(body)
+
+	// Layout must register a beforeSwap listener that sets shouldSwap=true
+	// for 4xx responses so error fragments are swapped into the DOM.
+	if !strings.Contains(html, "htmx:beforeSwap") {
+		t.Error("layout missing htmx:beforeSwap event listener for 4xx swap")
+	}
+	if !strings.Contains(html, "shouldSwap") {
+		t.Error("layout missing shouldSwap property in beforeSwap listener")
+	}
+	if !strings.Contains(html, "400") {
+		t.Error("layout missing 400 status threshold in beforeSwap listener")
+	}
+}
+
+// TestPopulateUI_FormOuterHTMLSwap verifies that the populate form uses
+// hx-swap="outerHTML" so the response replaces the target #populate-status
+// div entirely. Without outerHTML, the default innerHTML swap inserts a
+// response containing <div id="populate-status"> inside the existing
+// #populate-status div, creating nested duplicate IDs.
+func TestPopulateUI_FormOuterHTMLSwap(t *testing.T) {
+	ts, _ := populateTestServer(t)
+
+	resp, err := http.Get(ts.URL + "/")
+	if err != nil {
+		t.Fatalf("GET /: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("reading body: %v", err)
+	}
+	html := string(body)
+
+	// The populate form must use outerHTML swap on the #populate-status target.
+	// hx-target="#populate-status" hx-swap="outerHTML" is unique to the populate
+	// form (battle buttons use hx-target="this").
+	if !strings.Contains(html, `hx-target="#populate-status" hx-swap="outerHTML"`) {
+		t.Error("populate form missing hx-swap='outerHTML' — innerHTML swap creates nested duplicate #populate-status IDs")
+	}
+}
+
 // TestPopulateUI_ErrorWhitespace verifies AC-3:
 // POST whitespace-only items → 400, error text rendered inside #populate-status as HTML.
 func TestPopulateUI_ErrorWhitespace(t *testing.T) {

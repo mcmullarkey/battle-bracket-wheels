@@ -1,5 +1,5 @@
 {{define "populateForm"}}
-<form class="populate-form" hx-post="/wheels/populate" hx-target="#populate-status">
+<form class="populate-form" hx-post="/wheels/populate" hx-target="#populate-status" hx-swap="outerHTML">
   <label for="populate-items">Quick populate (one item per line, min 8):</label>
   <textarea name="items" id="populate-items" rows="4" placeholder="Movie 1&#10;Movie 2&#10;Movie 3&#10;..." required></textarea>
   <button type="submit" class="neon-button" hx-disabled-elt="this">Populate Wheels</button>

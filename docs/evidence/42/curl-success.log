@@ -8,11 +8,11 @@
     <g class="wheel-group" id="wheel-group-slot-1-0">
       
         
-          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie A"></path>
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 1"></path>
         
-          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie A"></path>
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 1"></path>
         
-        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie A">Movie A</text>
+        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 1">Movie 1</text>
       
       <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
     </g>
@@ -36,11 +36,11 @@
     <g class="wheel-group" id="wheel-group-slot-2-1">
       
         
-          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie B"></path>
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 2"></path>
         
-          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie B"></path>
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 2"></path>
         
-        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie B">Movie B</text>
+        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 2">Movie 2</text>
       
       <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
     </g>
@@ -64,11 +64,11 @@
     <g class="wheel-group" id="wheel-group-slot-3-2">
       
         
-          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie C"></path>
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 3"></path>
         
-          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie C"></path>
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 3"></path>
         
-        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie C">Movie C</text>
+        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 3">Movie 3</text>
       
       <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
     </g>
@@ -92,11 +92,11 @@
     <g class="wheel-group" id="wheel-group-slot-4-3">
       
         
-          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie D"></path>
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 4"></path>
         
-          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie D"></path>
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 4"></path>
         
-        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie D">Movie D</text>
+        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 4">Movie 4</text>
       
       <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
     </g>
@@ -120,11 +120,11 @@
     <g class="wheel-group" id="wheel-group-slot-5-4">
       
         
-          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie E"></path>
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 5"></path>
         
-          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie E"></path>
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 5"></path>
         
-        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie E">Movie E</text>
+        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 5">Movie 5</text>
       
       <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
     </g>
@@ -148,11 +148,11 @@
     <g class="wheel-group" id="wheel-group-slot-6-5">
       
         
-          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie F"></path>
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 6"></path>
         
-          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie F"></path>
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 6"></path>
         
-        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie F">Movie F</text>
+        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 6">Movie 6</text>
       
       <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
     </g>
@@ -176,11 +176,11 @@
     <g class="wheel-group" id="wheel-group-slot-7-6">
       
         
-          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie G"></path>
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 7"></path>
         
-          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie G"></path>
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 7"></path>
         
-        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie G">Movie G</text>
+        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 7">Movie 7</text>
       
       <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
     </g>
@@ -204,11 +204,11 @@
     <g class="wheel-group" id="wheel-group-slot-8-7">
       
         
-          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie H"></path>
+          <path d="M 100.00 100.00 L 100.00 20.00 A 80.00 80.00 0 0 1 100.00 180.00 Z" class="wheel-slice" data-option="Movie 8"></path>
         
-          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie H"></path>
+          <path d="M 100.00 100.00 L 100.00 180.00 A 80.00 80.00 0 0 1 100.00 20.00 Z" class="wheel-slice" data-option="Movie 8"></path>
         
-        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie H">Movie H</text>
+        <text x="100.0" y="100.0" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="11" font-family="Courier New, monospace" font-weight="bold" data-option-text="Movie 8">Movie 8</text>
       
       <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
     </g>
@@ -223,9 +223,6 @@
 
 </div>
 
-<div id="populate-status" class="populate-status">
+<div id="populate-status" class="populate-status" aria-live="polite">
   <p>Wheels populated successfully</p>
 </div>
-
-HTTP_STATUS: 200
-CONTENT_TYPE: text/html; charset=utf-8
