@@ -1,0 +1,55 @@
+Rodney probe log for issue #37 (AC-1 right-wheel-wins bug)
+Branch: 37-fix-right-wheel-wins
+Worktree: /Users/carbonite/Documents/coding/portfolio/worktree-issue-37
+Timestamp: 2026-07-26T18:17:58Z
+
+[PASS] add-options-qf1-qf2
+  Commands:
+    uvx rodney input "form[hx-post='/wheel/0/option'] input[name='text']" Alpha
+    uvx rodney click "form[hx-post='/wheel/0/option'] button"
+    uvx rodney waitstable
+    uvx rodney input "form[hx-post='/wheel/1/option'] input[name='text']" Beta
+    uvx rodney click "form[hx-post='/wheel/1/option'] button"
+    uvx rodney waitstable
+  Result: both wheels re-rendered with options.
+
+[PASS] screenshot: before-battle.png
+  Command: uvx rodney screenshot docs/evidence/37/before-battle.png
+
+[PASS] battle-qf1-reveal-oracle
+  Commands:
+    uvx rodney click "#battle-btn-qf1 button"
+    sleep 4
+    uvx rodney assert "window.__lastSpinItems && window.__lastSpinItems.length === 2 && window.__lastSpinItems.filter(function(i){return i.winner===true}).length === 1"
+  Result: pass
+
+[PASS] battle-pointer-all-instances
+  Command: uvx rodney assert "document.querySelectorAll('.battle-pointer').length >= 1"
+  Result: pass
+
+[PASS] battle-pointer-transform-matches-winner
+  Command: uvx rodney assert "Array.from(document.querySelectorAll('.battle-pointer')).every(function(el){var t=getComputedStyle(el).transform; var leftWins=window.__lastSpinItems && window.__lastSpinItems[0] && window.__lastSpinItems[0].winner===true; return leftWins ? t.indexOf('-1') !== -1 : t.indexOf('-1') === -1;})"
+  Result: pass
+
+[PASS] screenshot: during-spin.png
+  Commands:
+    uvx rodney click "#battle-btn-qf1 button"
+    sleep 1
+    uvx rodney screenshot docs/evidence/37/during-spin.png
+
+[PASS] screenshot: after-reveal.png
+  Command: uvx rodney screenshot docs/evidence/37/after-reveal.png
+
+[PASS] solo-spin-guard
+  Commands (fresh session):
+    clear bbw_session cookie and hard-reload
+    uvx rodney input "form[hx-post='/wheel/0/option'] input[name='text']" SoloA
+    uvx rodney click "form[hx-post='/wheel/0/option'] button"
+    uvx rodney waitstable
+    uvx rodney js "htmx.ajax('POST','/wheel/0/spin',{target:'#wheel-slot-1-0', swap:'outerHTML'})"
+    uvx rodney waitstable
+    uvx rodney assert "window.__lastSpinItems && window.__lastSpinItems.length === 1 && !window.__lastSpinItems[0].winner"
+    uvx rodney assert "document.querySelectorAll('.battle-pointer').length === 0"
+  Result: pass
+
+Verdict: PROBES_PASS

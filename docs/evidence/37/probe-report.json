@@ -1,0 +1,51 @@
+{
+  "issue": "37",
+  "branch": "37-fix-right-wheel-wins",
+  "worktree": "/Users/carbonite/Documents/coding/portfolio/worktree-issue-37",
+  "timestamp": "2026-07-26T18:17:58Z",
+  "probes": [
+    {
+      "name": "add-options-qf1-qf2",
+      "status": "PASS",
+      "details": "Added Alpha to wheel 0 and Beta to wheel 1; both wheels re-rendered with options via HTMX."
+    },
+    {
+      "name": "battle-qf1-reveal-oracle",
+      "status": "PASS",
+      "details": "After clicking Battle QF1 and waiting 4s, window.__lastSpinItems has length 2 and exactly one item with winner:true."
+    },
+    {
+      "name": "battle-pointer-all-instances",
+      "status": "PASS",
+      "details": "document.querySelectorAll('.battle-pointer').length >= 1 after reveal."
+    },
+    {
+      "name": "battle-pointer-transform-matches-winner",
+      "status": "PASS",
+      "details": "getComputedStyle transform on every .battle-pointer contains -1 when left wheel wins and no -1 when right wheel wins."
+    },
+    {
+      "name": "solo-spin-guard",
+      "status": "PASS",
+      "details": "Solo spin of wheel 0 produced window.__lastSpinItems length 1 with no winner flag and zero .battle-pointer elements."
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "docs/evidence/37/before-battle.png",
+      "ui_state": "QF1 wheels populated with Alpha and Beta options before battle is triggered",
+      "ac_reference": "AC-1"
+    },
+    {
+      "path": "docs/evidence/37/during-spin.png",
+      "ui_state": "Both QF1 wheels mid-spin animation, result fragments still hidden",
+      "ac_reference": "AC-1"
+    },
+    {
+      "path": "docs/evidence/37/after-reveal.png",
+      "ui_state": "Battle pointer visible and pointing toward the winning wheel after reveal",
+      "ac_reference": "AC-1"
+    }
+  ],
+  "verdict": "PROBES_PASS"
+}

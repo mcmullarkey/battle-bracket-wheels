@@ -1,0 +1,43 @@
+=== Battle Bracket Wheels — E2E Evidence for Issue #37 ===
+=== Date: Sun Jul 26 11:48:24 MDT 2026 ===
+
+=== Server startup log ===
+2026/07/26 11:48:23 Battle Bracket Wheels listening on 0.0.0.0:18037
+
+=== PROBE 1: GET / — session cookie ===
+Cookie set:
+#HttpOnly_localhost	FALSE	/	FALSE	0	bbw_session	99689d5ba395f3b5bc25d5e66f6c9e9f
+
+=== PROBE 2: POST /wheel/0/option (add MovieA) ===
+HTTP 200 (option added to wheel 0)
+
+=== PROBE 3: POST /wheel/1/option (add MovieB) ===
+HTTP 200 (option added to wheel 1)
+
+=== PROBE 4: POST /battle/qf1 — HX-Trigger + response body ===
+--- Response headers ---
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Hx-Trigger: {"spin-wheel":[{"slotID":"slot-1","targetAngle":0,"targetIndex":0,"wheelID":"0","winner":true},{"slotID":"slot-2","targetAngle":0,"targetIndex":0,"wheelID":"1","winner":false}]}
+Date: Sun, 26 Jul 2026 17:48:24 GMT
+Transfer-Encoding: chunked
+
+
+--- HX-Trigger winner flags ---
+"winner":true
+"winner":false
+
+--- .battle-pointer element in body ---
+id="battle-pointer" class="battle-pointer"
+
+=== PROBE 5: POST /wheel/0/spin — solo spin (no winner) ===
+--- Response headers ---
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Hx-Trigger: {"spin-wheel":{"slotID":"slot-1","targetAngle":270,"targetIndex":0,"wheelID":"0"}}
+Date: Sun, 26 Jul 2026 17:48:24 GMT
+Content-Length: 1303
+
+
+--- winner field in solo trigger (should be absent) ---
+(absent — correct)
