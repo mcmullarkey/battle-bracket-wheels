@@ -48,7 +48,10 @@ func main() {
 	addr := getAddr(port)
 
 	// Parse templates from embedded content (no template.Must per spec)
-	tmpl := template.New("layout").Funcs(template.FuncMap{"add": func(a, b int) int { return a + b }})
+	tmpl := template.New("layout").Funcs(template.FuncMap{
+		"add": func(a, b int) int { return a + b },
+		"mod": func(a, b int) int { return a % b },
+	})
 	var err error
 	tmpl, err = tmpl.Parse(layoutContent)
 	if err != nil {

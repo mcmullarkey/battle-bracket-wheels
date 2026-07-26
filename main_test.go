@@ -19,7 +19,10 @@ import (
 // testTemplate parses the embedded layout and wheel templates for use in tests.
 func testTemplate(t *testing.T) *template.Template {
 	t.Helper()
-	tmpl := template.New("layout").Funcs(template.FuncMap{"add": func(a, b int) int { return a + b }})
+	tmpl := template.New("layout").Funcs(template.FuncMap{
+		"add": func(a, b int) int { return a + b },
+		"mod": func(a, b int) int { return a % b },
+	})
 	var err error
 	tmpl, err = tmpl.Parse(layoutContent)
 	if err != nil {
