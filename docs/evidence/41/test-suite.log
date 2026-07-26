@@ -1,0 +1,29 @@
+=== RUN   TestPopulateHandler_Success
+--- PASS: TestPopulateHandler_Success (0.01s)
+=== RUN   TestPopulateHandler_MutationGate
+--- PASS: TestPopulateHandler_MutationGate (0.00s)
+=== RUN   TestPopulateHandler_TooFewEntries
+--- PASS: TestPopulateHandler_TooFewEntries (0.00s)
+=== RUN   TestPopulateHandler_IdempotentReplace
+--- PASS: TestPopulateHandler_IdempotentReplace (0.00s)
+=== RUN   TestPopulateHandler_NoSession
+--- PASS: TestPopulateHandler_NoSession (0.00s)
+=== RUN   TestPopulateHandler_EmptyItems
+--- PASS: TestPopulateHandler_EmptyItems (0.00s)
+PASS
+ok  	battle-bracket-wheels	(cached)
+testing: warning: no tests to run
+PASS
+ok  	battle-bracket-wheels/internal/battle	(cached) [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	battle-bracket-wheels/internal/bracket	(cached) [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	battle-bracket-wheels/internal/populate	(cached) [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	battle-bracket-wheels/internal/theme	(cached) [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	battle-bracket-wheels/internal/wheel	(cached) [no tests to run]

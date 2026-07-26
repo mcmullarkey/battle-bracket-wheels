@@ -141,5 +141,9 @@ func setupRouter(store *Store, tmpl *template.Template, registry *theme.Registry
 	// for unmatched methods instead of returning 405).
 	mux.Handle("/battle/{matchID}", sessionMiddleware(store, battleHandler(store, tmpl, newSpinSource)))
 
+	// Populate route — parse list input, distribute round-robin across 8 wheels,
+	// reset bracket and resolved matches under single store.Update lock.
+	mux.Handle("POST /wheels/populate", sessionMiddleware(store, populateHandler(store, tmpl)))
+
 	return mux
 }

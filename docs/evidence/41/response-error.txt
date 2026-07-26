@@ -1,0 +1,4 @@
+{"error":"at least 8 entries required"}
+
+HTTP_STATUS:400
+CONTENT_TYPE:application/json

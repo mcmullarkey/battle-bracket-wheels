@@ -2,7 +2,7 @@
 ac: 5
 depends_on: AC-4
 risk: medium
-status: spec
+status: complete
 ---
 
 ## AC-5: POST /wheels/populate endpoint — validate, mutate session under single lock, render 8 OOB wheel fragments + status
@@ -41,10 +41,10 @@ status: spec
 - **Risk level:** medium (mutates session state under write lock, new endpoint, race detector mandatory)
 
 ### Progress
-- [ ] Red: write integration test, confirm fails
-- [ ] Inner loop: unit red → code → unit green → refactor
-- [ ] Green: integration passes → commit
-- [ ] E2E self-validation: produce evidence at docs/evidence/<issue-number>/
+- [x] Red: write integration test, confirm fails (2026-07-26)
+- [x] Inner loop: unit red → code → unit green → refactor (2026-07-26)
+- [x] Green: integration passes → commit (2026-07-26)
+- [x] E2E self-validation: produce evidence at docs/evidence/41/ (2026-07-26)
 
 ### Decision Log
 - 2026-07-26 — Mutation gate (store.View read-back): follows TestBattleHandler_PostBattleStoreState convention. Verifies actual session state, not just response HTML.
@@ -53,7 +53,9 @@ status: spec
 - 2026-07-26 — 6 refusal arms matching addOptionHandler: GetCookie→401, ParseForm→400, empty→400, ErrTooFewEntries→400, ErrSessionNotFound→401, else→500.
 
 ### Surprises & Discoveries
-- (none yet)
+- Render data read from mutated session (sessionWheels = s.Wheels inside Update closure), not from result.Wheels directly. This follows design intent §2 ("read mutated session, not Result directly") and makes the sneaky-pass harder: if s.Wheels assignment is removed, the response also shows stale data (not just the mutation gate).
+- Go map comparison: cannot use `!=` on maps. Used reflect.ValueOf().Pointer() to verify ResolvedMatches is a fresh make() (different map header), not a cleared existing map. This distinguishes "fresh make(map[string]bool)" from "for k := range m { delete(m, k) }".
+- Negative control confirmed: removing `s.Wheels = result.Wheels` from the Update closure causes TestPopulateHandler_MutationGate to fail with "wheel 0: store wheels != result wheels" and "wheel 0 still contains 'OLD' option". Mutation gate catches the sneaky-pass.
 
 ### Idempotence & Recovery
 - Safe retry: re-run go test -race ./... -run TestPopulate
