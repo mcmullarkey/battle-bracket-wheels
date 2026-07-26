@@ -1,0 +1,6 @@
+HTTP/1.1 400 Bad Request
+Content-Type: text/html; charset=utf-8
+Set-Cookie: bbw_session=bbc7161a681d3f12a12ebb55dba2fe31; Path=/; HttpOnly; SameSite=Lax
+Date: Sun, 26 Jul 2026 20:22:09 GMT
+Content-Length: 130
+

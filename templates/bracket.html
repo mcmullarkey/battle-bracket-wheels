@@ -26,7 +26,7 @@
 {{end}}
 
 {{define "populateStatus"}}
-<div id="populate-status" class="populate-status">
+<div id="populate-status" class="populate-status{{if .IsError}} populate-error{{end}}" aria-live="polite">
   <p>{{.Message}}</p>
 </div>
 {{end}}

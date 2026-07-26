@@ -1,0 +1,4 @@
+
+<div id="populate-status" class="populate-status populate-error" aria-live="polite">
+  <p>at least 8 entries required</p>
+</div>

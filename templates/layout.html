@@ -6,6 +6,16 @@
     <title>Battle Bracket Wheels</title>
     <script src="/static/js/htmx.min.js"></script>
     <script src="/static/js/wheel.js"></script>
+    <script>
+      // HTMX 2.x does not swap 4xx/5xx responses by default.
+      // Force-swap error responses so error fragments reach the DOM
+      // (e.g. populate error messages in #populate-status).
+      document.addEventListener('htmx:beforeSwap', function(evt) {
+        if (evt.detail.xhr.status >= 400) {
+          evt.detail.shouldSwap = true;
+        }
+      });
+    </script>
     <link rel="stylesheet" href="{{.ThemeCSS}}">
 </head>
 <body>
@@ -20,6 +30,7 @@
             </select>
             <button type="submit" class="neon-button">Apply</button>
         </form>
+        {{template "populateForm"}}
         <div class="bracket" id="bracket">
             <!-- QF1: wheels 0 vs 1 -->
             <div class="slot" id="slot-1">{{template "wheel" index .Wheels 0}}</div>

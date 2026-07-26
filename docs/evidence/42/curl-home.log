@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle Bracket Wheels</title>
+    <script src="/static/js/htmx.min.js"></script>
+    <script src="/static/js/wheel.js"></script>
+    <script>
+      
+      
+      
+      document.addEventListener('htmx:beforeSwap', function(evt) {
+        if (evt.detail.xhr.status >= 400) {
+          evt.detail.shouldSwap = true;
+        }
+      });
+    </script>
+    <link rel="stylesheet" href="/static/css/space.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="neon-gold">Battle Bracket Wheels</h1>
+        <form class="theme-selector" action="/theme" method="post">
+            <label for="theme-select">Theme:</label>
+            <select name="theme" id="theme-select">
+                
+                <option value="space" selected>Space</option>
+                
+                <option value="y2k">Y2K</option>
+                
+            </select>
+            <button type="submit" class="neon-button">Apply</button>
+        </form>
+        
+<form class="populate-form" hx-post="/wheels/populate" hx-target="#populate-status" hx-swap="outerHTML">
+  <label for="populate-items">Quick populate (one item per line, min 8):</label>
+  <textarea name="items" id="populate-items" rows="4" placeholder="Movie 1&#10;Movie 2&#10;Movie 3&#10;..." required></textarea>
+  <button type="submit" class="neon-button" hx-disabled-elt="this">Populate Wheels</button>
+  <div id="populate-status" class="populate-status" aria-live="polite"></div>
+</form>
+
+        <div class="bracket" id="bracket">
+            
+            <div class="slot" id="slot-1">
+<div id="wheel-slot-1-0">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-1-0">
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/0/option" hx-target="#wheel-slot-1-0" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+</div>
+            <div class="match-center">
+                <div id="battle-btn-qf1"><button class="neon-button" hx-post="/battle/qf1" hx-target="this" hx-swap="outerHTML">Battle QF1</button></div>
+                <div id="match-qf1"></div>
+            </div>
+            <div class="slot" id="slot-2">
+<div id="wheel-slot-2-1">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-2-1">
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/1/option" hx-target="#wheel-slot-2-1" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+</div>
+
+            
+            <div class="slot" id="slot-3">
+<div id="wheel-slot-3-2">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-3-2">
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/2/option" hx-target="#wheel-slot-3-2" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+</div>
+            <div class="match-center">
+                <div id="battle-btn-qf2"><button class="neon-button" hx-post="/battle/qf2" hx-target="this" hx-swap="outerHTML">Battle QF2</button></div>
+                <div id="match-qf2"></div>
+            </div>
+            <div class="slot" id="slot-4">
+<div id="wheel-slot-4-3">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-4-3">
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/3/option" hx-target="#wheel-slot-4-3" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+</div>
+
+            
+            <div class="slot" id="slot-5">
+<div id="wheel-slot-5-4">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-5-4">
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/4/option" hx-target="#wheel-slot-5-4" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+</div>
+            <div class="match-center">
+                <div id="battle-btn-qf3"><button class="neon-button" hx-post="/battle/qf3" hx-target="this" hx-swap="outerHTML">Battle QF3</button></div>
+                <div id="match-qf3"></div>
+            </div>
+            <div class="slot" id="slot-6">
+<div id="wheel-slot-6-5">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-6-5">
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/5/option" hx-target="#wheel-slot-6-5" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+</div>
+
+            
+            <div class="slot" id="slot-7">
+<div id="wheel-slot-7-6">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-7-6">
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/6/option" hx-target="#wheel-slot-7-6" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+</div>
+            <div class="match-center">
+                <div id="battle-btn-qf4"><button class="neon-button" hx-post="/battle/qf4" hx-target="this" hx-swap="outerHTML">Battle QF4</button></div>
+                <div id="match-qf4"></div>
+            </div>
+            <div class="slot" id="slot-8">
+<div id="wheel-slot-8-7">
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    
+    <polygon points="100,25 93,10 107,10" fill="#ffd700" stroke="#ffd700" stroke-width="1"/>
+    <g class="wheel-group" id="wheel-group-slot-8-7">
+      
+      <circle cx="100" cy="100" r="10" fill="#ffd700" stroke="#fff" stroke-width="2"></circle>
+    </g>
+  </svg>
+  
+  <form hx-post="/wheel/7/option" hx-target="#wheel-slot-8-7" hx-swap="outerHTML">
+    <input type="text" name="text" placeholder="Add option..." required>
+    <button type="submit">Add</button>
+  </form>
+  
+</div>
+</div>
+        </div>
+        <hr class="bracket-connector">
+        <div id="center-display" class="center-display"></div>
+        <div class="bracket-sf" id="bracket-sf">
+            
+            <div class="slot" id="slot-sf1-left">
+                <span class="slot-placeholder">SF1 Left</span>
+            </div>
+            <div class="match-center">
+                <div id="battle-btn-sf1"><button class="neon-button" hx-post="/battle/sf1" hx-target="this" hx-swap="outerHTML">Battle SF1</button></div>
+                <div id="match-sf1"></div>
+            </div>
+            <div class="slot" id="slot-sf1-right">
+                <span class="slot-placeholder">SF1 Right</span>
+            </div>
+
+            
+            <div class="slot" id="slot-sf2-left">
+                <span class="slot-placeholder">SF2 Left</span>
+            </div>
+            <div class="match-center">
+                <div id="battle-btn-sf2"><button class="neon-button" hx-post="/battle/sf2" hx-target="this" hx-swap="outerHTML">Battle SF2</button></div>
+                <div id="match-sf2"></div>
+            </div>
+            <div class="slot" id="slot-sf2-right">
+                <span class="slot-placeholder">SF2 Right</span>
+            </div>
+        </div>
+        <hr class="bracket-connector">
+        <div class="bracket-final" id="bracket-final">
+            <div class="slot" id="slot-final-left">
+                <span class="slot-placeholder">Final Left</span>
+            </div>
+            <div class="slot" id="slot-final-right">
+                <span class="slot-placeholder">Final Right</span>
+            </div>
+            <div class="match-center">
+                <div id="battle-btn-final"><button class="neon-button" hx-post="/battle/final" hx-target="this" hx-swap="outerHTML">Battle Final</button></div>
+                <div id="match-final"></div>
+            </div>
+        </div>
+        <div id="movie-result" class="movie-result">
+            
+        </div>
+        
+        <div style="display:none;" id="session-data">2a9d541214f7762022ea667bf1c38f04</div>
+        <footer>
+            <p>Battle Bracket Wheels &mdash; May the best wheel spin</p>
+        </footer>
+    </div>
+</body>
+</html>

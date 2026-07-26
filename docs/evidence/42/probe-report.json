@@ -1,0 +1,91 @@
+{
+  "issue": 42,
+  "branch": "42-auto-populate-ui",
+  "worktree": "/Users/carbonite/Documents/coding/portfolio/worktree-issue-42",
+  "timestamp": "2026-07-26T20:33:27Z",
+  "probes": [
+    {
+      "name": "form-exists",
+      "status": "PASS",
+      "details": "document.querySelector('.populate-form') !== null"
+    },
+    {
+      "name": "textarea-exists",
+      "status": "PASS",
+      "details": "document.querySelector('textarea[name=\"items\"]') !== null"
+    },
+    {
+      "name": "submit-exists",
+      "status": "PASS",
+      "details": "document.querySelector('button[type=\"submit\"]') !== null"
+    },
+    {
+      "name": "hx-post",
+      "status": "PASS",
+      "details": "form hx-post attribute === '/wheels/populate'"
+    },
+    {
+      "name": "hx-target",
+      "status": "PASS",
+      "details": "form hx-target attribute === '#populate-status'"
+    },
+    {
+      "name": "hx-swap",
+      "status": "PASS",
+      "details": "form hx-swap attribute === 'outerHTML'"
+    },
+    {
+      "name": "error-status-exists",
+      "status": "PASS",
+      "details": "#populate-status exists after submitting 3 items"
+    },
+    {
+      "name": "error-status-display",
+      "status": "PASS",
+      "details": "#populate-status display !== 'none'"
+    },
+    {
+      "name": "error-status-height",
+      "status": "PASS",
+      "details": "#populate-status getBoundingClientRect().height > 0"
+    },
+    {
+      "name": "error-status-text",
+      "status": "PASS",
+      "details": "#populate-status.textContent.trim().length > 0 after submitting 3 items; text = 'at least 8 entries required'"
+    },
+    {
+      "name": "error-status-class",
+      "status": "PASS",
+      "details": "#populate-status has populate-error class after 3-item submission"
+    },
+    {
+      "name": "success-8-wheels",
+      "status": "PASS",
+      "details": "All 8 slots (#slot-1 .. #slot-8) contain an svg wheel after submitting 8 items"
+    },
+    {
+      "name": "success-8-option-texts",
+      "status": "PASS",
+      "details": "8 [data-option-text] elements present after successful populate"
+    },
+    {
+      "name": "success-option-a",
+      "status": "PASS",
+      "details": "Option text 'A' present in populated wheels"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "docs/evidence/42/error-case.png",
+      "ui_state": "Error case after submitting 3 items (visible error message in #populate-status)",
+      "ac_reference": "AC-6"
+    },
+    {
+      "path": "docs/evidence/42/success-case.png",
+      "ui_state": "Success case after submitting 8 items (8 wheels populated with options A-H, success message visible)",
+      "ac_reference": "AC-6"
+    }
+  ],
+  "verdict": "PROBES_PASS"
+}

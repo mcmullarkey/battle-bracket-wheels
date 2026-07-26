@@ -15,6 +15,7 @@ import (
 // processing (at least one non-OOB element must be present in the response).
 type populateStatusData struct {
 	Message string
+	IsError bool
 }
 
 // populateHandler handles POST /wheels/populate.
@@ -32,40 +33,41 @@ type populateStatusData struct {
 // ensures the response reflects the actual session state, not a pre-mutation
 // snapshot.
 //
-// Refusal arms (mirrors addOptionHandler):
+// Error arms render HTML fragments (not JSON) so HTMX can swap the error
+// message into the #populate-status target div:
 //   - GetCookie → 401 (defensive — sessionMiddleware normally ensures cookie)
-//   - ParseForm → 400
-//   - empty items → 400
-//   - ErrTooFewEntries → 400
-//   - ErrSessionNotFound → 401
-//   - other → 500
+//   - ParseForm → 400 (HTML error)
+//   - empty items → 400 (HTML error)
+//   - ErrTooFewEntries → 400 (HTML error)
+//   - ErrSessionNotFound → 401 (HTML error)
+//   - other → 500 (HTML error)
 func populateHandler(store *Store, renderer Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sessionID := GetCookie(r)
 		if sessionID == "" {
-			writeJSONError(w, http.StatusUnauthorized, "session required")
+			writePopulateError(w, renderer, http.StatusUnauthorized, "session required")
 			return
 		}
 
 		if err := r.ParseForm(); err != nil {
-			writeJSONError(w, http.StatusBadRequest, "invalid form data")
+			writePopulateError(w, renderer, http.StatusBadRequest, "invalid form data")
 			return
 		}
 
 		items := r.FormValue("items")
 		if items == "" {
-			writeJSONError(w, http.StatusBadRequest, "items must not be empty")
+			writePopulateError(w, renderer, http.StatusBadRequest, "items must not be empty")
 			return
 		}
 
 		result, err := populate.ParseAndDistribute(items)
 		if err != nil {
 			if errors.Is(err, populate.ErrTooFewEntries) {
-				writeJSONError(w, http.StatusBadRequest, "at least 8 entries required")
+				writePopulateError(w, renderer, http.StatusBadRequest, "at least 8 entries required")
 				return
 			}
 			log.Printf("populate parse error: %v", err)
-			writeJSONError(w, http.StatusInternalServerError, "populate error")
+			writePopulateError(w, renderer, http.StatusInternalServerError, "populate error")
 			return
 		}
 
@@ -82,11 +84,11 @@ func populateHandler(store *Store, renderer Renderer) http.HandlerFunc {
 		})
 		if updateErr != nil {
 			if errors.Is(updateErr, ErrSessionNotFound) {
-				writeJSONError(w, http.StatusUnauthorized, "session not found")
+				writePopulateError(w, renderer, http.StatusUnauthorized, "session not found")
 				return
 			}
 			log.Printf("populate store update error: %v", updateErr)
-			writeJSONError(w, http.StatusInternalServerError, "internal error")
+			writePopulateError(w, renderer, http.StatusInternalServerError, "internal error")
 			return
 		}
 
@@ -110,5 +112,20 @@ func populateHandler(store *Store, renderer Renderer) http.HandlerFunc {
 		}); err != nil {
 			log.Printf("populateStatus template execution error: %v", err)
 		}
+	}
+}
+
+// writePopulateError renders an error as an HTML fragment (populateStatus
+// template) so HTMX can swap it into the #populate-status target div.
+// This ensures errors are user-visible (not hidden JSON) and the form
+// remains interactive after an error.
+func writePopulateError(w http.ResponseWriter, renderer Renderer, status int, message string) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(status)
+	if err := renderer.ExecuteTemplate(w, "populateStatus", populateStatusData{
+		Message: message,
+		IsError: true,
+	}); err != nil {
+		log.Printf("populateStatus error template execution: %v", err)
 	}
 }
