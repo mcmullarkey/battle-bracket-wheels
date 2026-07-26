@@ -1,0 +1,508 @@
+=== RUN   TestSpinHandler
+--- PASS: TestSpinHandler (0.01s)
+=== RUN   TestSpinHandlerHXTriggerShape
+--- PASS: TestSpinHandlerHXTriggerShape (0.00s)
+=== RUN   TestSpinHandlerEmptyWheel
+--- PASS: TestSpinHandlerEmptyWheel (0.00s)
+=== RUN   TestSpinHandlerInvalidWheelID
+--- PASS: TestSpinHandlerInvalidWheelID (0.00s)
+=== RUN   TestSpinHandlerAllZeroWeight
+--- PASS: TestSpinHandlerAllZeroWeight (0.00s)
+=== RUN   TestBattleHandler_Success
+--- PASS: TestBattleHandler_Success (0.00s)
+=== RUN   TestBattleHandler_EmptyWheel
+--- PASS: TestBattleHandler_EmptyWheel (0.00s)
+=== RUN   TestBattleHandler_InvalidMatchID
+--- PASS: TestBattleHandler_InvalidMatchID (0.00s)
+=== RUN   TestBattleHandler_AlreadyResolved
+--- PASS: TestBattleHandler_AlreadyResolved (0.00s)
+=== RUN   TestBattleHandler_HXTriggerBothWheels
+--- PASS: TestBattleHandler_HXTriggerBothWheels (0.00s)
+=== RUN   TestBattleHandler_BothWheelsEmpty
+--- PASS: TestBattleHandler_BothWheelsEmpty (0.00s)
+=== RUN   TestBattleHandler_MatchQF2
+--- PASS: TestBattleHandler_MatchQF2 (0.00s)
+=== RUN   TestBattleHandler_OOBFragmentCount
+--- PASS: TestBattleHandler_OOBFragmentCount (0.00s)
+=== RUN   TestBattleHandler_PostBattleStoreState
+--- PASS: TestBattleHandler_PostBattleStoreState (0.00s)
+=== RUN   TestBattleHandler_ConcurrentResolve
+--- PASS: TestBattleHandler_ConcurrentResolve (0.00s)
+=== RUN   TestBattleHandler_TiebreakerExhaustion
+--- PASS: TestBattleHandler_TiebreakerExhaustion (0.00s)
+=== RUN   TestPostBattle_OOBTargets
+--- PASS: TestPostBattle_OOBTargets (0.00s)
+=== RUN   TestPostBattle_QF3Target
+--- PASS: TestPostBattle_QF3Target (0.00s)
+=== RUN   TestPostBattle_NoReTyping
+--- PASS: TestPostBattle_NoReTyping (0.00s)
+=== RUN   TestPostBattle_FinalMovie
+--- PASS: TestPostBattle_FinalMovie (0.01s)
+=== RUN   TestPostBattle_InvalidMatchID
+--- PASS: TestPostBattle_InvalidMatchID (0.00s)
+=== RUN   TestPostBattle_GETMethod
+--- PASS: TestPostBattle_GETMethod (0.00s)
+=== RUN   TestPostBattle_NonExistentWheel
+--- PASS: TestPostBattle_NonExistentWheel (0.01s)
+=== RUN   TestPostBattle_BracketIdempotency
+--- PASS: TestPostBattle_BracketIdempotency (0.00s)
+=== RUN   TestPostBattle_FinalOOBCount
+--- PASS: TestPostBattle_FinalOOBCount (0.01s)
+=== RUN   TestPostBattle_QF2Target
+--- PASS: TestPostBattle_QF2Target (0.00s)
+=== RUN   TestPostBattle_SF2Target
+--- PASS: TestPostBattle_SF2Target (0.01s)
+=== RUN   TestPostBattle_CenterDisplayAdvancingOptions
+=== RUN   TestPostBattle_CenterDisplayAdvancingOptions/QF1_list_structure_with_all_advancing_options
+=== RUN   TestPostBattle_CenterDisplayAdvancingOptions/QF1_center-display_round_label
+=== RUN   TestPostBattle_CenterDisplayAdvancingOptions/QF1_dedupe_shared_option_text
+=== RUN   TestPostBattle_CenterDisplayAdvancingOptions/QF1_edge_case_1+1_distinct
+=== RUN   TestPostBattle_CenterDisplayAdvancingOptions/Final_no_list_markup
+--- PASS: TestPostBattle_CenterDisplayAdvancingOptions (0.03s)
+    --- PASS: TestPostBattle_CenterDisplayAdvancingOptions/QF1_list_structure_with_all_advancing_options (0.00s)
+    --- PASS: TestPostBattle_CenterDisplayAdvancingOptions/QF1_center-display_round_label (0.00s)
+    --- PASS: TestPostBattle_CenterDisplayAdvancingOptions/QF1_dedupe_shared_option_text (0.00s)
+    --- PASS: TestPostBattle_CenterDisplayAdvancingOptions/QF1_edge_case_1+1_distinct (0.00s)
+    --- PASS: TestPostBattle_CenterDisplayAdvancingOptions/Final_no_list_markup (0.01s)
+=== RUN   TestMatchResult_SpaceThemeVisual
+--- PASS: TestMatchResult_SpaceThemeVisual (0.00s)
+=== RUN   TestBattlePointer_SpaceTheme
+--- PASS: TestBattlePointer_SpaceTheme (0.00s)
+=== RUN   TestBattleHandler_HXTrigger_WinnerInTrigger
+--- PASS: TestBattleHandler_HXTrigger_WinnerInTrigger (0.00s)
+=== RUN   TestBattlePointer_WinnerDirectionMatchesTrigger
+--- PASS: TestBattlePointer_WinnerDirectionMatchesTrigger (0.00s)
+=== RUN   TestThemeEndpointPost303
+--- PASS: TestThemeEndpointPost303 (0.00s)
+=== RUN   TestThemeEndpointPostEmpty400
+--- PASS: TestThemeEndpointPostEmpty400 (0.00s)
+=== RUN   TestThemeEndpointPostUnknown400
+--- PASS: TestThemeEndpointPostUnknown400 (0.00s)
+=== RUN   TestThemeEndpointGet405
+--- PASS: TestThemeEndpointGet405 (0.00s)
+=== RUN   TestThemeRenderingNoCookie
+--- PASS: TestThemeRenderingNoCookie (0.00s)
+=== RUN   TestThemeRenderingWithCookie
+--- PASS: TestThemeRenderingWithCookie (0.00s)
+=== RUN   TestThemeRenderingUnknownCookieFallback
+--- PASS: TestThemeRenderingUnknownCookieFallback (0.00s)
+=== RUN   TestThemeRenderingCookieSelectsTheme
+--- PASS: TestThemeRenderingCookieSelectsTheme (0.00s)
+=== RUN   TestThemeDropdownRendered
+--- PASS: TestThemeDropdownRendered (0.00s)
+=== RUN   TestThemeDropdownTwoThemes
+--- PASS: TestThemeDropdownTwoThemes (0.00s)
+=== RUN   TestThemeDropdownSelectedMatchesCookie
+--- PASS: TestThemeDropdownSelectedMatchesCookie (0.00s)
+=== RUN   TestThemeSessionIndependence
+--- PASS: TestThemeSessionIndependence (0.00s)
+=== RUN   TestThemeCookieSurvivesSessionDeletion
+--- PASS: TestThemeCookieSurvivesSessionDeletion (0.00s)
+=== RUN   TestSetRequestCookiePreservesOtherCookies
+--- PASS: TestSetRequestCookiePreservesOtherCookies (0.00s)
+=== RUN   TestSetRequestCookieAddsWhenAbsent
+--- PASS: TestSetRequestCookieAddsWhenAbsent (0.00s)
+=== RUN   TestWheelOption_Add
+--- PASS: TestWheelOption_Add (0.00s)
+=== RUN   TestWheelOption_EmptyText
+--- PASS: TestWheelOption_EmptyText (0.00s)
+=== RUN   TestWheelOption_EmptyTextAfterTrim
+--- PASS: TestWheelOption_EmptyTextAfterTrim (0.00s)
+=== RUN   TestWheelOption_NegativeWeight
+--- PASS: TestWheelOption_NegativeWeight (0.00s)
+=== RUN   TestWheelOption_Remove
+--- PASS: TestWheelOption_Remove (0.00s)
+=== RUN   TestWheelOption_RemoveOutOfRange
+--- PASS: TestWheelOption_RemoveOutOfRange (0.00s)
+=== RUN   TestWheelOption_RemoveLast
+--- PASS: TestWheelOption_RemoveLast (0.00s)
+=== RUN   TestIndex_EightSlots
+--- PASS: TestIndex_EightSlots (0.00s)
+=== RUN   TestConcurrentWheelMutation
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60283: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60302: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60289: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60305: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60301: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60306: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60279: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60280: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60304: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60298: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60295: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60300: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60285: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60291: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60303: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60293: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+2026/07/26 12:41:55 wheel template execution error: write tcp 127.0.0.1:60257->127.0.0.1:60288: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.renderWheelFragment (handlers_wheel.go:101)
+--- PASS: TestConcurrentWheelMutation (0.03s)
+=== RUN   TestConcurrentReadWriteRace
+2026/07/26 12:41:55 template execution error: write tcp 127.0.0.1:60308->127.0.0.1:60319: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.setupRouter.homeHandler.func3 (handlers.go:130)
+2026/07/26 12:41:55 template execution error: write tcp 127.0.0.1:60308->127.0.0.1:60322: write: broken pipe
+2026/07/26 12:41:55 http: superfluous response.WriteHeader call from battle-bracket-wheels.setupRouter.homeHandler.func3 (handlers.go:130)
+--- PASS: TestConcurrentReadWriteRace (0.01s)
+=== RUN   TestWheelOption_BadWheelID
+=== RUN   TestWheelOption_BadWheelID/out_of_range_(999)
+=== RUN   TestWheelOption_BadWheelID/non-numeric_(abc)
+=== RUN   TestWheelOption_BadWheelID/negative_(-1)
+--- PASS: TestWheelOption_BadWheelID (0.00s)
+    --- PASS: TestWheelOption_BadWheelID/out_of_range_(999) (0.00s)
+    --- PASS: TestWheelOption_BadWheelID/non-numeric_(abc) (0.00s)
+    --- PASS: TestWheelOption_BadWheelID/negative_(-1) (0.00s)
+=== RUN   TestWheelOption_InvalidWeight
+=== RUN   TestWheelOption_InvalidWeight/non-numeric_(abc)
+=== RUN   TestWheelOption_InvalidWeight/NaN
+=== RUN   TestWheelOption_InvalidWeight/+Inf
+=== RUN   TestWheelOption_InvalidWeight/-Inf
+=== RUN   TestWheelOption_InvalidWeight/plain_Inf
+--- PASS: TestWheelOption_InvalidWeight (0.00s)
+    --- PASS: TestWheelOption_InvalidWeight/non-numeric_(abc) (0.00s)
+    --- PASS: TestWheelOption_InvalidWeight/NaN (0.00s)
+    --- PASS: TestWheelOption_InvalidWeight/+Inf (0.00s)
+    --- PASS: TestWheelOption_InvalidWeight/-Inf (0.00s)
+    --- PASS: TestWheelOption_InvalidWeight/plain_Inf (0.00s)
+=== RUN   TestWheelOption_WeightedSVG
+--- PASS: TestWheelOption_WeightedSVG (0.00s)
+=== RUN   TestWheelOption_NegativeIdx
+=== RUN   TestWheelOption_NegativeIdx/negative_index_(-1)
+=== RUN   TestWheelOption_NegativeIdx/non-numeric_index_(abc)
+--- PASS: TestWheelOption_NegativeIdx (0.00s)
+    --- PASS: TestWheelOption_NegativeIdx/negative_index_(-1) (0.00s)
+    --- PASS: TestWheelOption_NegativeIdx/non-numeric_index_(abc) (0.00s)
+=== RUN   TestHealthEndpoint
+--- PASS: TestHealthEndpoint (0.00s)
+=== RUN   TestHealthEndpointBareOK
+--- PASS: TestHealthEndpointBareOK (0.00s)
+=== RUN   TestLayoutRenders
+--- PASS: TestLayoutRenders (0.00s)
+=== RUN   TestPortFromEnv
+--- PASS: TestPortFromEnv (0.00s)
+=== RUN   TestPortDefault
+--- PASS: TestPortDefault (0.00s)
+=== RUN   TestSpaceCSS_SizeAndKeyframes
+--- PASS: TestSpaceCSS_SizeAndKeyframes (0.00s)
+=== RUN   TestSpaceCSS_ResponsiveBreakpoint
+--- PASS: TestSpaceCSS_ResponsiveBreakpoint (0.00s)
+=== RUN   TestSpaceCSS_MovieHeroRule
+--- PASS: TestSpaceCSS_MovieHeroRule (0.00s)
+=== RUN   TestSpaceCSS_NoImageURLs
+--- PASS: TestSpaceCSS_NoImageURLs (0.00s)
+=== RUN   TestRenderYAML_DeployConfig
+--- PASS: TestRenderYAML_DeployConfig (0.00s)
+=== RUN   TestRenderYAML_BuildCommand
+--- PASS: TestRenderYAML_BuildCommand (0.00s)
+=== RUN   TestSpaceCSS_RevealTransitionPlacement
+--- PASS: TestSpaceCSS_RevealTransitionPlacement (0.00s)
+=== RUN   TestEmbedStaticAssets
+--- PASS: TestEmbedStaticAssets (0.00s)
+=== RUN   TestStaticCSSServedViaHTTP
+--- PASS: TestStaticCSSServedViaHTTP (0.01s)
+=== RUN   TestServerBindsZeroZeroZeroZero
+--- PASS: TestServerBindsZeroZeroZeroZero (0.00s)
+=== RUN   TestY2K_ExistsAndNonEmpty
+--- PASS: TestY2K_ExistsAndNonEmpty (0.00s)
+=== RUN   TestY2K_TokenParity
+--- PASS: TestY2K_TokenParity (0.00s)
+=== RUN   TestY2K_TokenValuesDiffer
+--- PASS: TestY2K_TokenValuesDiffer (0.00s)
+=== RUN   TestY2K_Keyframes
+--- PASS: TestY2K_Keyframes (0.00s)
+=== RUN   TestY2K_Breakpoints
+--- PASS: TestY2K_Breakpoints (0.00s)
+=== RUN   TestY2K_SelectorSurface
+--- PASS: TestY2K_SelectorSurface (0.00s)
+=== RUN   TestY2K_NoURL
+--- PASS: TestY2K_NoURL (0.00s)
+=== RUN   TestY2K_BattlePointerLeft
+--- PASS: TestY2K_BattlePointerLeft (0.00s)
+=== RUN   TestY2K_Registry
+--- PASS: TestY2K_Registry (0.00s)
+=== RUN   TestY2K_HTTPServesCSS
+--- PASS: TestY2K_HTTPServesCSS (0.00s)
+=== RUN   TestY2K_ThemeLinkRendered
+--- PASS: TestY2K_ThemeLinkRendered (0.00s)
+=== RUN   TestRenderYamlExists
+--- PASS: TestRenderYamlExists (0.00s)
+=== RUN   TestRenderYamlStartCommand
+--- PASS: TestRenderYamlStartCommand (0.00s)
+=== RUN   TestRenderYamlPort
+--- PASS: TestRenderYamlPort (0.00s)
+=== RUN   TestRenderYamlServiceType
+--- PASS: TestRenderYamlServiceType (0.00s)
+=== RUN   TestCreateSession
+--- PASS: TestCreateSession (0.00s)
+=== RUN   TestGetSession
+--- PASS: TestGetSession (0.00s)
+=== RUN   TestSessionCookieRoundtrip
+--- PASS: TestSessionCookieRoundtrip (0.00s)
+=== RUN   TestConcurrentSessionCreation
+--- PASS: TestConcurrentSessionCreation (0.00s)
+=== RUN   TestSetCookieHelper
+--- PASS: TestSetCookieHelper (0.00s)
+=== RUN   TestGetCookieHelper
+--- PASS: TestGetCookieHelper (0.00s)
+PASS
+ok  	battle-bracket-wheels	1.444s
+=== RUN   TestResolveBattle_AWins
+--- PASS: TestResolveBattle_AWins (0.00s)
+=== RUN   TestResolveBattle_BWins
+--- PASS: TestResolveBattle_BWins (0.00s)
+=== RUN   TestResolveBattle_Tiebreaker
+--- PASS: TestResolveBattle_Tiebreaker (0.00s)
+=== RUN   TestResolveBattle_TiebreakerNoBias
+--- PASS: TestResolveBattle_TiebreakerNoBias (0.00s)
+=== RUN   TestResolveBattle_RollRangeZero
+--- PASS: TestResolveBattle_RollRangeZero (0.00s)
+=== RUN   TestResolveBattle_RollRange101
+--- PASS: TestResolveBattle_RollRange101 (0.00s)
+=== RUN   TestResolveBattle_Exhausted
+--- PASS: TestResolveBattle_Exhausted (0.00s)
+=== RUN   TestResolveBattle_UsesInjectedRollFunc
+--- PASS: TestResolveBattle_UsesInjectedRollFunc (0.00s)
+=== RUN   TestAbsorbOption_NewOption
+--- PASS: TestAbsorbOption_NewOption (0.00s)
+=== RUN   TestAbsorbOption_Dedupe
+--- PASS: TestAbsorbOption_Dedupe (0.00s)
+=== RUN   TestAbsorbOption_WeightPreserved
+--- PASS: TestAbsorbOption_WeightPreserved (0.00s)
+PASS
+ok  	battle-bracket-wheels/internal/battle	1.590s
+=== RUN   TestApplyBattleResult_QF1
+--- PASS: TestApplyBattleResult_QF1 (0.00s)
+=== RUN   TestApplyBattleResult_AbsorbedNotOriginal
+--- PASS: TestApplyBattleResult_AbsorbedNotOriginal (0.00s)
+=== RUN   TestApplyBattleResult_Dedupe
+--- PASS: TestApplyBattleResult_Dedupe (0.00s)
+=== RUN   TestApplyBattleResult_PositionalMapping
+--- PASS: TestApplyBattleResult_PositionalMapping (0.00s)
+=== RUN   TestApplyBattleResult_MovieIsLandedSlice
+--- PASS: TestApplyBattleResult_MovieIsLandedSlice (0.00s)
+=== RUN   TestApplyBattleResult_DependencyGate
+--- PASS: TestApplyBattleResult_DependencyGate (0.00s)
+=== RUN   TestApplyBattleResult_IdempotencyGate
+--- PASS: TestApplyBattleResult_IdempotencyGate (0.00s)
+=== RUN   TestApplyBattleResult_FinalBeforeSFs
+--- PASS: TestApplyBattleResult_FinalBeforeSFs (0.00s)
+=== RUN   TestBracketProgression_FullFlow
+--- PASS: TestBracketProgression_FullFlow (0.00s)
+=== RUN   TestSlotMapping
+--- PASS: TestSlotMapping (0.00s)
+=== RUN   TestApplyBattleResult_UnknownMatch
+--- PASS: TestApplyBattleResult_UnknownMatch (0.00s)
+PASS
+ok  	battle-bracket-wheels/internal/bracket	1.493s
+=== RUN   TestParse_Tolerance
+=== RUN   TestParse_Tolerance/tabs_as_delimiters
+=== RUN   TestParse_Tolerance/bullets_stripped_(unicode_bullet)
+=== RUN   TestParse_Tolerance/dash_bullets_stripped
+=== RUN   TestParse_Tolerance/star_bullets_stripped
+=== RUN   TestParse_Tolerance/numbering_N._stripped
+=== RUN   TestParse_Tolerance/parenthesized_numbering_(N)_stripped
+=== RUN   TestParse_Tolerance/mixed_delimiters_in_one_input
+=== RUN   TestParse_Tolerance/blank_line_between_entries_skipped
+=== RUN   TestParse_Tolerance/multiple_consecutive_blank_lines_skipped
+=== RUN   TestParse_Tolerance/duplicates_preserved_(no_dedup)
+=== RUN   TestParse_Tolerance/leading_and_trailing_whitespace_trimmed
+=== RUN   TestParse_Tolerance/internal_spaces_preserved
+=== RUN   TestParse_Tolerance/carriage_return_newline_normalized
+=== RUN   TestParse_Tolerance/trailing_delimiters_produce_no_empty_entry
+=== RUN   TestParse_Tolerance/empty_string_yields_no_entries
+=== RUN   TestParse_Tolerance/whitespace-only_yields_no_entries
+=== RUN   TestParse_Tolerance/emoji_entry_preserved
+=== RUN   TestParse_Tolerance/long_entry_preserved
+=== RUN   TestParse_Tolerance/decimal_number_not_mangled_by_numbering_strip
+=== RUN   TestParse_Tolerance/dash-leading_text_not_mangled_by_bullet_strip
+--- PASS: TestParse_Tolerance (0.00s)
+    --- PASS: TestParse_Tolerance/tabs_as_delimiters (0.00s)
+    --- PASS: TestParse_Tolerance/bullets_stripped_(unicode_bullet) (0.00s)
+    --- PASS: TestParse_Tolerance/dash_bullets_stripped (0.00s)
+    --- PASS: TestParse_Tolerance/star_bullets_stripped (0.00s)
+    --- PASS: TestParse_Tolerance/numbering_N._stripped (0.00s)
+    --- PASS: TestParse_Tolerance/parenthesized_numbering_(N)_stripped (0.00s)
+    --- PASS: TestParse_Tolerance/mixed_delimiters_in_one_input (0.00s)
+    --- PASS: TestParse_Tolerance/blank_line_between_entries_skipped (0.00s)
+    --- PASS: TestParse_Tolerance/multiple_consecutive_blank_lines_skipped (0.00s)
+    --- PASS: TestParse_Tolerance/duplicates_preserved_(no_dedup) (0.00s)
+    --- PASS: TestParse_Tolerance/leading_and_trailing_whitespace_trimmed (0.00s)
+    --- PASS: TestParse_Tolerance/internal_spaces_preserved (0.00s)
+    --- PASS: TestParse_Tolerance/carriage_return_newline_normalized (0.00s)
+    --- PASS: TestParse_Tolerance/trailing_delimiters_produce_no_empty_entry (0.00s)
+    --- PASS: TestParse_Tolerance/empty_string_yields_no_entries (0.00s)
+    --- PASS: TestParse_Tolerance/whitespace-only_yields_no_entries (0.00s)
+    --- PASS: TestParse_Tolerance/emoji_entry_preserved (0.00s)
+    --- PASS: TestParse_Tolerance/long_entry_preserved (0.00s)
+    --- PASS: TestParse_Tolerance/decimal_number_not_mangled_by_numbering_strip (0.00s)
+    --- PASS: TestParse_Tolerance/dash-leading_text_not_mangled_by_bullet_strip (0.00s)
+=== RUN   TestParseAndDistribute_AlphaToIota
+--- PASS: TestParseAndDistribute_AlphaToIota (0.00s)
+=== RUN   TestParseAndDistribute_TooFewEntries
+=== RUN   TestParseAndDistribute_TooFewEntries/empty_string
+=== RUN   TestParseAndDistribute_TooFewEntries/whitespace-only
+=== RUN   TestParseAndDistribute_TooFewEntries/seven_items
+=== RUN   TestParseAndDistribute_TooFewEntries/single_item
+--- PASS: TestParseAndDistribute_TooFewEntries (0.00s)
+    --- PASS: TestParseAndDistribute_TooFewEntries/empty_string (0.00s)
+    --- PASS: TestParseAndDistribute_TooFewEntries/whitespace-only (0.00s)
+    --- PASS: TestParseAndDistribute_TooFewEntries/seven_items (0.00s)
+    --- PASS: TestParseAndDistribute_TooFewEntries/single_item (0.00s)
+=== RUN   TestParseAndDistribute_SneakyBlankLine
+--- PASS: TestParseAndDistribute_SneakyBlankLine (0.00s)
+=== RUN   TestParseAndDistribute_DuplicatesPreserved
+--- PASS: TestParseAndDistribute_DuplicatesPreserved (0.00s)
+=== RUN   TestParseAndDistribute_ExactlyEight
+--- PASS: TestParseAndDistribute_ExactlyEight (0.00s)
+=== RUN   TestParseAndDistribute_CyclicOverflow
+--- PASS: TestParseAndDistribute_CyclicOverflow (0.00s)
+=== RUN   TestParseAndDistribute_EvennessProperty
+=== RUN   TestParseAndDistribute_EvennessProperty/n=8
+=== RUN   TestParseAndDistribute_EvennessProperty/n=9
+=== RUN   TestParseAndDistribute_EvennessProperty/n=10
+=== RUN   TestParseAndDistribute_EvennessProperty/n=11
+=== RUN   TestParseAndDistribute_EvennessProperty/n=12
+=== RUN   TestParseAndDistribute_EvennessProperty/n=13
+=== RUN   TestParseAndDistribute_EvennessProperty/n=14
+=== RUN   TestParseAndDistribute_EvennessProperty/n=15
+=== RUN   TestParseAndDistribute_EvennessProperty/n=16
+=== RUN   TestParseAndDistribute_EvennessProperty/n=17
+=== RUN   TestParseAndDistribute_EvennessProperty/n=18
+=== RUN   TestParseAndDistribute_EvennessProperty/n=19
+=== RUN   TestParseAndDistribute_EvennessProperty/n=20
+=== RUN   TestParseAndDistribute_EvennessProperty/n=21
+=== RUN   TestParseAndDistribute_EvennessProperty/n=22
+=== RUN   TestParseAndDistribute_EvennessProperty/n=23
+=== RUN   TestParseAndDistribute_EvennessProperty/n=24
+=== RUN   TestParseAndDistribute_EvennessProperty/n=25
+--- PASS: TestParseAndDistribute_EvennessProperty (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=8 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=9 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=10 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=11 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=12 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=13 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=14 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=15 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=16 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=17 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=18 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=19 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=20 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=21 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=22 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=23 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=24 (0.00s)
+    --- PASS: TestParseAndDistribute_EvennessProperty/n=25 (0.00s)
+=== RUN   TestParseAndDistribute_AllWeightsNil
+--- PASS: TestParseAndDistribute_AllWeightsNil (0.00s)
+=== RUN   TestParseAndDistribute_WheelIDs
+--- PASS: TestParseAndDistribute_WheelIDs (0.00s)
+=== RUN   TestParseAndDistribute_PureNoMutation
+--- PASS: TestParseAndDistribute_PureNoMutation (0.00s)
+PASS
+ok  	battle-bracket-wheels/internal/populate	1.292s
+=== RUN   TestThemeRegistryRegisterAndResolve
+--- PASS: TestThemeRegistryRegisterAndResolve (0.00s)
+=== RUN   TestThemeRegistryUnknownKey
+--- PASS: TestThemeRegistryUnknownKey (0.00s)
+=== RUN   TestThemeRegistryPathTraversal
+--- PASS: TestThemeRegistryPathTraversal (0.00s)
+=== RUN   TestThemeRegistryDefault
+--- PASS: TestThemeRegistryDefault (0.00s)
+=== RUN   TestThemeRegistryDefaultEmpty
+--- PASS: TestThemeRegistryDefaultEmpty (0.00s)
+=== RUN   TestThemeRegistryNames
+--- PASS: TestThemeRegistryNames (0.00s)
+=== RUN   TestThemeRegistryNamesPreservesOrder
+--- PASS: TestThemeRegistryNamesPreservesOrder (0.00s)
+=== RUN   TestThemeRegistryDuplicateRegister
+--- PASS: TestThemeRegistryDuplicateRegister (0.00s)
+=== RUN   TestThemeRegistryThemes
+--- PASS: TestThemeRegistryThemes (0.00s)
+=== RUN   TestThemeRegistryConcurrentResolve
+--- PASS: TestThemeRegistryConcurrentResolve (0.00s)
+PASS
+ok  	battle-bracket-wheels/internal/theme	1.396s
+=== RUN   TestComputeArcAngles
+--- PASS: TestComputeArcAngles (0.00s)
+=== RUN   TestComputeArcAnglesLargeArc
+--- PASS: TestComputeArcAnglesLargeArc (0.00s)
+=== RUN   TestSVGArcSum
+--- PASS: TestSVGArcSum (0.00s)
+=== RUN   TestSingleOptionFullCircle
+--- PASS: TestSingleOptionFullCircle (0.00s)
+=== RUN   TestArcPath
+--- PASS: TestArcPath (0.00s)
+=== RUN   TestArcPathPoints
+--- PASS: TestArcPathPoints (0.00s)
+=== RUN   TestNormalizeWeights
+=== RUN   TestNormalizeWeights/empty_options_returns_error
+=== RUN   TestNormalizeWeights/single_nil_weight_returns_1.0
+=== RUN   TestNormalizeWeights/three_nil_weights_equal_split
+=== RUN   TestNormalizeWeights/mixed_nil_and_set_weights
+=== RUN   TestNormalizeWeights/mixed_nil_and_small_weight
+=== RUN   TestNormalizeWeights/all_set_weights
+=== RUN   TestNormalizeWeights/all_zero_weights_fallback_to_equal_split
+--- PASS: TestNormalizeWeights (0.00s)
+    --- PASS: TestNormalizeWeights/empty_options_returns_error (0.00s)
+    --- PASS: TestNormalizeWeights/single_nil_weight_returns_1.0 (0.00s)
+    --- PASS: TestNormalizeWeights/three_nil_weights_equal_split (0.00s)
+    --- PASS: TestNormalizeWeights/mixed_nil_and_set_weights (0.00s)
+    --- PASS: TestNormalizeWeights/mixed_nil_and_small_weight (0.00s)
+    --- PASS: TestNormalizeWeights/all_set_weights (0.00s)
+    --- PASS: TestNormalizeWeights/all_zero_weights_fallback_to_equal_split (0.00s)
+=== RUN   TestNormalizeNoMutation
+--- PASS: TestNormalizeNoMutation (0.00s)
+=== RUN   TestAddOption
+--- PASS: TestAddOption (0.00s)
+=== RUN   TestAddOptionWithWeight
+--- PASS: TestAddOptionWithWeight (0.00s)
+=== RUN   TestRemoveOption
+--- PASS: TestRemoveOption (0.00s)
+=== RUN   TestRemoveOptionBadIndex
+--- PASS: TestRemoveOptionBadIndex (0.00s)
+=== RUN   TestSpinDeterminism
+--- PASS: TestSpinDeterminism (0.00s)
+=== RUN   TestSpinDistribution
+--- PASS: TestSpinDistribution (0.01s)
+=== RUN   TestSpinUniformCoverage
+--- PASS: TestSpinUniformCoverage (0.00s)
+=== RUN   TestSpinSingleOption
+--- PASS: TestSpinSingleOption (0.00s)
+=== RUN   TestSpinAngleCorrectness
+--- PASS: TestSpinAngleCorrectness (0.00s)
+=== RUN   TestSpinZeroWeightExclusion
+--- PASS: TestSpinZeroWeightExclusion (0.00s)
+=== RUN   TestSpinEmptyWheel
+--- PASS: TestSpinEmptyWheel (0.00s)
+=== RUN   TestSpinAllZeroWeight
+--- PASS: TestSpinAllZeroWeight (0.00s)
+=== RUN   TestComputeTargetAngle_SingleOption
+--- PASS: TestComputeTargetAngle_SingleOption (0.00s)
+=== RUN   TestComputeTargetAngle_ThreeEqual
+--- PASS: TestComputeTargetAngle_ThreeEqual (0.00s)
+=== RUN   TestComputeTargetAngle_TwoEqual
+--- PASS: TestComputeTargetAngle_TwoEqual (0.00s)
+=== RUN   TestComputeTargetAngle_Weighted
+--- PASS: TestComputeTargetAngle_Weighted (0.00s)
+=== RUN   TestComputeTargetAngle_FourEqual
+--- PASS: TestComputeTargetAngle_FourEqual (0.00s)
+PASS
+ok  	battle-bracket-wheels/internal/wheel	1.707s

@@ -1,0 +1,857 @@
+/* Y2K Theme — Battle Bracket Wheels
+   =======================================
+   CSS-only grid pattern, bubble panels, chrome gradients.
+   Hot pink, electric blue, lime green, chrome silver.
+   Total: ~8KB, zero images, no JS.
+   ======================================= */
+
+/* ===== Animation Keyframes ===== */
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.9; }
+}
+
+@keyframes twinkle-slow {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes meteor {
+    0% { left: -120px; top: -20px; opacity: 1; }
+    100% { left: 110%; top: 110%; opacity: 0; }
+}
+
+@keyframes cosmic-glow {
+    0%, 100% { box-shadow: 0 0 15px rgba(0, 191, 255, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(255, 105, 180, 0.5); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes border-glow {
+    0%, 100% { border-color: #00bfff; }
+    33% { border-color: #ff69b4; }
+    66% { border-color: #ccff00; }
+}
+
+/* ===== CSS Custom Properties (Theme Tokens) ===== */
+
+:root {
+    --space-deep: #1a0033;
+    --space-mid: #2d0052;
+    --space-light: #4d0080;
+    --star-white: #c0c0c0;
+    --star-blue: #00bfff;
+    --star-gold: #ff69b4;
+    --nebula-purple: #00bfff;
+    --cosmic-teal: #ccff00;
+    --neon-cyan: #00bfff;
+    --neon-magenta: #ff69b4;
+    --neon-gold: #ccff00;
+    --bracket-border: 2px solid #c0c0c0;
+    --breakpoint-tablet: 1024px;
+    --cosmic-bg: linear-gradient(135deg, #1a0033, #2d0052);
+    --cosmic-border: 2px solid #c0c0c0;
+    --cosmic-shadow: 0 4px 16px rgba(0, 191, 255, 0.4);
+    --glass-blur: blur(4px);
+    --neon-text-cyan: 2px 2px 0 #00bfff;
+    --neon-text-magenta: 2px 2px 0 #ff69b4;
+    --neon-text-gold: 2px 2px 0 #ccff00;
+}
+
+/* ===== Base Styles ===== */
+
+body {
+    margin: 0;
+    padding: 0;
+    background: var(--space-deep);
+    color: #e0e0ff;
+    font-family: 'Courier New', 'Courier', monospace;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* ===== CSS-Only Grid Pattern ===== */
+/* Layer 1: Repeating linear gradient grid — Y2K digital aesthetic */
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 39px,
+            rgba(0, 191, 255, 0.08) 39px,
+            rgba(0, 191, 255, 0.08) 40px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 39px,
+            rgba(255, 105, 180, 0.06) 39px,
+            rgba(255, 105, 180, 0.06) 40px
+        );
+    background-size: 40px 40px;
+    animation: twinkle 4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Layer 2: Glossy gradient sweep */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 79px,
+            rgba(204, 255, 0, 0.03) 79px,
+            rgba(204, 255, 0, 0.03) 80px
+        );
+    animation: twinkle-slow 6s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ===== Cosmic Panels (Bubble/Glossy) ===== */
+
+.container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.cosmic-panel {
+    background: var(--cosmic-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--cosmic-border);
+    border-radius: 20px;
+    box-shadow: var(--cosmic-shadow);
+    padding: 1.5rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cosmic-panel:hover {
+    border-color: #ff69b4;
+    box-shadow: 0 4px 16px rgba(0, 191, 255, 0.4), 0 0 20px rgba(255, 105, 180, 0.2);
+}
+
+/* ===== Chrome Text Accents ===== */
+
+h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: var(--neon-gold);
+    text-shadow: var(--neon-text-gold);
+    margin-bottom: 2rem;
+}
+
+.neon-cyan {
+    color: var(--neon-cyan);
+    text-shadow: var(--neon-text-cyan);
+}
+
+.neon-magenta {
+    color: var(--neon-magenta);
+    text-shadow: var(--neon-text-magenta);
+}
+
+.neon-gold {
+    color: var(--neon-gold);
+    text-shadow: var(--neon-text-gold);
+}
+
+/* ===== Hero Movie Result ===== */
+
+.movie-hero {
+    font-size: 2rem;
+    color: var(--neon-gold);
+    text-shadow: var(--neon-text-gold);
+    text-align: center;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.movie-result {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(204, 255, 0, 0.08);
+    border: 1px solid rgba(204, 255, 0, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(204, 255, 0, 0.1);
+}
+
+/* ===== Themed Battle Buttons (Chrome Pill) ===== */
+
+.neon-button {
+    background: linear-gradient(135deg, #c0c0c0, #e0e0e0, #c0c0c0);
+    border: 2px solid #00bfff;
+    color: #1a0033;
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 12px rgba(0, 191, 255, 0.3);
+    transition: all 0.3s ease;
+    animation: border-glow 3s ease-in-out infinite;
+}
+
+.neon-button:hover {
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.5), 0 0 40px rgba(255, 105, 180, 0.3);
+    transform: translateY(-2px) scale(1.05);
+    border-color: #ff69b4;
+    background: linear-gradient(135deg, #00bfff, #ff69b4, #ccff00);
+    color: #fff;
+}
+
+.neon-button:disabled,
+.battle-btn:disabled {
+    background: rgba(60, 60, 80, 0.5);
+    border-color: rgba(100, 100, 120, 0.3);
+    box-shadow: none;
+    color: rgba(150, 150, 170, 0.5);
+    cursor: not-allowed;
+    animation: none;
+    transform: none;
+}
+
+.neon-button:disabled:hover,
+.battle-btn:disabled:hover {
+    box-shadow: none;
+    transform: none;
+    background: rgba(60, 60, 80, 0.5);
+}
+
+/* Spin button (slot form button) */
+.slot form button {
+    background: linear-gradient(135deg, rgba(0, 191, 255, 0.4), rgba(204, 255, 0, 0.4));
+    border: 1px solid rgba(0, 191, 255, 0.4);
+    color: var(--cosmic-teal);
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    transition: all 0.25s ease;
+}
+
+.slot form button:hover {
+    background: linear-gradient(135deg, rgba(0, 191, 255, 0.6), rgba(204, 255, 0, 0.6));
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
+    border-color: var(--neon-cyan);
+    color: #fff;
+}
+
+.slot form button.add-option {
+    background: linear-gradient(135deg, rgba(0, 191, 255, 0.3), rgba(204, 255, 0, 0.3));
+    border-color: rgba(0, 191, 255, 0.3);
+}
+
+/* ===== Bracket Layout (CSS Grid) ===== */
+
+.bracket {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--cosmic-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--cosmic-border);
+    border-radius: 20px;
+    box-shadow: var(--cosmic-shadow);
+    animation: cosmic-glow 4s ease-in-out infinite;
+}
+
+.bracket-sf,
+.bracket-final {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 1.5rem;
+    margin-top: 1.25rem;
+    background: var(--cosmic-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--cosmic-border);
+    border-radius: 20px;
+    box-shadow: var(--cosmic-shadow);
+}
+
+.bracket-final {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* ===== Bracket Connectors ===== */
+
+.bracket-connector {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00bfff, #ff69b4, #ccff00, transparent);
+    box-shadow: 0 0 8px #00bfff, 0 0 15px rgba(255, 105, 180, 0.3);
+    border: none;
+    margin: 0.75rem auto;
+    max-width: 80%;
+    opacity: 0.7;
+    border-radius: 2px;
+}
+
+/* ===== Themed Slots (Wheel Containers) ===== */
+
+.slot {
+    background: rgba(26, 0, 51, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 2px solid #c0c0c0;
+    border-radius: 16px;
+    padding: 1.25rem;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: var(--star-blue);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 191, 255, 0.2);
+}
+
+.slot:hover {
+    border-color: #ff69b4;
+    box-shadow: 0 0 20px rgba(255, 105, 180, 0.3);
+    transform: translateY(-2px);
+}
+
+.slot svg {
+    width: 100%;
+    height: auto;
+    max-height: 150px;
+}
+
+.slot form {
+    display: flex;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.slot form input {
+    background: rgba(26, 0, 51, 0.9);
+    border: 1px solid rgba(0, 191, 255, 0.3);
+    color: #e0e0ff;
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    flex: 1;
+    min-width: 60px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.slot form input:focus {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 8px rgba(0, 191, 255, 0.3);
+    outline: none;
+}
+
+.slot ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0;
+    font-size: 0.75rem;
+    width: 100%;
+}
+
+.slot ul li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.2rem 0;
+    border-bottom: 1px solid rgba(0, 191, 255, 0.1);
+}
+
+.slot ul li button {
+    background: none;
+    border: none;
+    color: #ff69b4;
+    cursor: pointer;
+    padding: 0 0.25rem;
+    font-size: 0.85rem;
+    transition: color 0.2s ease;
+}
+
+.slot ul li button:hover {
+    color: #ff1493;
+    text-shadow: 0 0 8px rgba(255, 20, 147, 0.5);
+}
+
+/* ===== Wheel Group Rotation ===== */
+
+.wheel-group {
+    transform-origin: 100px 100px;
+    transform-box: view-box;
+}
+
+/* ===== Themed Wheel SVG Slices ===== */
+
+.wheel-slice {
+    cursor: pointer;
+    stroke: var(--space-deep);
+    stroke-width: 1;
+    transition: opacity 0.3s ease;
+}
+
+.wheel-slice:nth-child(odd) {
+    fill: rgba(0, 191, 255, 0.5);
+}
+
+.wheel-slice:nth-child(even) {
+    fill: rgba(255, 105, 180, 0.4);
+}
+
+/* Y2K-colored arc variations based on option index */
+.wheel-slice:nth-child(4n+1) {
+    fill: rgba(0, 191, 255, 0.45);
+}
+.wheel-slice:nth-child(4n+2) {
+    fill: rgba(255, 105, 180, 0.45);
+}
+.wheel-slice:nth-child(4n+3) {
+    fill: rgba(204, 255, 0, 0.35);
+}
+.wheel-slice:nth-child(4n+4) {
+    fill: rgba(192, 192, 192, 0.35);
+}
+
+.wheel-slice:hover {
+    opacity: 0.85;
+    stroke: var(--neon-cyan);
+    stroke-width: 2;
+}
+
+/* ===== Wheel Arc Text Labels ===== */
+
+.wheel-group text {
+    pointer-events: none;
+    text-shadow: 1px 1px 0 #1a0033, 0 0 4px rgba(0, 0, 0, 0.9);
+    user-select: none;
+}
+
+/* ===== Placeholder Text ===== */
+
+.slot-placeholder {
+    color: #6666aa;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* ===== Footer ===== */
+
+footer {
+    text-align: center;
+    margin-top: 2rem;
+    color: #6666aa;
+    font-size: 0.8rem;
+}
+
+footer p {
+    margin: 0;
+    padding: 0.5rem;
+}
+
+/* ===== Pending Reveal (results hidden during spin) ===== */
+
+.pending-reveal {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.revealed {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s ease-in, visibility 0.5s ease-in;
+}
+
+/* ===== Center Display (advancing text) ===== */
+
+.center-display {
+    text-align: center;
+    margin: 1rem auto;
+    padding: 0.75rem 1.5rem;
+    max-width: 500px;
+}
+
+.center-display .round-label {
+    font-size: 0.85rem;
+    color: var(--star-blue);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0 0 0.25rem;
+    font-family: 'Courier New', monospace;
+}
+
+.center-display .advancing-option {
+    font-size: 1.5rem;
+    color: var(--neon-gold);
+    text-shadow: var(--neon-text-gold);
+    margin: 0;
+    font-weight: bold;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.center-display .advancing-options {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.center-display .advancing-options li {
+    background: rgba(204, 255, 0, 0.08);
+    border: 1px solid rgba(204, 255, 0, 0.25);
+    border-radius: 8px;
+    padding: 0.35rem 0.8rem;
+    font-size: 1.1rem;
+    color: var(--neon-gold);
+    text-shadow: var(--neon-text-gold);
+    font-weight: bold;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* ===== Match Result (Y2K-themed win/lose visual) ===== */
+
+.match-result {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--cosmic-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--cosmic-border);
+    border-radius: 16px;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    box-shadow: var(--cosmic-shadow);
+    transition: border-color 0.3s ease;
+    overflow: hidden;
+}
+
+.match-result:hover {
+    border-color: #ff69b4;
+}
+
+/* Meteor streak pseudo-elements — wired from @keyframes meteor */
+.match-result::before,
+.match-result::after {
+    content: '';
+    position: absolute;
+    left: -120px;
+    top: -20px;
+    width: 120px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, rgba(0, 191, 255, 0.7) 55%, #ccff00 100%);
+    border-radius: 2px;
+    box-shadow: 0 0 10px #00bfff, 0 0 20px #00bfff, 0 0 34px rgba(255, 105, 180, 0.6);
+    transform: rotate(-20deg);
+    animation: meteor 3s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.95;
+}
+
+.match-result::after {
+    animation-delay: 1.5s;
+}
+
+/* Winner — lime green glow */
+.match-winner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    color: var(--neon-gold);
+    text-shadow: var(--neon-text-gold);
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+    width: 100%;
+}
+
+.match-winner-icon {
+    color: var(--neon-gold);
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 4px var(--neon-gold));
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Loser — dimmed/muted */
+.match-loser {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    color: rgba(150, 150, 170, 0.55);
+    font-size: 0.8rem;
+    width: 100%;
+}
+
+.match-loser-icon {
+    color: rgba(150, 150, 170, 0.35);
+    flex-shrink: 0;
+}
+
+/* Ties text */
+.match-ties {
+    position: relative;
+    z-index: 1;
+    margin-top: 0.3rem;
+    font-size: 0.75rem;
+    color: var(--star-blue);
+    font-style: italic;
+}
+
+/* Battle pointer — decorative arrow indicating result flow to next round */
+.battle-pointer {
+    color: var(--neon-cyan);
+    filter: drop-shadow(0 0 6px var(--neon-magenta));
+    display: block;
+    margin: 0.25rem auto 0;
+    width: 20px;
+    height: 20px;
+}
+
+/* Direction flip: left-winner -> pointer points left via scaleX(-1).
+   Right-winner -> no class -> identity (points right, default polygon). */
+.battle-pointer.pointer-left {
+    transform: scaleX(-1);
+}
+
+/* Winner and loser labels */
+.winner-label,
+.loser-label {
+    font-weight: 600;
+}
+
+.winner-label {
+    color: var(--neon-gold);
+}
+
+.loser-label {
+    color: rgba(150, 150, 170, 0.5);
+}
+
+/* Center cell: stacks the battle button and match result, centered between
+   the competing wheels. On the 4-column desktop grid it spans the two center
+   tracks (cols 2-3) so it sits between the left and right wheels. At reduced-
+   column breakpoints it auto-places naturally. */
+.match-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+@media (min-width: 1025px) {
+    .bracket .match-center,
+    .bracket-sf .match-center {
+        grid-column: 2 / 4;
+    }
+    .bracket-final .match-center {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ===== Responsive Breakpoints ===== */
+
+/* Tablet: stack bracket into 2 columns, condense spacing */
+@media (max-width: 1024px) {
+    .container {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .bracket {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .bracket-sf {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .bracket-final {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .slot {
+        padding: 0.75rem;
+        min-height: 80px;
+        font-size: 0.95rem;
+    }
+
+    .slot svg {
+        max-height: 100px;
+    }
+
+    .movie-hero {
+        font-size: 1.5rem;
+    }
+
+    .bracket-connector {
+        max-width: 90%;
+        margin: 0.5rem auto;
+    }
+
+    .neon-button {
+        font-size: 0.85rem;
+        padding: 0.4rem 1rem;
+    }
+
+    .match-result {
+        padding: 0.65rem 0.85rem;
+        font-size: 0.8rem;
+    }
+
+    .match-winner {
+        font-size: 0.85rem;
+    }
+
+    .match-loser {
+        font-size: 0.75rem;
+    }
+}
+
+/* Mobile: full stack */
+@media (max-width: 640px) {
+    .container {
+        padding: 0.75rem;
+    }
+
+    h1 {
+        font-size: 1.4rem;
+    }
+
+    .bracket {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .bracket-sf {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .bracket-final {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .slot {
+        padding: 0.5rem;
+        min-height: 60px;
+        font-size: 0.85rem;
+    }
+
+    .slot svg {
+        max-height: 80px;
+    }
+
+    .movie-hero {
+        font-size: 1.25rem;
+    }
+
+    .match-result {
+        padding: 0.5rem 0.65rem;
+        font-size: 0.75rem;
+    }
+
+    .match-winner {
+        font-size: 0.8rem;
+        gap: 0.3rem;
+    }
+
+    .match-winner-icon {
+        width: 14px;
+        height: 14px;
+    }
+
+    .match-loser {
+        font-size: 0.7rem;
+        gap: 0.3rem;
+    }
+
+    .match-loser-icon {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+/* Theme selector dropdown — scoped styles */
+.theme-selector {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+}
+
+.theme-selector label {
+    color: #c0c0ff;
+    font-size: 0.9rem;
+}
+
+.theme-selector select {
+    background: rgba(26, 0, 51, 0.9);
+    color: #e0e0ff;
+    border: 1px solid rgba(0, 191, 255, 0.5);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.theme-selector select:focus {
+    outline: 2px solid rgba(0, 191, 255, 0.8);
+}

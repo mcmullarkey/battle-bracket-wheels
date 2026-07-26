@@ -1,0 +1,26 @@
+=== E2E Evidence for Issue #39 — Y2K Theme ===
+
+=== Build ===
+go build: OK
+
+=== GET /static/css/y2k.css ===
+HTTP 200 Content-Type: text/css; charset=utf-8
+
+=== GET / with bbw_theme=y2k (link tag) ===
+href="/static/css/y2k.css"
+
+=== GET / (default theme — space) ===
+href="/static/css/space.css"
+
+=== Theme dropdown options ===
+<option value="space"
+<option value="y2k"
+
+=== y2k.css structural summary ===
+Size:    18832 bytes
+Custom properties in :root: 20
+@keyframes: 7
+@media: 3
+url() references: 0
+0
+.battle-pointer.pointer-left: 1
