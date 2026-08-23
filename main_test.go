@@ -41,9 +41,9 @@ func testTemplate(t *testing.T) *template.Template {
 	return tmpl
 }
 
-// testRegistry creates a registry with the "space", "y2k", and "nautical"
-// themes registered, mirroring production main(). Used by tests that need a
-// valid registry but do not test theme-specific behavior.
+// testRegistry creates a registry with the "space", "y2k", "nautical", and
+// "cage" themes registered, mirroring production main(). Used by tests that
+// need a valid registry but do not test theme-specific behavior.
 func testRegistry(t *testing.T) *theme.Registry {
 	t.Helper()
 	r := theme.NewRegistry()
@@ -55,6 +55,9 @@ func testRegistry(t *testing.T) *theme.Registry {
 	}
 	if err := r.Register("nautical", "Nautical Nightmares", "/static/css/nautical.css"); err != nil {
 		t.Fatalf("testRegistry Register nautical: %v", err)
+	}
+	if err := r.Register("cage", "Nic Cage", "/static/css/cage.css"); err != nil {
+		t.Fatalf("testRegistry Register cage: %v", err)
 	}
 	return r
 }
