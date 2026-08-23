@@ -21,8 +21,8 @@
 }
 
 @keyframes seal-glow {
-    0%, 100% { box-shadow: 0 0 15px rgba(201, 162, 39, 0.3); }
-    50% { box-shadow: 0 0 30px rgba(179, 36, 36, 0.45); }
+    0%, 100% { box-shadow: 0 0 12px rgba(201, 162, 39, 0.25); }
+    50% { box-shadow: 0 0 20px rgba(179, 36, 36, 0.25); }
 }
 
 @keyframes pulse {
@@ -75,8 +75,8 @@ body {
        dimmed by a sepia gradient so foreground text stays legible
        while both images remain visible. */
     background:
-        linear-gradient(rgba(26, 16, 5, 0.5), rgba(26, 16, 5, 0.68)),
-        url("/static/img/cage-declaration.jpg") center top / cover no-repeat fixed #221607;
+        linear-gradient(rgba(26, 16, 5, 0.32), rgba(26, 16, 5, 0.55)),
+        url("/static/img/cage-declaration.jpg") center top / 100% auto no-repeat fixed #221607;
     color: var(--parchment);
     font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', serif;
     min-height: 100vh;
@@ -134,8 +134,12 @@ h1 {
     text-shadow:
         0 0 8px rgba(201, 162, 39, 0.6),
         2px 2px 0 rgba(34, 22, 7, 0.9);
+    /* Plate keeps the title from fighting the giant "IN CONGRESS"
+       lettering in the backdrop. */
+    background: rgba(34, 22, 7, 0.97);
+    border-radius: 8px;
+    padding: 10px 0 12px;
     border-bottom: 3px double var(--gold-leaf);
-    padding-bottom: 12px;
 }
 
 /* ===== Accent Text ===== */
@@ -199,8 +203,8 @@ h1 {
 .battle-btn:disabled,
 .battle-btn:disabled:hover {
     background: var(--panel-bg);
-    color: var(--parchment-aged);
-    border-color: rgba(201, 162, 39, 0.35);
+    color: var(--gold-leaf);
+    border-color: rgba(201, 162, 39, 0.6);
     box-shadow: none;
     cursor: not-allowed;
     transform: none;
@@ -248,9 +252,9 @@ h1 {
 .slot-placeholder {
     display: block;
     text-align: center;
-    color: var(--parchment-aged);
+    color: var(--parchment);
     font-style: italic;
-    opacity: 0.7;
+    opacity: 0.9;
     padding: 24px 0;
 }
 
@@ -351,6 +355,19 @@ h1 {
 .wheel-slice:nth-child(4n+2) { animation-delay: 1.5s; }
 .wheel-slice:nth-child(4n+3) { animation-delay: 3s; }
 .wheel-slice:nth-child(4n+4) { animation-delay: 4.5s; }
+
+/* Override the tie-dye gradient fills hardcoded in wheel.html with a
+   parchment/gold/sepia ramp. CSS `fill` beats the SVG presentation
+   attribute; nth-of-type counts only <path> siblings (slice <text>
+   labels interleave, so nth-child would miscount). */
+.wheel-slice:nth-of-type(8n+1) { fill: #d8c193; }
+.wheel-slice:nth-of-type(8n+2) { fill: #c9a227; }
+.wheel-slice:nth-of-type(8n+3) { fill: #8b5a2b; }
+.wheel-slice:nth-of-type(8n+4) { fill: #b32424; }
+.wheel-slice:nth-of-type(8n+5) { fill: #e0b93f; }
+.wheel-slice:nth-of-type(8n+6) { fill: #a0522d; }
+.wheel-slice:nth-of-type(8n+7) { fill: #f0e2c4; }
+.wheel-slice:nth-of-type(8n+8) { fill: #6b3a1e; }
 
 .wheel-slice:hover {
     opacity: 0.9;
@@ -505,5 +522,66 @@ footer p {
     text-align: center;
     color: var(--parchment-aged);
     font-style: italic;
-    opacity: 0.8;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* ===== Populate Form ===== */
+
+.populate-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 400px;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: var(--panel-bg);
+    border: 1px solid var(--gold-leaf);
+    border-radius: 8px;
+}
+
+.populate-form label {
+    color: var(--parchment-aged);
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+.populate-form textarea {
+    background: rgba(240, 226, 196, 0.9);
+    color: var(--ink-deep);
+    border: 1px solid var(--gold-leaf);
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    font-family: Georgia, serif;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.populate-form textarea:focus {
+    outline: none;
+    border-color: var(--gold-bright);
+    box-shadow: 0 0 8px rgba(224, 185, 63, 0.5);
+}
+
+.populate-form button {
+    align-self: flex-start;
+}
+
+/* Populate status — visible by default (no display:none) */
+.populate-status {
+    min-height: 1.5rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.populate-status p {
+    margin: 0;
+}
+
+/* Error state — visually distinct from success */
+.populate-error {
+    color: var(--seal-red-bright);
+    background: rgba(139, 30, 30, 0.15);
+    border: 1px solid rgba(179, 36, 36, 0.4);
 }
