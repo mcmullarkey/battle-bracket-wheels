@@ -20,3 +20,6 @@ Thumbs.db
 .serena/
 .opencode/node_modules/
 skills-lock.json
+
+# Raw browser-verification screenshots (proof copies live in docs/evidence/)
+screenshots/

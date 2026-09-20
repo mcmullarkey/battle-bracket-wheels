@@ -75,13 +75,20 @@
 body {
     margin: 0;
     padding: 0;
-    /* Sea plate on top, lighthouse plate beneath it so tall viewports
-       never run out of artwork; a cold gradient dims both enough for
-       foreground text to stay legible. */
+    /* Sea plate on top, pre-dimmed lighthouse plate beneath it so tall
+       viewports never run out of artwork. The gradient darkens hardest
+       around the join between the two plates, so the handoff reads as
+       deepening water rather than a paste seam, and keeps foreground
+       text legible over both. */
     background:
-        linear-gradient(rgba(10, 15, 29, 0.45), rgba(10, 15, 29, 0.72)),
+        linear-gradient(
+            rgba(10, 15, 29, 0.42) 0%,
+            rgba(10, 15, 29, 0.55) 45%,
+            rgba(10, 15, 29, 0.86) 62%,
+            rgba(10, 15, 29, 0.78) 100%
+        ),
         url("/static/img/nautical-sea.jpg") center top / 100% auto no-repeat fixed,
-        url("/static/img/nautical-lighthouse.jpg") center bottom / 100% auto no-repeat fixed,
+        url("/static/img/nautical-lighthouse.jpg") center bottom / cover no-repeat fixed,
         var(--abyss);
     color: var(--foam);
     font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
@@ -362,17 +369,19 @@ h1 {
 .wheel-slice:nth-child(4n+4) { animation-delay: 4.5s; }
 
 /* Override the tie-dye gradient fills hardcoded in wheel.html with a
-   depth ramp running foam → shallows → abyss. CSS `fill` beats the SVG
-   presentation attribute; nth-of-type counts only <path> siblings
-   (slice <text> labels interleave, so nth-child would miscount). */
+   foam → driftwood ramp. Every fill stays light enough for the ink-dark
+   slice labels to read; the abyss tones live in the panels behind the
+   wheel instead. CSS `fill` beats the SVG presentation attribute;
+   nth-of-type counts only <path> siblings (slice <text> labels
+   interleave, so nth-child would miscount). */
 .wheel-slice:nth-of-type(8n+1) { fill: #f2dcbf; }
-.wheel-slice:nth-of-type(8n+2) { fill: #6c6661; }
+.wheel-slice:nth-of-type(8n+2) { fill: #a89c88; }
 .wheel-slice:nth-of-type(8n+3) { fill: #cdb99d; }
-.wheel-slice:nth-of-type(8n+4) { fill: #37373c; }
+.wheel-slice:nth-of-type(8n+4) { fill: #8d8578; }
 .wheel-slice:nth-of-type(8n+5) { fill: #f4d9a0; }
-.wheel-slice:nth-of-type(8n+6) { fill: #16203a; }
-.wheel-slice:nth-of-type(8n+7) { fill: #9a8f7d; }
-.wheel-slice:nth-of-type(8n+8) { fill: #0c111e; }
+.wheel-slice:nth-of-type(8n+6) { fill: #b9ad95; }
+.wheel-slice:nth-of-type(8n+7) { fill: #e3d0b2; }
+.wheel-slice:nth-of-type(8n+8) { fill: #9a8f7d; }
 
 .wheel-slice:hover {
     opacity: 0.92;
@@ -589,4 +598,42 @@ footer p {
     color: #d98a72;
     background: rgba(156, 74, 53, 0.18);
     border: 1px solid rgba(156, 74, 53, 0.55);
+}
+
+/* ===== Responsive ===== */
+
+/* Tablet and below: the fixed backdrop is cropped hard on narrow
+   viewports, so cover both plates and stack the bracket columns. */
+@media (max-width: 1024px) {
+    body {
+        background:
+            linear-gradient(
+                rgba(10, 15, 29, 0.5) 0%,
+                rgba(10, 15, 29, 0.78) 100%
+            ),
+            url("/static/img/nautical-sea.jpg") center top / cover no-repeat fixed,
+            url("/static/img/nautical-lighthouse.jpg") center bottom / cover no-repeat fixed,
+            var(--abyss);
+    }
+
+    .bracket,
+    .bracket-sf,
+    .bracket-final {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    h1 {
+        letter-spacing: 2px;
+        font-size: 1.5rem;
+    }
+
+    .container {
+        padding: 12px;
+    }
+
+    .populate-form {
+        max-width: none;
+    }
 }
