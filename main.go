@@ -88,6 +88,9 @@ func main() {
 	if err := registry.Register("nautical", "Nautical Nightmares", "/static/css/nautical.css"); err != nil {
 		log.Fatalf("failed to register nautical theme: %v", err)
 	}
+	if err := registry.Register("cage", "Nic Cage", "/static/css/cage.css"); err != nil {
+		log.Fatalf("failed to register cage theme: %v", err)
+	}
 
 	mux := setupRouter(store, tmpl, registry)
 
