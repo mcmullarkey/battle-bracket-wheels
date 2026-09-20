@@ -1,0 +1,639 @@
+/* Nautical Nightmares Theme — Battle Bracket Wheels
+   =================================================
+   Woodcut horror at sea: an ink-black ocean under a lighthouse that
+   never quite reaches you. Palette sampled from the artwork —
+   abyss navy #0a0f1d, ink sea #0c111e, slate #37373c, driftwood
+   #6c6661, foam-cream #f2dcbf.
+   Backdrop layers: /static/img/nautical-sea.jpg (primary) over
+   /static/img/nautical-lighthouse.jpg (fills tall viewports).
+   ================================================= */
+
+/* ===== Animation Keyframes ===== */
+
+@keyframes beacon-sweep {
+    0%, 100% { opacity: 0.18; }
+    42% { opacity: 0.42; }
+    50% { opacity: 0.6; }
+    58% { opacity: 0.38; }
+}
+
+@keyframes fog-drift {
+    0%, 100% { opacity: 0.16; transform: translateX(0); }
+    50% { opacity: 0.32; transform: translateX(28px); }
+}
+
+@keyframes swell {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+@keyframes lamp-glow {
+    0%, 100% { box-shadow: 0 0 12px rgba(242, 220, 191, 0.18); }
+    50% { box-shadow: 0 0 22px rgba(244, 217, 160, 0.32); }
+}
+
+@keyframes rope-border {
+    0%, 100% { border-color: rgba(242, 220, 191, 0.55); }
+    50% { border-color: rgba(108, 102, 97, 0.9); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes tide-shimmer {
+    0%, 100% {
+        filter: drop-shadow(0 0 4px rgba(242, 220, 191, 0.25));
+        stroke: rgba(242, 220, 191, 0.35);
+    }
+    50% {
+        filter: drop-shadow(0 0 9px rgba(244, 217, 160, 0.4));
+        stroke: rgba(242, 220, 191, 0.7);
+    }
+}
+
+/* ===== CSS Custom Properties (Theme Tokens) ===== */
+
+:root {
+    --abyss: #0a0f1d;
+    --ink-sea: #0c111e;
+    --brine: #16203a;
+    --slate: #37373c;
+    --driftwood: #6c6661;
+    --foam: #f2dcbf;
+    --foam-dim: #cdb99d;
+    --beacon: #f4d9a0;
+    --rust: #9c4a35;
+    --panel-bg: rgba(10, 15, 29, 0.82);
+    --panel-bg-light: rgba(22, 32, 58, 0.74);
+    --bracket-border: 2px solid rgba(242, 220, 191, 0.55);
+}
+
+/* ===== Base ===== */
+
+body {
+    margin: 0;
+    padding: 0;
+    /* Sea plate on top, pre-dimmed lighthouse plate beneath it so tall
+       viewports never run out of artwork. The gradient darkens hardest
+       around the join between the two plates, so the handoff reads as
+       deepening water rather than a paste seam, and keeps foreground
+       text legible over both. */
+    background:
+        linear-gradient(
+            rgba(10, 15, 29, 0.42) 0%,
+            rgba(10, 15, 29, 0.55) 45%,
+            rgba(10, 15, 29, 0.86) 62%,
+            rgba(10, 15, 29, 0.78) 100%
+        ),
+        url("/static/img/nautical-sea.jpg") center top / 100% auto no-repeat fixed,
+        url("/static/img/nautical-lighthouse.jpg") center bottom / cover no-repeat fixed,
+        var(--abyss);
+    color: var(--foam);
+    font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Lighthouse beam wash over the water. */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(
+        ellipse at 72% 12%,
+        rgba(244, 217, 160, 0.16) 0%,
+        transparent 48%,
+        rgba(5, 8, 16, 0.55) 100%
+    );
+    animation: beacon-sweep 9s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Engraved sea-line hatching, drifting like fog. */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: -30px; right: -30px; bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 5px,
+        rgba(242, 220, 191, 0.04) 5px,
+        rgba(242, 220, 191, 0.04) 6px
+    );
+    animation: fog-drift 14s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+h1 {
+    text-align: center;
+    font-variant: small-caps;
+    letter-spacing: 5px;
+    color: var(--foam);
+    text-shadow:
+        0 0 10px rgba(244, 217, 160, 0.45),
+        2px 2px 0 rgba(5, 8, 16, 0.95);
+    /* Plate keeps the title clear of the "DISASTER at sea" lettering
+       in the backdrop. */
+    background: rgba(10, 15, 29, 0.96);
+    border-radius: 8px;
+    padding: 10px 0 12px;
+    border-bottom: 3px double rgba(242, 220, 191, 0.6);
+}
+
+/* ===== Accent Text ===== */
+
+.neon-gold { color: var(--beacon); }
+.neon-cyan { color: var(--foam); }
+.neon-magenta { color: var(--rust); }
+
+/* ===== Theme Selector ===== */
+
+.theme-selector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0 20px;
+}
+
+.theme-selector label {
+    color: var(--foam-dim);
+    font-style: italic;
+}
+
+.theme-selector select {
+    background: var(--panel-bg);
+    color: var(--foam);
+    border: 1px solid rgba(242, 220, 191, 0.5);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family: inherit;
+}
+
+.theme-selector select:focus {
+    outline: none;
+    border-color: var(--beacon);
+    box-shadow: 0 0 8px rgba(244, 217, 160, 0.45);
+}
+
+/* ===== Buttons ===== */
+
+.neon-button {
+    background: linear-gradient(180deg, var(--brine), var(--ink-sea));
+    color: var(--foam);
+    border: 1px solid rgba(242, 220, 191, 0.55);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-family: inherit;
+    font-variant: small-caps;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.neon-button:hover {
+    box-shadow:
+        0 0 10px rgba(244, 217, 160, 0.45),
+        0 0 20px rgba(22, 32, 58, 0.8);
+    transform: translateY(-1px);
+}
+
+.battle-btn:disabled,
+.battle-btn:disabled:hover {
+    background: var(--panel-bg);
+    color: var(--foam-dim);
+    border-color: rgba(108, 102, 97, 0.7);
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ===== Bracket Layout ===== */
+
+.bracket,
+.bracket-sf,
+.bracket-final {
+    display: grid;
+    gap: 16px;
+    align-items: start;
+    margin: 20px 0;
+}
+
+.bracket { grid-template-columns: 1fr auto 1fr; }
+.bracket-sf { grid-template-columns: 1fr auto 1fr; }
+.bracket-final { grid-template-columns: 1fr 1fr auto; }
+
+.bracket-connector {
+    border: none;
+    border-top: 3px double rgba(242, 220, 191, 0.45);
+    margin: 24px 10%;
+    opacity: 0.7;
+}
+
+/* ===== Panels / Slots ===== */
+
+.slot,
+.cosmic-panel {
+    background: var(--panel-bg);
+    border: var(--bracket-border);
+    border-radius: 8px;
+    padding: 12px;
+    animation: lamp-glow 10s ease-in-out infinite;
+}
+
+.slot:hover,
+.cosmic-panel:hover {
+    animation: rope-border 4s ease-in-out infinite;
+    box-shadow: 0 0 22px rgba(244, 217, 160, 0.28);
+}
+
+.slot-placeholder {
+    display: block;
+    text-align: center;
+    color: var(--foam);
+    font-style: italic;
+    opacity: 0.9;
+    padding: 24px 0;
+}
+
+.slot svg {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+}
+
+.slot ul {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0;
+}
+
+.slot ul li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    border-bottom: 1px solid rgba(108, 102, 97, 0.45);
+    color: var(--foam);
+}
+
+.slot ul li button {
+    background: transparent;
+    color: var(--rust);
+    border: 1px solid rgba(156, 74, 53, 0.8);
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.slot ul li button:hover {
+    background: var(--rust);
+    color: var(--foam);
+}
+
+.slot form {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.slot form input {
+    flex: 1;
+    background: rgba(242, 220, 191, 0.92);
+    color: var(--abyss);
+    border: 1px solid rgba(242, 220, 191, 0.6);
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-family: inherit;
+}
+
+.slot form input:focus {
+    outline: none;
+    border-color: var(--beacon);
+    box-shadow: 0 0 8px rgba(244, 217, 160, 0.5);
+}
+
+.slot form button,
+.slot form button.add-option {
+    background: linear-gradient(180deg, var(--foam), var(--foam-dim));
+    color: var(--abyss);
+    border: 1px solid var(--slate);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.slot form button:hover {
+    box-shadow: 0 0 10px rgba(242, 220, 191, 0.55);
+}
+
+/* ===== Wheel ===== */
+
+.wheel-group text {
+    fill: var(--abyss);
+    font-family: Georgia, serif;
+    font-weight: bold;
+    paint-order: stroke;
+    stroke: rgba(242, 220, 191, 0.75);
+    stroke-width: 2px;
+}
+
+.wheel-slice {
+    cursor: pointer;
+    stroke: rgba(242, 220, 191, 0.45);
+    stroke-width: 1.5;
+    transition: opacity 0.3s ease, stroke-width 0.3s ease;
+    animation: tide-shimmer 12s ease-in-out infinite;
+}
+
+.wheel-slice:nth-child(odd) { animation-delay: 0s; }
+.wheel-slice:nth-child(even) { animation-delay: 3s; }
+.wheel-slice:nth-child(4n+1) { animation-delay: 0s; }
+.wheel-slice:nth-child(4n+2) { animation-delay: 1.5s; }
+.wheel-slice:nth-child(4n+3) { animation-delay: 3s; }
+.wheel-slice:nth-child(4n+4) { animation-delay: 4.5s; }
+
+/* Override the tie-dye gradient fills hardcoded in wheel.html with a
+   foam → driftwood ramp. Every fill stays light enough for the ink-dark
+   slice labels to read; the abyss tones live in the panels behind the
+   wheel instead. CSS `fill` beats the SVG presentation attribute;
+   nth-of-type counts only <path> siblings (slice <text> labels
+   interleave, so nth-child would miscount). */
+.wheel-slice:nth-of-type(8n+1) { fill: #f2dcbf; }
+.wheel-slice:nth-of-type(8n+2) { fill: #a89c88; }
+.wheel-slice:nth-of-type(8n+3) { fill: #cdb99d; }
+.wheel-slice:nth-of-type(8n+4) { fill: #8d8578; }
+.wheel-slice:nth-of-type(8n+5) { fill: #f4d9a0; }
+.wheel-slice:nth-of-type(8n+6) { fill: #b9ad95; }
+.wheel-slice:nth-of-type(8n+7) { fill: #e3d0b2; }
+.wheel-slice:nth-of-type(8n+8) { fill: #9a8f7d; }
+
+.wheel-slice:hover {
+    opacity: 0.92;
+    stroke: var(--beacon);
+    stroke-width: 2.5;
+    filter:
+        drop-shadow(0 0 8px rgba(244, 217, 160, 0.6))
+        drop-shadow(0 0 18px rgba(22, 32, 58, 0.8));
+    animation-play-state: paused;
+}
+
+.battle-pointer {
+    fill: var(--beacon);
+    stroke: var(--abyss);
+    stroke-width: 1;
+}
+
+.battle-pointer.pointer-left {
+    fill: var(--foam);
+    stroke: var(--slate);
+}
+
+/* ===== Match Results ===== */
+
+.match-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    align-self: center;
+}
+
+.match-result {
+    background: var(--panel-bg-light);
+    border: 1px solid rgba(242, 220, 191, 0.5);
+    border-radius: 8px;
+    padding: 10px 14px;
+    position: relative;
+    text-align: center;
+}
+
+.match-result::after {
+    content: '\2693'; /* anchor */
+    display: block;
+    color: var(--foam-dim);
+    opacity: 0.7;
+    margin-top: 4px;
+}
+
+.match-result:hover {
+    box-shadow: 0 0 18px rgba(244, 217, 160, 0.3);
+}
+
+.match-winner {
+    color: var(--beacon);
+    font-weight: bold;
+    text-shadow: 0 0 6px rgba(244, 217, 160, 0.5);
+}
+
+.match-winner-icon { color: var(--beacon); }
+
+.match-loser {
+    color: var(--driftwood);
+    opacity: 0.75;
+    text-decoration: line-through;
+}
+
+.match-loser-icon { color: var(--rust); }
+
+.match-ties {
+    color: var(--foam-dim);
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.winner-label { color: var(--beacon); font-variant: small-caps; }
+.loser-label { color: var(--rust); font-variant: small-caps; }
+
+/* ===== Center Display / Reveal ===== */
+
+.center-display {
+    text-align: center;
+    margin: 16px auto;
+    max-width: 700px;
+}
+
+.center-display .round-label {
+    color: var(--beacon);
+    font-variant: small-caps;
+    letter-spacing: 3px;
+    text-shadow: 0 0 8px rgba(244, 217, 160, 0.45);
+}
+
+.center-display .advancing-options {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.center-display .advancing-options li,
+.center-display .advancing-option {
+    background: var(--panel-bg);
+    border: 1px solid rgba(242, 220, 191, 0.45);
+    border-radius: 6px;
+    padding: 4px 10px;
+    color: var(--foam);
+}
+
+.pending-reveal {
+    opacity: 0;
+}
+
+.revealed {
+    opacity: 1;
+    transition: opacity 0.6s ease;
+    animation: pulse 0.6s ease;
+}
+
+/* ===== Movie Result ===== */
+
+.movie-result {
+    text-align: center;
+    margin: 24px 0;
+}
+
+.movie-hero {
+    color: var(--beacon);
+    font-variant: small-caps;
+    letter-spacing: 2px;
+    text-shadow:
+        0 0 10px rgba(244, 217, 160, 0.65),
+        0 0 26px rgba(22, 32, 58, 0.9);
+    border: 3px double rgba(242, 220, 191, 0.6);
+    border-radius: 8px;
+    display: inline-block;
+    padding: 14px 28px;
+    background: var(--panel-bg);
+    animation: swell 6s ease-in-out infinite;
+}
+
+/* ===== Footer ===== */
+
+footer {
+    border-top: 1px solid rgba(242, 220, 191, 0.35);
+    margin-top: 32px;
+}
+
+footer p {
+    text-align: center;
+    color: var(--foam-dim);
+    font-style: italic;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+
+/* ===== Populate Form ===== */
+
+.populate-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 400px;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: var(--panel-bg);
+    border: 1px solid rgba(242, 220, 191, 0.45);
+    border-radius: 8px;
+}
+
+.populate-form label {
+    color: var(--foam-dim);
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+.populate-form textarea {
+    background: rgba(242, 220, 191, 0.92);
+    color: var(--abyss);
+    border: 1px solid rgba(242, 220, 191, 0.6);
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    font-family: Georgia, serif;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.populate-form textarea:focus {
+    outline: none;
+    border-color: var(--beacon);
+    box-shadow: 0 0 8px rgba(244, 217, 160, 0.5);
+}
+
+.populate-form button {
+    align-self: flex-start;
+}
+
+/* Populate status — visible by default (no display:none) */
+.populate-status {
+    min-height: 1.5rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.populate-status p {
+    margin: 0;
+}
+
+/* Error state — visually distinct from success */
+.populate-error {
+    color: #d98a72;
+    background: rgba(156, 74, 53, 0.18);
+    border: 1px solid rgba(156, 74, 53, 0.55);
+}
+
+/* ===== Responsive ===== */
+
+/* Tablet and below: the fixed backdrop is cropped hard on narrow
+   viewports, so cover both plates and stack the bracket columns. */
+@media (max-width: 1024px) {
+    body {
+        background:
+            linear-gradient(
+                rgba(10, 15, 29, 0.5) 0%,
+                rgba(10, 15, 29, 0.78) 100%
+            ),
+            url("/static/img/nautical-sea.jpg") center top / cover no-repeat fixed,
+            url("/static/img/nautical-lighthouse.jpg") center bottom / cover no-repeat fixed,
+            var(--abyss);
+    }
+
+    .bracket,
+    .bracket-sf,
+    .bracket-final {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    h1 {
+        letter-spacing: 2px;
+        font-size: 1.5rem;
+    }
+
+    .container {
+        padding: 12px;
+    }
+
+    .populate-form {
+        max-width: none;
+    }
+}
